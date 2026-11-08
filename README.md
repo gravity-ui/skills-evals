@@ -71,6 +71,12 @@ What the numbers say:
   the way a user would (`PROMPT.md`, in Russian, naming the goal and never the API), and `EVAL.ts`:
   deterministic checks (the right package is imported, no foreign UI library, no hand-rolled replacement)
   plus one `toSatisfyCriterion` judge test describing the intended Gravity UI solution.
+- **The evals are checked too.** Every eval has a reference implementation in `solutions/<id>/` (a `src/`
+  overlay, plus `package.json` when it adds packages). `pnpm verify-evals` applies it to a copy of the
+  fixture, builds it and runs the deterministic checks: if the reference fails, the eval is wrong — a check
+  that rules out a correct answer (say, forbidding a required peer dependency) or a broken `EVAL.ts`. Run it
+  after any change to an eval. The judge test needs an agent in a sandbox and is skipped there. Solutions
+  live outside `evals/`, so they are never uploaded to an agent's sandbox.
 - **A run passes** when the project builds and every check, the judge included, passes. Each model makes
   4 independent attempts per eval and all 4 count (no early exit); the table shows passed / attempted.
 - **Without vs with skill** is the only difference between the two arms: the "with" arm copies the skill
