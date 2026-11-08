@@ -10,18 +10,18 @@ skill and four times **with** it, graded by deterministic checks plus an LLM jud
 
 Across all 10 models the skill lifts the pass rate from **50% to 89%** (362/719 → 641/720 runs).
 
-| Model | Agent CLI | Served by | Without skill | With skill | Δ |
-|---|---|---|---|---|---|
-| Claude Sonnet 5.5 | Claude Code | Claude subscription | 67% (48/72) | 99% (71/72) | +32 pp |
-| Claude Fable 5.1 | Claude Code | Claude subscription | 69% (50/72) | 96% (69/72) | +27 pp |
-| Claude Opus 5.5 | Claude Code | Claude subscription | 74% (53/72) | 94% (68/72) | +20 pp |
-| GPT-6 Astra | Codex | ChatGPT subscription | 32% (23/72) | 92% (66/72) | +60 pp |
-| Claude Haiku 5.5 | Claude Code | OpenCode Go / OpenRouter | 68% (49/72) | 89% (64/72) | +21 pp |
-| DeepSeek v4 Pro | Codex | OpenCode Go / OpenRouter | 53% (38/72) | 89% (64/72) | +36 pp |
-| GPT-6.1 Sol | Codex | ChatGPT subscription | 29% (21/72) | 86% (62/72) | +57 pp |
-| GPT-6 Luna | Codex | ChatGPT subscription | 15% (11/72) | 86% (62/72) | +71 pp |
-| GLM 5.3 Flash | Codex | OpenCode Go / OpenRouter | 45% (32/71) +1 t/o | 81% (58/72) | +36 pp |
-| Kimi K3 | Claude Code | OpenCode Go / OpenRouter | 51% (37/72) | 79% (57/72) | +28 pp |
+| Model | Agent CLI | Served by | Without skill | With skill |
+|---|---|---|---|---|
+| Claude Sonnet 5.5 | Claude Code | Claude subscription | 67% (48/72) | 99% (71/72) |
+| Claude Fable 5.1 | Claude Code | Claude subscription | 69% (50/72) | 96% (69/72) |
+| Claude Opus 5.5 | Claude Code | Claude subscription | 74% (53/72) | 94% (68/72) |
+| GPT-6 Astra | Codex | ChatGPT subscription | 32% (23/72) | 92% (66/72) |
+| Claude Haiku 5.5 | Claude Code | OpenCode Go / OpenRouter | 68% (49/72) | 89% (64/72) |
+| DeepSeek v4 Pro | Codex | OpenCode Go / OpenRouter | 53% (38/72) | 89% (64/72) |
+| GPT-6.1 Sol | Codex | ChatGPT subscription | 29% (21/72) | 86% (62/72) |
+| GPT-6 Luna | Codex | ChatGPT subscription | 15% (11/72) | 86% (62/72) |
+| GLM 5.3 Flash | Codex | OpenCode Go / OpenRouter | 45% (32/71) +1 t/o | 81% (58/72) |
+| Kimi K3 | Claude Code | OpenCode Go / OpenRouter | 51% (37/72) | 79% (57/72) |
 
 Per task, all models pooled:
 

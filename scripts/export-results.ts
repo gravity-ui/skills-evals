@@ -101,12 +101,11 @@ const lines = [
 for (const experiment of experiments) {
   const base = latestRuns(experiment);
   const withSkill = latestRuns(experiment + SKILL);
-  lines.push(`## ${experiment}`, '', '| Model | Baseline | + gravity-ui skill | Δ | Mean eval time (base → skill) |', '| --- | --- | --- | --- | --- |');
+  lines.push(`## ${experiment}`, '', '| Model | Baseline | + gravity-ui skill | Mean eval time (base → skill) |', '| --- | --- | --- | --- |');
   for (const model of [...new Set([...base.keys(), ...withSkill.keys()])].sort()) {
     const b = base.has(model) ? aggregate(base.get(model)!) : null;
     const s = withSkill.has(model) ? aggregate(withSkill.get(model)!) : null;
-    const delta = b?.total && s?.total ? `${Math.round((100 * s.passed) / s.total) - Math.round((100 * b.passed) / b.total)} pp` : '';
-    lines.push(`| ${model} | ${b ? pct(b) : '—'} | ${s ? pct(s) : '—'} | ${delta} | ${b ? secs(b) : '—'} → ${s ? secs(s) : '—'} |`);
+    lines.push(`| ${model} | ${b ? pct(b) : '—'} | ${s ? pct(s) : '—'} | ${b ? secs(b) : '—'} → ${s ? secs(s) : '—'} |`);
   }
   lines.push('');
 }
