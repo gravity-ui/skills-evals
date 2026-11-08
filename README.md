@@ -1,4 +1,4 @@
-# gravity-ui skill evals
+# Gravity UI skill evals
 
 Does the [`gravity-ui`](https://github.com/gravity-ui/skills/tree/main/skills/gravity-ui) skill make coding
 agents build better Gravity UI code? This repository answers with a benchmark: 18 realistic tasks, each solved by 10 models four times **without** the
