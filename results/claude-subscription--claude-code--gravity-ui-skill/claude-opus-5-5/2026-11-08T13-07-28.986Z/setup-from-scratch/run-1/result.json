@@ -1,0 +1,113 @@
+{
+  "status": "passed",
+  "duration": 356.633,
+  "provenance": {
+    "agentEvalVersion": "2.6.0",
+    "sandboxBackend": "docker",
+    "sandboxUser": "node",
+    "agentCliVersion": "2.1.319 (Claude Code)"
+  },
+  "usage": {
+    "inputTokens": 30,
+    "outputTokens": 7442,
+    "cacheReadTokens": 535497,
+    "cacheWriteTokens": 42133,
+    "totalTokens": 585102
+  },
+  "model": "claude-opus-5-5",
+  "transcriptPath": "./transcript.json",
+  "transcriptRawPath": "./transcript-raw.jsonl",
+  "o11y": {
+    "totalTurns": 5,
+    "toolCalls": {
+      "file_read": 0,
+      "file_write": 0,
+      "file_edit": 0,
+      "shell": 14,
+      "web_fetch": 0,
+      "web_search": 0,
+      "glob": 0,
+      "grep": 0,
+      "list_dir": 0,
+      "agent_task": 0,
+      "unknown": 0
+    },
+    "totalToolCalls": 14,
+    "webFetches": [],
+    "filesRead": [],
+    "filesModified": [],
+    "shellCommands": [
+      {
+        "command": "cat .agents/skills/gravity-ui/SKILL.md && ls -la && ls -R .agents | head -100 && cat AGENTS.md && head -50 package-lock.json",
+        "success": true
+      },
+      {
+        "command": "cat package.json tsconfig.json vite.config.ts index.html .gitignore; ls -R src __agent_eval__; for f in src/*; do echo \"== $f\"; cat $f; done; head -60 .agents/skills/gravity-ui/references/package-routing.md; rg -n -i \"uikit|form|login\" .agents/skills/gravity-ui/references/package-routing.md | head -30",
+        "success": true
+      },
+      {
+        "command": "npm install @gravity-ui/uikit 2>&1 | tail -15 && node -p \"require('./node_modules/@gravity-ui/uikit/package.json').version + ' ' + JSON.stringify(require('./node_modules/@gravity-ui/uikit/package.json').peerDependencies)\"",
+        "success": true
+      },
+      {
+        "command": "node -p \"JSON.stringify(require('./node_modules/@gravity-ui/uikit/package.json').peerDependenciesMeta)\"; .agents/skills/gravity-ui/scripts/inspect-package.sh uikit TextInput PasswordInput Checkbox Button ThemeProvider Card Text Flex 2>&1 | head -80",
+        "success": true
+      },
+      {
+        "command": "bash .agents/skills/gravity-ui/scripts/inspect-package.sh uikit TextInput PasswordInput Checkbox Button ThemeProvider Card Text Flex 2>&1 | head -80",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit && cat build/docs/INDEX.md | head -120; rg -n -i -C 4 \"required setup|styles.css|ThemeProvider|configure\" README.md | head -80",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit/build/docs && sed -n 120,400p INDEX.md | rg -n -i \"provider|textinput|password|checkbox|button|card|text\\b|typography|flex|field|form|label|theming\" | head -40; ls; ls components 2>/dev/null | head -100",
+        "success": true
+      },
+      {
+        "command": "rg -n -i \"pitfall|^#|label|errorMessage|validationState|type=|autoComplete|controlProps|name|hasClear|onUpdate|^\\| \" components/controls/TextInput.md | head -60; echo ===PW; rg -n -i \"pitfall|^#|^\\| |label|autoComplete\" components/controls/PasswordInput.md | head -40",
+        "success": true
+      },
+      {
+        "command": "sed -n 1,40p components/controls/PasswordInput.md; echo ===CB; rg -n \"^\\| |^#|pitfall\" components/Checkbox.md | head -40; echo ===BTN; rg -n -i \"^\\| (view|size|type|width|loading|disabled|children)|pitfall|^##\" components/Button.md | head -40; echo ==CARD; rg -n -i \"^\\| |^##\" components/Card.md | head -30",
+        "success": true
+      },
+      {
+        "command": "sed -n 182,199p components/Button.md; echo ==TEXT; rg -n \"^\\| |variant\" components/Text.md | head -25; echo ==LAYOUT; rg -n -i \"gap|direction|spacing=|padding|^##|<Flex|<Box\" guides/layout.md | head -60; echo ==PROVIDER; rg -n -i -C 3 \"<Provider|ThemeProvider\" guides/theming.md | head -50",
+        "success": true
+      },
+      {
+        "command": "sed -n 1,20p guides/theming.md; sed -n 60,72p guides/theming.md; rg -n -C 3 \"lang\" guides/i18n.md | head -30; echo ==TRAPS; rg -n \"^#\" /home/sandbox/workspace/.agents/skills/gravity-ui/rules/hallucination-traps.md",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace && sed -n 15,60p .agents/skills/gravity-ui/rules/hallucination-traps.md; sed -n 150,175p .agents/skills/gravity-ui/rules/hallucination-traps.md; sed -n 306,342p .agents/skills/gravity-ui/rules/hallucination-traps.md; rg -n \"variant|header|subheader|display\" node_modules/@gravity-ui/uikit/build/docs/guides/typography.md | head -20",
+        "success": true
+      },
+      {
+        "command": "mkdir -p src/LoginPage && cat > src/main.tsx <<'EOF'\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\nimport './index.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport { Provider } from '@gravity-ui/uikit';\n\nimport { App } from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <Provider theme=\"system\" lang=\"ru\">\n      <App />\n    </Provider>\n  </React.StrictMode>,\n);\nEOF\ncat > src/App.tsx <<'EOF'\nimport { LoginPage, type LoginValues } from './LoginPage/LoginPage';\n\nasync function handleLogin(values: LoginValues) {\n  // TODO: подключить реальный API авторизации.\n  console.info('login', { email: values.email, remember: values.remember });\n}\n\nexport function App() {\n  return (\n    <main className=\"page\">\n      <LoginPage onSubmit={handleLogin} />\n    </main>\n  );\n}\nEOF\ncat > src/index.css <<'EOF'\nbody {\n  margin: 0;\n}\n\n.page {\n  box-sizing: border-box;\n  min-height: 100vh;\n  display: grid;\n  place-items: center;\n  padding: var(--g-spacing-4);\n}\nEOF\ncat > src/LoginPage/LoginPage.css <<'EOF'\n.login-page {\n  box-sizing: border-box;\n  width: 100%;\n  max-width: 400px;\n  padding: var(--g-spacing-8);\n}\n\n@media (max-width: 480px) {\n  .login-page {\n    padding: var(--g-spacing-5);\n  }\n}\nEOF\ncat > src/LoginPage/LoginPage.tsx <<'EOF'\nimport './LoginPage.css';\n\nimport { useState, type FormEvent } from 'react';\nimport { Button, Card, Checkbox, Flex, PasswordInput, Text, TextInput } from '@gravity-ui/uikit';\n\nexport interface LoginValues {\n  email: string;\n  password: string;\n  remember: boolean;\n}\n\ninterface LoginPageProps {\n  onSubmit: (values: LoginValues) => void | Promise<void>;\n}\n\ninterface LoginErrors {\n  email?: string;\n  password?: string;\n}\n\nconst EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n\nfunction validate({ email, password }: LoginValues): LoginErrors {\n  const errors: LoginErrors = {};\n\n  if (!email.trim()) {\n    errors.email = 'Введите email';\n  } else if (!EMAIL_RE.test(email.trim())) {\n    errors.email = 'Некорректный email';\n  }\n\n  if (!password) {\n    errors.password = 'Введите пароль';\n  }\n\n  return errors;\n}\n\nexport function LoginPage({ onSubmit }: LoginPageProps) {\n  const [email, setEmail] = useState('');\n  const [password, setPassword] = useState('');\n  const [remember, setRemember] = useState(false);\n  const [errors, setErrors] = useState<LoginErrors>({});\n  const [submitError, setSubmitError] = useState<string>();\n  const [loading, setLoading] = useState(false);\n\n  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {\n    event.preventDefault();\n\n    const values = { email: email.trim(), password, remember };\n    const nextErrors = validate(values);\n    setErrors(nextErrors);\n    setSubmitError(undefined);\n\n    if (nextErrors.email || nextErrors.password) {\n      return;\n    }\n\n    setLoading(true);\n    try {\n      await onSubmit(values);\n    } catch {\n      setSubmitError('Не удалось войти. Попробуйте ещё раз.');\n    } finally {\n      setLoading(false);\n    }\n  };\n\n  return (\n    <Card className=\"login-page\" view=\"outlined\" size=\"l\">\n      <form onSubmit={handleSubmit} noValidate>\n        <Flex direction=\"column\" gap=\"spacing-6\">\n          <Text as=\"h1\" variant=\"header-1\">\n            Вход\n          </Text>\n\n          <Flex direction=\"column\" gap=\"spacing-4\">\n            <Flex direction=\"column\" gap=\"spacing-1\">\n              <Text as=\"label\" htmlFor=\"login-email\" variant=\"body-1\">\n                Email\n              </Text>\n              <TextInput\n                id=\"login-email\"\n                name=\"email\"\n                type=\"email\"\n                size=\"l\"\n                autoComplete=\"email\"\n                autoFocus\n                placeholder=\"name@example.com\"\n                value={email}\n                onUpdate={(value) => {\n                  setEmail(value);\n                  setErrors((prev) => ({ ...prev, email: undefined }));\n                }}\n                validationState={errors.email ? 'invalid' : undefined}\n                errorMessage={errors.email}\n                disabled={loading}\n              />\n            </Flex>\n\n            <Flex direction=\"column\" gap=\"spacing-1\">\n              <Text as=\"label\" htmlFor=\"login-password\" variant=\"body-1\">\n                Пароль\n              </Text>\n              <PasswordInput\n                id=\"login-password\"\n                name=\"password\"\n                size=\"l\"\n                autoComplete=\"current-password\"\n                hideCopyButton\n                value={password}\n                onUpdate={(value) => {\n                  setPassword(value);\n                  setErrors((prev) => ({ ...prev, password: undefined }));\n                }}\n                validationState={errors.password ? 'invalid' : undefined}\n                errorMessage={errors.password}\n                disabled={loading}\n              />\n            </Flex>\n\n            <Checkbox name=\"remember\" size=\"l\" checked={remember} onUpdate={setRemember} disabled={loading}>\n              Запомнить меня\n            </Checkbox>\n          </Flex>\n\n          {submitError && (\n            <Text variant=\"body-1\" color=\"danger\" role=\"alert\">\n              {submitError}\n            </Text>\n          )}\n\n          <Button type=\"submit\" view=\"action\" size=\"l\" width=\"max\" loading={loading}>\n            Войти\n          </Button>\n        </Flex>\n      </form>\n    </Card>\n  );\n}\nEOF\nsed -i 's/<html lang=\"en\">/<html lang=\"ru\">/; s/<title>Gravity UI eval<\\/title>/<title>Вход<\\/title>/' index.html\nnpm run build 2>&1 | tail -30",
+        "success": true
+      },
+      {
+        "command": "rm -rf dist && echo \"dist/\" >> .gitignore && git status --short && git diff package.json",
+        "success": true
+      }
+    ],
+    "errors": [],
+    "thinkingBlocks": 0,
+    "usage": {
+      "inputTokens": 30,
+      "outputTokens": 7442,
+      "cacheReadTokens": 535497,
+      "cacheWriteTokens": 42133,
+      "totalTokens": 585102
+    }
+  },
+  "outputPaths": {
+    "eval": "./outputs/eval.txt",
+    "scripts": {
+      "build": "./outputs/scripts/build.txt"
+    }
+  }
+}

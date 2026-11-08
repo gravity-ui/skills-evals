@@ -1,0 +1,303 @@
+{
+  "status": "passed",
+  "duration": 691.168,
+  "provenance": {
+    "agentEvalVersion": "2.6.0",
+    "sandboxBackend": "docker",
+    "sandboxUser": "node",
+    "agentCliVersion": "codex-cli 0.167.0"
+  },
+  "usage": {
+    "inputTokens": 44571,
+    "outputTokens": 14869,
+    "cacheReadTokens": 1786240,
+    "cacheWriteTokens": 0,
+    "reasoningTokens": 920,
+    "totalTokens": 1845680
+  },
+  "model": "gpt-6-astra",
+  "transcriptPath": "./transcript.json",
+  "transcriptRawPath": "./transcript-raw.jsonl",
+  "o11y": {
+    "totalTurns": 7,
+    "toolCalls": {
+      "file_read": 0,
+      "file_write": 0,
+      "file_edit": 0,
+      "shell": 50,
+      "web_fetch": 0,
+      "web_search": 1,
+      "glob": 0,
+      "grep": 0,
+      "list_dir": 0,
+      "agent_task": 0,
+      "unknown": 0
+    },
+    "totalToolCalls": 51,
+    "webFetches": [],
+    "filesRead": [],
+    "filesModified": [],
+    "shellCommands": [
+      {
+        "command": "/bin/bash -lc \"pwd && rg --files -g 'AGENTS.md' -g 'package.json' -g '*lock*' -g 'src/**' -g 'app/**' -g 'pages/**' -g 'index.html' -g '*config*' -g 'README*' -g 'public/**' -g 'components/**'\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'ls -la && cat package.json && cat src/App.tsx && cat src/index.css && cat src/main.tsx && cat vite.config.ts'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'npm install @gravity-ui/uikit @gravity-ui/icons'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"find .. -name AGENTS.md -not -path '*/node_modules/*' -not -path '*/.git/*'; cat tsconfig.json; cat index.html; git status --short\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"cat node_modules/@gravity-ui/uikit/package.json | head -65; cat node_modules/@gravity-ui/uikit/build/esm/components/TextInput/TextInput.d.ts; cat node_modules/@gravity-ui/uikit/build/esm/components/ThemeProvider/ThemeProvider.d.ts; ls node_modules/@gravity-ui/uikit/build/esm/components/; rg 'Eye|ArrowRight|Lock|CircleQuestion|Envelope|ArrowUpRight' node_modules/@gravity-ui/icons/esm/index.d.ts; cat node_modules/@gravity-ui/uikit/build/esm/components/Checkbox/Checkbox.d.ts\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"rg --files node_modules/@gravity-ui/uikit/build | rg '(TextInput.*d.ts|Provider.*d.ts|docs/INDEX|Button.d.ts|Modal.d.ts)\"'$'\"'; cat node_modules/@gravity-ui/uikit/build/esm/components/controls/TextInput/TextInput.d.ts; cat node_modules/@gravity-ui/uikit/build/esm/components/theme/Provider/Provider.d.ts; rg 'Eye|ArrowRight|Lock|CircleQuestion|Envelope|ArrowUpRight|ShieldCheck|Shapes3' node_modules/@gravity-ui/icons/build/esm/index.d.ts; cat node_modules/@gravity-ui/uikit/build/esm/components/Button/Button.d.ts\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"cat node_modules/@gravity-ui/uikit/build/esm/components/theme/Provider.d.ts; cat node_modules/@gravity-ui/icons/package.json | head -45; cat node_modules/@gravity-ui/uikit/build/esm/components/theme/ThemeProvider.d.ts; cat node_modules/@gravity-ui/uikit/build/esm/components/Modal/Modal.d.ts; rg --files node_modules | rg 'playwright|puppeteer' | head\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"rg 'export.*(Eye|ArrowRight|Lock|CircleQuestion|Envelope|ArrowUpRight|ShieldCheck|Check|ArrowRightToSquare)' node_modules/@gravity-ui/icons/index.d.ts\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"cat > src/App.tsx <<'EOF'\nimport {useRef, useState, type FormEvent} from 'react';\nimport {Alert, Button, Checkbox, Icon, Modal, TextInput} from '@gravity-ui/uikit';\nimport {ArrowRight, ArrowRightToSquare, CircleQuestion, Eye, EyeSlash, Lock, ShieldCheck, Xmark} from '@gravity-ui/icons';\n\nfunction BrandMark({large = false}: {large?: boolean}) {\n  return <span className={\"'`brand-mark${large ? '\"' brand-mark_large' : ''}\"'`} aria-hidden=\"true\"><i/><i/><i/><i/></span>;\n}\n\nexport function App() {\n  const [email, setEmail] = useState('\"'');\n  const [password, setPassword] = useState('');\n  const [remember, setRemember] = useState(false);\n  const [visible, setVisible] = useState(false);\n  const [submitted, setSubmitted] = useState(false);\n  const [notice, setNotice] = useState(false);\n  const [dialog, setDialog] = useState<'help' | 'password' | null>(null);\n  const emailRef = useRef<HTMLInputElement>(null);\n  const passwordRef = useRef<HTMLInputElement>(null);\n  const emailError = \"'!email.trim() ? '\"'Введите email' : \"'!/''^[''^'\"\\\\s@]+@[\"'^'\"\\\\s@]+\\\\.[\"'^'\"\\\\s@]+\"'$/.test(email.trim()) ? '\"'Введите корректный email' : '';\n  const passwordError = \"'!password ? '\"'Введите пароль' : '';\n\n  function handleSubmit(event: FormEvent<HTMLFormElement>) {\n    event.preventDefault();\n    setSubmitted(true);\n    setNotice(false);\n    if (emailError) { emailRef.current?.focus(); return; }\n    if (passwordError) { passwordRef.current?.focus(); return; }\n    setNotice(true);\n  }\n\n  return (\n    <div className=\\\"app-shell\\\">\n      <header className=\\\"header\\\">\n        <a className=\\\"brand\\\" href=\\\"./\\\" aria-label=\\\"Gravity — главная\\\"><BrandMark/><span>gravity<span className=\\\"brand-ui\\\">ui</span></span></a>\n        <Button view=\\\"flat\\\" size=\\\"m\\\" className=\\\"help-button\\\" onClick={() => setDialog('help')}><Icon data={CircleQuestion} size={16}/>Нужна помощь?</Button>\n      </header>\n\n      <main className=\\\"main\\\">\n        <section className=\\\"welcome\\\" aria-labelledby=\\\"welcome-title\\\">\n          <div className=\\\"welcome-copy\\\">\n            <span className=\\\"eyebrow\\\"><span/>ВАШЕ РАБОЧЕЕ ПРОСТРАНСТВО</span>\n            <h1 id=\\\"welcome-title\\\">Всё начинается<br/>с простого входа.</h1>\n            <p>Меньше лишнего. Больше возможностей.<br/>Возвращайтесь к тому, что важно.</p>\n          </div>\n          <div className=\\\"illustration\\\" aria-hidden=\\\"true\\\">\n            <div className=\\\"orbit orbit-outer\\\"/><div className=\\\"orbit orbit-middle\\\"/><div className=\\\"orbit orbit-inner\\\"/>\n            <span className=\\\"orbit-dot dot-one\\\"/><span className=\\\"orbit-dot dot-two\\\"/><span className=\\\"orbit-dot dot-three\\\"/>\n            <div className=\\\"floating-tile tile-top\\\"><span className=\\\"tile-grid\\\"><i/><i/><i/><i/></span></div>\n            <div className=\\\"floating-tile tile-bottom\\\"><Icon data={Lock} size={24}/></div>\n            <div className=\\\"main-tile\\\"><BrandMark large/></div>\n            <div className=\\\"connection-card\\\"><span className=\\\"connection-check\\\"><Icon data={ShieldCheck} size={19}/></span><div><strong>Всё на своём месте</strong><span>Вы в своём пространстве</span></div><span className=\\\"connection-dot\\\"/></div>\n            <span className=\\\"sparkle sparkle-one\\\">✦</span><span className=\\\"sparkle sparkle-two\\\">✧</span>\n          </div>\n          <div className=\\\"welcome-bottom\\\"><span className=\\\"bottom-line\\\"/><p>Простые инструменты для больших идей.</p><span className=\\\"slide-dots\\\"><i/><i/><i/></span></div>\n        </section>\n\n        <section className=\\\"login-section\\\" aria-labelledby=\\\"login-title\\\">\n          <div className=\\\"login-content\\\">\n            <div className=\\\"login-icon\\\"><Icon data={ArrowRightToSquare} size={24}/></div>\n            <h2 id=\\\"login-title\\\">С возвращением</h2>\n            <p className=\\\"login-description\\\">Войдите, чтобы продолжить работу.</p>\n            <form onSubmit={handleSubmit} noValidate>\n              <div className=\\\"field\\\">\n                <label htmlFor=\\\"email\\\">Email</label>\n                <TextInput id=\\\"email\\\" name=\\\"email\\\" type=\\\"email\\\" size=\\\"xl\\\" placeholder=\\\"you@example.com\\\" autoComplete=\\\"username\\\" value={email} controlRef={emailRef} onUpdate={(value) => {setEmail(value); setNotice(false);}} validationState={submitted && emailError ? 'invalid' : undefined} errorMessage={submitted ? emailError : undefined} controlProps={{required: true, spellCheck: false, autoCapitalize: 'none'}}/>\n              </div>\n              <div className=\\\"field password-field\\\">\n                <div className=\\\"field-heading\\\"><label htmlFor=\\\"password\\\">Пароль</label><button className=\\\"text-button\\\" type=\\\"button\\\" onClick={() => setDialog('password')}>Забыли пароль?</button></div>\n                <TextInput id=\\\"password\\\" name=\\\"password\\\" type={visible ? 'text' : 'password'} size=\\\"xl\\\" placeholder=\\\"Введите пароль\\\" autoComplete=\\\"current-password\\\" value={password} controlRef={passwordRef} onUpdate={(value) => {setPassword(value); setNotice(false);}} validationState={submitted && passwordError ? 'invalid' : undefined} errorMessage={submitted ? passwordError : undefined} controlProps={{required: true}} endContent={<Button view=\\\"flat\\\" size=\\\"m\\\" className=\\\"password-toggle\\\" onClick={() => setVisible(\"'!visible)} aria-label={visible ? '\"'Скрыть пароль' : 'Показать пароль'} title={visible ? 'Скрыть пароль' : 'Показать пароль'} extraProps={{'aria-pressed': visible}}><Icon data={visible ? EyeSlash : Eye} size={18}/></Button>}/>\n              </div>\n              <Checkbox checked={remember} onUpdate={setRemember} size=\\\"m\\\" name=\\\"remember\\\">Запомнить меня</Checkbox>\n              <Button className=\\\"submit-button\\\" view=\\\"action\\\" size=\\\"xl\\\" type=\\\"submit\\\" width=\\\"max\\\">Войти<Icon data={ArrowRight} size={18}/></Button>\n              {notice && <div className=\\\"form-notice\\\" role=\\\"status\\\"><Alert theme=\\\"info\\\" title=\\\"Форма готова к подключению\\\" message=\\\"Сервис авторизации пока не подключён. Данные не отправлены.\\\"/></div>}\n            </form>\n            <div className=\\\"secure-note\\\"><Icon data={Lock} size={14}/><span>Ваше пространство. Только для вас.</span></div>\n          </div>\n          <div className=\\\"powered-by\\\"><span>Создано с</span><span className=\\\"mini-gravity\\\"><BrandMark/>Gravity UI</span></div>\n        </section>\n      </main>\n\n      <footer className=\\\"footer\\\"><span>© {new Date().getFullYear()} Gravity UI</span><span className=\\\"footer-caption\\\">Хорошая работа начинается здесь.</span><span className=\\\"language\\\"><span aria-hidden=\\\"true\\\">◎</span> Русский</span></footer>\n      <Modal open={dialog \"'!== null} onOpenChange={(open) => {if (!open) setDialog(null);}} aria-labelledby=\"dialog-title\">\n        <div className=\"info-dialog\"><Button className=\"dialog-close\" view=\"flat\" onClick={() => setDialog(null)} aria-label=\"Закрыть\"><Icon data={Xmark}/></Button><div className=\"login-icon\"><Icon data={dialog === '\"'password' ? Lock : CircleQuestion} size={24}/></div><h2 id=\\\"dialog-title\\\">{dialog === 'password' ? 'Восстановление доступа' : 'Помощь со входом'}</h2><p>{dialog === 'password' ? 'Чтобы восстановить пароль, обратитесь к администратору вашего рабочего пространства. Самостоятельное восстановление станет доступно после подключения сервиса авторизации.' : 'Введите email и пароль вашего рабочего пространства. Если у вас ещё нет учётной записи или возникли проблемы со входом, обратитесь к администратору.'}</p><Button view=\\\"action\\\" size=\\\"l\\\" onClick={() => setDialog(null)}>Понятно</Button></div>\n      </Modal>\n    </div>\n  );\n}\nEOF\ncat > src/index.css <<'EOF'\n* { box-sizing: border-box; }\nbody { margin: 0; min-width: 320px; }\nbody.g-root {\n  --g-font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  --g-color-base-brand: #7760da;\n  --g-color-base-brand-hover: #6850cd;\n  --g-color-text-brand: #7156cd;\n  --g-color-text-brand-heavy: #7156cd;\n  --g-color-text-brand-contrast: #fff;\n  --g-color-base-selection: #eee9fb;\n  --g-color-base-selection-hover: #e7dff8;\n  --g-color-line-brand: #7760da;\n  --g-color-base-background: #fff;\n  --g-button-border-radius: 9px;\n  --g-text-input-border-radius: 9px;\n  color: #25232d;\n  background: #fff;\n  -webkit-font-smoothing: antialiased;\n}\na { color: inherit; text-decoration: none; }\nbutton, a { -webkit-tap-highlight-color: transparent; }\n.app-shell { max-width: 1600px; min-height: 100svh; margin: 0 auto; padding: 0 48px; display: flex; flex-direction: column; }\n.header { height: 104px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }\n.brand { display: inline-flex; align-items: center; gap: 10px; font-size: 27px; letter-spacing: -1.2px; font-weight: 750; }\n.brand-ui { color: #8a73d6; font-weight: 450; margin-left: 3px; }\n.brand-mark { display: inline-grid; grid-template-columns: repeat(2, 11px); grid-template-rows: repeat(2, 11px); gap: 3px; transform: rotate(-5deg); }\n.brand-mark i { background: #8064dc; border-radius: 3px; }\n.brand-mark i:nth-child(2) { border-radius: 5px 5px 5px 1px; transform: translate(1px, -2px) rotate(9deg); background: #a58ce9; }\n.brand-mark i:nth-child(3) { background: #a58ce9; }\n.help-button { color: #706d79; }\n.help-button .g-button__text { display: flex; align-items: center; gap: 8px; }\n.main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: 680px; max-height: 900px; }\n.welcome { position: relative; background: #f2eefb; border: 1px solid #eae3f7; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; padding: 53px 52px 31px; }\n.welcome::after { content: ''; position: absolute; inset: 35% -20% -20%; background: radial-gradient(ellipse, #e3daf685, transparent 68%); pointer-events: none; }\n.welcome-copy { position: relative; z-index: 1; }\n.eyebrow { display: flex; align-items: center; gap: 9px; color: #7d6c9a; font-size: 10px; font-weight: 600; letter-spacing: 1.6px; }\n.eyebrow > span { width: 6px; height: 6px; border-radius: 50%; background: #9a80d8; }\nh1 { font-size: clamp(32px, 3.1vw, 46px); font-weight: 550; letter-spacing: -1.5px; line-height: 1.17; margin: 25px 0 18px; }\n.welcome-copy p { font-size: 15px; line-height: 1.75; color: #83798f; margin: 0; }\n.illustration { width: 440px; height: 350px; position: relative; align-self: center; margin: auto 0; flex-shrink: 0; z-index: 1; }\n.orbit { border: 1px solid #d6c8eb; border-radius: 50%; position: absolute; top: 51%; left: 50%; transform: translate(-50%, -50%) rotate(-24deg); }\n.orbit-outer { width: 414px; height: 287px; opacity: .55; }\n.orbit-middle { width: 333px; height: 231px; opacity: .65; }\n.orbit-inner { width: 251px; height: 175px; opacity: .65; }\n.main-tile { position: absolute; left: 151px; top: 100px; height: 143px; width: 143px; display: grid; place-items: center; background: linear-gradient(135deg, #fff, #f8f4ff); border: 1px solid #fff; border-radius: 31px; transform: rotate(-11deg); box-shadow: 0 22px 40px #70509a17, 0 3px 7px #8060a50b, inset 0 -5px 8px #d9c7f344; }\n.brand-mark_large { grid-template-columns: repeat(2, 33px); grid-template-rows: repeat(2, 33px); gap: 7px; transform: rotate(0); }\n.brand-mark_large i { border-radius: 8px; background: linear-gradient(145deg, #a58be8, #7954c9); box-shadow: 0 3px 3px #71509c14; }\n.brand-mark_large i:nth-child(2) { border-radius: 10px 10px 10px 3px; background: linear-gradient(145deg, #b8a1ef, #9a7bdc); transform: translate(3px, -5px) rotate(10deg); }\n.brand-mark_large i:nth-child(3) { background: linear-gradient(145deg, #b49bea, #9a7adc); }\n.floating-tile { position: absolute; display: grid; place-items: center; width: 59px; height: 59px; border: 1px solid #ffffffeb; border-radius: 16px; background: #ffffffa8; color: #a88bcf; box-shadow: 0 10px 25px #7f639212; }\n.tile-top { top: 39px; right: 62px; transform: rotate(12deg); }\n.tile-bottom { left: 31px; top: 203px; transform: rotate(-13deg); }\n.tile-grid { display: grid; grid-template-columns: 9px 9px; gap: 4px; }\n.tile-grid i { width: 9px; height: 9px; border: 1.5px solid #af96d4; border-radius: 2px; }\n.connection-card { position: absolute; right: 5px; bottom: 29px; display: flex; align-items: center; gap: 11px; padding: 15px 16px; background: #ffffffed; border: 1px solid #fff; border-radius: 12px; box-shadow: 0 12px 30px #7962930d; transform: rotate(-4deg); }\n.connection-check { background: #f0eaf9; color: #9876cb; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; }\n.connection-card strong { display: block; font-size: 11px; font-weight: 600; color: #63546f; margin-bottom: 4px; }\n.connection-card div > span { color: #a196aa; font-size: 9px; }\n.connection-dot { width: 6px; height: 6px; background: #9bc0a7; border-radius: 50%; margin-left: 14px; }\n.orbit-dot { position: absolute; width: 9px; height: 9px; background: #b29ad8; border-radius: 50%; }\n.dot-one { left: 67px; top: 94px; }.dot-two { right: 17px; top: 169px; width: 6px; height: 6px; background: #baa4dc; }.dot-three { left: 143px; bottom: 38px; width: 5px; height: 5px; background: #c5b1df; }\n.sparkle { position: absolute; color: #b59dd8; font-size: 21px; }.sparkle-one { left: 117px; top: 37px; }.sparkle-two { right: 48px; top: 224px; font-size: 17px; }\n.welcome-bottom { display: flex; align-items: center; gap: 9px; position: relative; z-index: 1; color: #998ba9; }\n.welcome-bottom p { font-size: 10px; margin: 0; }.bottom-line { width: 19px; height: 1px; background: #b4a2c9; }.slide-dots { display: flex; gap: 5px; margin-left: auto; }.slide-dots i { width: 4px; height: 4px; background: #d5c9e5; border-radius: 5px; }.slide-dots i:first-child { width: 15px; background: #a38ac5; }\n.login-section { position: relative; display: flex; justify-content: center; align-items: center; padding: 35px 48px 75px; }\n.login-content { width: 100%; max-width: 360px; margin-top: -9px; }\n.login-icon { display: grid; place-items: center; width: 49px; height: 49px; border-radius: 13px; color: #8b70d0; background: #f3effc; margin-bottom: 23px; }\nh2 { font-size: 29px; line-height: 1.25; font-weight: 600; letter-spacing: -.8px; margin: 0 0 11px; }\n.login-description { color: #939099; font-size: 14px; margin: 0 0 35px; }\n.field { margin-bottom: 22px; }\n.field label { display: inline-block; font-size: 12px; font-weight: 550; margin-bottom: 9px; }\n.field-heading { display: flex; justify-content: space-between; align-items: baseline; }\n.text-button { background: transparent; border: 0; padding: 0; font-family: inherit; color: #8a72c1; cursor: pointer; font-size: 11px; }\n.text-button:hover { color: #6544b5; text-decoration: underline; }\n.text-button:focus-visible { outline: 2px solid #9375d2; outline-offset: 4px; border-radius: 2px; }\n.field .g-text-input { --g-text-input-border-color: #e1dfe6; --g-text-input-border-color-hover: #b6a7d5; --g-text-input-border-color-active: #9474d6; --g-text-input-background-color: #fff; }\n.field .g-text-input__control { font-size: 12px; padding-inline: 14px; }\n.field .g-text-input__control::placeholder { color: #aaa6b0; }\n.password-field { margin-bottom: 19px; }\n.password-toggle { margin-right: 6px; color: #9e99a7; }\n.g-checkbox { --g-checkbox-border-radius: 4px; color: #706b78; }\n.g-checkbox__text { font-size: 12px; }\n.submit-button { margin-top: 27px; --g-button-background-color: #8064da; --g-button-background-color-hover: #7053cb; --g-button-text-color: #fff; font-size: 13px; }\n.submit-button .g-button__text { display: flex; align-items: center; justify-content: center; gap: 11px; font-weight: 500; }\n.secure-note { display: flex; justify-content: center; align-items: center; gap: 7px; margin-top: 25px; color: #aba5b2; font-size: 10px; }\n.powered-by { position: absolute; bottom: 31px; display: flex; align-items: center; justify-content: center; gap: 7px; color: #b2adb9; font-size: 10px; }\n.mini-gravity { display: flex; align-items: center; gap: 5px; font-weight: 500; color: #817789; }\n.mini-gravity .brand-mark { grid-template-columns: repeat(2, 5px); grid-template-rows: repeat(2, 5px); gap: 1px; opacity: .55; }\n.mini-gravity .brand-mark i { border-radius: 1px; }\n.footer { min-height: 76px; display: flex; align-items: center; justify-content: space-between; color: #a49eaa; font-size: 10px; gap: 16px; }\n.footer-caption { margin-left: -25px; color: #b1abb7; }.language { display: flex; align-items: center; gap: 5px; color: #8b8592; }.language > span { font-size: 16px; }\n.form-notice { margin-top: 18px; }.form-notice .g-alert { font-size: 12px; }\n.info-dialog { position: relative; max-width: 440px; padding: 36px; }.info-dialog h2 { font-size: 24px; }.info-dialog p { color: #817789; font-size: 14px; line-height: 1.7; margin-bottom: 24px; }.dialog-close { position: absolute; right: 12px; top: 12px; }\n@media (min-width: 1450px) { .main { min-height: 740px; }.welcome { padding-top: 65px; }.illustration { transform: scale(1.1); } }\n@media (max-width: 1100px) { .app-shell { padding: 0 28px; }.welcome { padding: 43px 32px 28px; }.login-section { padding-inline: 35px; }.illustration { transform: scale(.86); margin-inline: -35px; }.welcome-bottom p { font-size: 9px; }.slide-dots { display: none; } }\n@media (max-width: 760px) { .app-shell { padding: 0 24px; }.header { height: 86px; }.brand { font-size: 25px; }.main { display: block; min-height: 610px; max-height: none; }.welcome { display: none; }.login-section { min-height: 610px; padding: 38px 0 90px; }.login-content { max-width: 380px; margin-top: 0; }.login-icon { margin-bottom: 24px; }.powered-by { bottom: 24px; }.footer { min-height: 65px; border-top: 1px solid #f1eef4; }.footer-caption { display: none; }.help-button { font-size: 11px; }.info-dialog { max-width: calc(100vw - 32px); padding: 30px; } }\n@media (prefers-reduced-motion: no-preference) { .main-tile { animation: float 7s ease-in-out infinite; } @keyframes float { 50% { transform: translateY(-7px) rotate(-8deg); } } }\nEOF\ncat > src/main.tsx <<'EOF'\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\nimport './index.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport {Provider} from '@gravity-ui/uikit';\nimport {App} from './App';\n\nReactDOM.createRoot(document.getElementById('root')\"'!).render(\n  <React.StrictMode>\n    <Provider theme=\"light\" lang=\"ru\">\n      <App />\n    </Provider>\n  </React.StrictMode>,\n);\nEOF\npython3 - <<'\"'PY'\np='index.html'\ns=open(p).read().replace('lang=\\\"en\\\"','lang=\\\"ru\\\"').replace('<title>Gravity UI eval</title>','<meta name=\\\"theme-color\\\" content=\\\"#8064da\\\" />\\\\n    <meta name=\\\"description\\\" content=\\\"Вход в ваше рабочее пространство Gravity UI.\\\" />\\\\n    <title>Вход — Gravity UI</title>')\nopen(p,'w').write(s)\nPY\nnpm run build\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"node --input-type=module - <<'JS'\nimport fs from 'node:fs';\nlet app=fs.readFileSync('src/App.tsx','utf8').replace(\\\"extraProps={{'aria-pressed': visible}}\\\",'aria-pressed={visible}');\nfs.writeFileSync('src/App.tsx',app);\nlet html=fs.readFileSync('index.html','utf8').replace('lang=\\\"en\\\"','lang=\\\"ru\\\"').replace('<title>Gravity UI eval</title>','<meta name=\\\"theme-color\\\" content=\\\"#8064da\\\" />\\\\n    <meta name=\\\"description\\\" content=\\\"Вход в ваше рабочее пространство Gravity UI.\\\" />\\\\n    <title>Вход — Gravity UI</title>');\nfs.writeFileSync('index.html',html);\nJS\nnpm run build\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'cat node_modules/@gravity-ui/uikit/build/esm/components/controls/TextInput/TextInput.css | head -80; cat node_modules/@gravity-ui/uikit/build/esm/components/Button/types.d.ts | head -100; git diff --stat'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'npm install --prefix /tmp/gravity-browser-check @playwright/test'"
+      },
+      {
+        "command": "/bin/bash -lc 'npm run dev -- --host 0.0.0.0'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc '/tmp/gravity-browser-check/node_modules/.bin/playwright install chromium'"
+      },
+      {
+        "command": "/bin/bash -lc 'npx --yes prettier --write src/App.tsx src/main.tsx src/index.css index.html'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"rg -n 'invalid|error|focus-outline' node_modules/@gravity-ui/uikit/build/esm/components/controls/TextInput/TextInput.css; cat node_modules/@gravity-ui/uikit/styles/fonts.css | head -35; rg -n 'type:' node_modules/@gravity-ui/uikit/build/esm/components/Button/Button.js\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"node --input-type=module - <<'JS'\nimport fs from 'node:fs';\nlet app=fs.readFileSync('src/App.tsx','utf8').replace('aria-pressed={visible}','selected={visible}');\nfs.writeFileSync('src/App.tsx',app);\nJS\nsed -n '375,392p' node_modules/@gravity-ui/uikit/build/esm/components/controls/TextInput/TextInput.css\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc 'which apt-get; which sudo; ls /tmp; printenv LD_LIBRARY_PATH; ls /usr/lib/aarch64-linux-gnu/libglib*'",
+        "success": false,
+        "exitCode": 2
+      },
+      {
+        "command": "/bin/bash -lc 'id; /tmp/gravity-browser-check/node_modules/.bin/playwright install-deps chromium'",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"ldd /home/node/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-linux-arm64/chrome-headless-shell | rg 'not found'; ls /var/lib/apt/lists | head\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'mkdir -p /tmp/gravity-browser-libs && cd /tmp/gravity-browser-libs && apt-get download libglib2.0-0 libnspr4 libnss3 libatk1.0-0 libdbus-1-3 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libxkbcommon0 libasound2 libatspi2.0-0 libdrm2 libexpat1 libx11-xcb1 && for package in *.deb; do dpkg-deb -x \"$package\" extracted; done'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu ldd /home/node/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-linux-arm64/chrome-headless-shell | rg 'not found'; cd /tmp/gravity-browser-libs && apt-get download libxrender1 libwayland-server0 && for package in *.deb; do dpkg-deb -x \\\"\"'$package\" extracted; done'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'cd /tmp/gravity-browser-libs && apt-get download libxi6 && dpkg-deb -x libxi6*.deb extracted'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu DEBUG=pw:browser node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({headless:true,args:['--no-sandbox','--disable-gpu']});\nconst page=await browser.newPage();\nawait page.goto('http://localhost:5175',{waitUntil:'domcontentloaded'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png'});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"cd /tmp/gravity-browser-libs && apt-get download fonts-liberation && dpkg-deb -x fonts-liberation*.deb extracted && cat > fonts.conf <<'EOF'\n<?xml version=\\\"1.0\\\"?><\"'!DOCTYPE fontconfig SYSTEM \"urn:fontconfig:fonts.dtd\"><fontconfig><dir>/tmp/gravity-browser-libs/extracted/usr/share/fonts</dir><cachedir>/tmp/gravity-browser-libs/fontcache</cachedir></fontconfig>\nEOF'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"FONTCONFIG_FILE=/tmp/gravity-browser-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"ldd /home/node/.cache/ms-playwright/chromium_headless_shell-1254/chrome-headless-shell-linux-arm64/chrome-headless-shell | rg 'font|freetype'; cd /tmp/gravity-browser-libs && apt-get download libfontconfig1 libfreetype6 && for package in libfontconfig*.deb libfreetype*.deb; do dpkg-deb -x \\\"\"'$package\" extracted; done'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"FONTCONFIG_FILE=/tmp/gravity-browser-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"FONTCONFIG_FILE=/tmp/gravity-browser-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({channel:'chromium',headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu ldd /home/node/.cache/ms-playwright/chromium-1254/chrome-linux-arm64/chrome | rg 'not found'; cd /tmp/gravity-browser-libs && apt-get download libatk-bridge2.0-0 libcups2 libpango-1.0-0 libcairo2 libharfbuzz0b libthai0 libdatrie1 libgraphite2-3 libpixman-1-0 libxcb-render0 libxcb-shm0 && for package in *.deb; do dpkg-deb -x \\\"\"'$package\" extracted; done'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"FONTCONFIG_FILE=/tmp/gravity-browser-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({channel:'chromium',headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu ldd /home/node/.cache/ms-playwright/chromium-1254/chrome-linux-arm64/chrome | rg 'not found'; cd /tmp/gravity-browser-libs && apt-get download libavahi-common3 libavahi-client3 && for package in libavahi*.deb; do dpkg-deb -x \\\"\"'$package\" extracted; done'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"FONTCONFIG_FILE=/tmp/gravity-browser-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({channel:'chromium',headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc 'cd /tmp/gravity-browser-libs && apt-get download libpng16-16 libfribidi0 && for package in libpng*.deb libfribidi*.deb; do dpkg-deb -x \"$package\" extracted; done'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"FONTCONFIG_FILE=/tmp/gravity-browser-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({channel:'chromium',headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"FONTCONFIG_FILE=/tmp/gravity-browser-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu ldd /tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu/libfontconfig.so.1 | rg 'not found'; FONTCONFIG_FILE=/tmp/gravity-browser-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu DEBUG=pw:browser node --input-type=module - <<'JS' 2>/tmp/gravity-browser-error.log\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({channel:'chromium',headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900}});\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\nrg 'FATAL|font|Font|shared libraries' /tmp/gravity-browser-error.log\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu ldd /tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu/libsoftokn3.so; ls /tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu/*nss*'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'cd /tmp/gravity-browser-libs && apt-get download libsqlite3-0 && dpkg-deb -x libsqlite*.deb extracted'"
+      },
+      {
+        "command": "/bin/bash -lc \"FONTCONFIG_FILE=/tmp/gravity-browser-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({channel:'chromium',headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc 'npm run build && git diff --check'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'ls -l /tmp/gravity-browser-libs/libsqlite*; cat package.json; git status --short'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"FONTCONFIG_FILE=/tmp/gravity-browser-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nconst browser = await chromium.launch({channel:'chromium',headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});\npage.on('pageerror', e=>console.log('PAGE ERROR:',e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nawait browser.close();\nJS\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"rg 'export.*(Globe|Sparkles)' node_modules/@gravity-ui/icons/index.d.ts; cat .gitignore; rg -n 'sparkle|language|submit-button' src/App.tsx src/index.css\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"node --input-type=module - <<'JS'\nimport fs from 'node:fs';\nlet app=fs.readFileSync('src/App.tsx','utf8').replace('  EyeSlash,','  EyeSlash,\\\\n  Globe,\\\\n  Sparkles,');\napp=app.replace('<span className=\\\"sparkle sparkle-one\\\">✦</span>','<span className=\\\"sparkle sparkle-one\\\"><Icon data={Sparkles} size={19}/></span>').replace('<span className=\\\"sparkle sparkle-two\\\">✧</span>','<span className=\\\"sparkle sparkle-two\\\"><Icon data={Sparkles} size={14}/></span>').replace('<span aria-hidden=\\\"true\\\">◎</span> Русский','<Icon data={Globe} size={13}/> Русский');\nfs.writeFileSync('src/App.tsx',app);\nlet css=fs.readFileSync('src/index.css','utf8').replace('.submit-button {','.login-content .submit-button {');\nfs.writeFileSync('src/index.css',css);\nfs.appendFileSync('.gitignore','dist/\\\\n');\nJS\nnpx --yes prettier --write src/App.tsx src/index.css\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"FONTCONFIG_FILE=/tmp/gravity-browser-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-browser-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-browser-libs/extracted/lib/aarch64-linux-gnu node --input-type=module - <<'JS'\nimport {chromium} from '/tmp/gravity-browser-check/node_modules/playwright/index.mjs';\nimport {expect} from '/tmp/gravity-browser-check/node_modules/@playwright/test/index.mjs';\nconst browser=await chromium.launch({channel:'chromium',headless:true,args:['--no-sandbox']});\nconst page=await browser.newPage({viewport:{width:1440,height:900}});\nconst errors=[]; page.on('pageerror',e=>errors.push(e.message));\nawait page.goto('http://localhost:5175',{waitUntil:'networkidle'});\nawait page.getByRole('button',{name:'Войти',exact:true}).click();\nawait expect(page.getByText('Введите email',{exact:true})).toBeVisible();\nawait expect(page.locator('#email')).toBeFocused();\nawait page.locator('#email').fill('bad-email');\nawait expect(page.getByText('Введите корректный email')).toBeVisible();\nawait page.locator('#email').fill('hello@example.com');\nawait page.locator('#password').fill('test-password');\nawait page.getByRole('button',{name:'Показать пароль',exact:true}).click();\nawait expect(page.locator('#password')).toHaveAttribute('type','text');\nawait expect(page.getByRole('button',{name:'Скрыть пароль',exact:true})).toHaveAttribute('aria-pressed','true');\nawait page.getByRole('button',{name:'Скрыть пароль',exact:true}).click();\nawait expect(page.locator('#password')).toHaveAttribute('type','password');\nawait page.getByRole('checkbox',{name:'Запомнить меня'}).check();\nawait expect(page.getByRole('checkbox',{name:'Запомнить меня'})).toBeChecked();\nawait page.locator('#password').press('Enter');\nawait expect(page.getByRole('status')).toContainText('Данные не отправлены');\nawait page.getByRole('button',{name:'Забыли пароль?'}).click();\nawait expect(page.getByRole('dialog')).toBeVisible();\nawait page.keyboard.press('Escape');\nawait expect(page.getByRole('dialog')).toHaveCount(0);\nawait page.reload({waitUntil:'networkidle'});\nawait page.screenshot({path:'/tmp/gravity-desktop.png',fullPage:true});\nfor(const width of [375,768,1024]) {\n await page.setViewportSize({width,height:812});\n if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)) throw Error('Horizontal overflow at '+width);\n await expect(page.getByRole('button',{name:'Войти',exact:true})).toBeVisible();\n if(width===375) await page.screenshot({path:'/tmp/gravity-mobile.png',fullPage:true});\n}\nif(errors.length) throw Error(errors.join('\\\\n'));\nconsole.log('PASS: validation, password visibility, checkbox, Enter submission, modal dismissal, responsive widths 375/768/1024, no browser errors.');\nawait browser.close();\nJS\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'npm run build && git diff --check && git status --short'",
+        "success": true,
+        "exitCode": 0
+      }
+    ],
+    "errors": [],
+    "thinkingBlocks": 0,
+    "usage": {
+      "inputTokens": 44571,
+      "outputTokens": 14869,
+      "cacheReadTokens": 1786240,
+      "cacheWriteTokens": 0,
+      "reasoningTokens": 920,
+      "totalTokens": 1845680
+    }
+  },
+  "outputPaths": {
+    "eval": "./outputs/eval.txt",
+    "scripts": {
+      "build": "./outputs/scripts/build.txt"
+    }
+  }
+}

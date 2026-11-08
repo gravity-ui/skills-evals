@@ -1,0 +1,165 @@
+
+ RUN  v3.2.7 /home/sandbox/workspace
+
+ ❯ EVAL.ts (8 tests | 2 failed) 13946ms
+   ✓ adds @gravity-ui/uikit as a dependency 1ms
+   ✓ imports @gravity-ui/uikit styles.css 0ms
+   × imports @gravity-ui/uikit fonts.css 3ms
+     → expected 'import {useState} from \'react\';\nim…' to match /['"]@gravity-ui\/uikit\/styles\…/uikit\
+   ✓ app CSS is imported after the uikit styles 0ms
+   ✓ wraps the app in a uikit theme provider 0ms
+   ✓ no foreign UI library 0ms
+   ✓ builds the form from uikit controls 0ms
+   × judge: implements the task with the intended Gravity UI API 13941ms
+     → [judge:environment] FAIL — @gravity-ui/uikit is added to the project and set up once at the entry point: its fonts.css and styles.css are imported before the app's own CSS, and the app is wrapped in uikit's ThemeProvider (or the all-in-one Provider) with a theme. The login page is built from uikit controls — TextInput or PasswordInput for email and password, Checkbox for remember me, Button to sign in — not raw HTML inputs or another UI library.
+  reason: @gravity-ui/uikit 8.0.0 is installed and src/main.tsx wraps the app in <ThemeProvider theme="light"> while the login page uses uikit TextInput/Checkbox/Button (no raw HTML inputs), but only '@gravity-ui/uikit/styles/styles.css' is imported — the required '@gravity-ui/uikit/styles/fonts.css' import is entirely missing (grep over src/ and index.html finds no reference to fonts.css).
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  14:43:00
+   Duration  14.10s (transform 32ms, setup 18ms, collect 16ms, tests 13.95s, environment 0ms, prepare 32ms)
+
+npm warn Unknown env config "store-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "dangerously-allow-all-builds". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  EVAL.ts > imports @gravity-ui/uikit fonts.css
+AssertionError: expected 'import {useState} from \'react\';\nim…' to match /['"]@gravity-ui\/uikit\/styles\…/uikit\
+
+[32m- Expected:[39m 
+/['"]@gravity-ui\/uikit\/styles\/fonts\.css['"]/
+
+[31m+ Received:[39m 
+"import {useState} from 'react';
+import {Button, Card, Checkbox, Text, TextInput} from '@gravity-ui/uikit';
+import {Envelope, Lock} from '@gravity-ui/icons';
+
+export function App() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    // eslint-disable-next-line no-console
+    console.log('Вход:', {email, password, rememberMe});
+  };
+
+  return (
+    <main className=\"page\">
+      <Card className=\"login-card\" view=\"raised\" size=\"l\">
+        <form className=\"login-form\" onSubmit={handleSubmit}>
+          <Text variant=\"header-2\">Вход в аккаунт</Text>
+
+          <TextInput
+            size=\"l\"
+            type=\"email\"
+            label=\"Email\"
+            placeholder=\"you@example.com\"
+            value={email}
+            onUpdate={setEmail}
+            startContent={<Envelope width={16} height={16} />}
+            autoComplete=\"email\"
+            controlProps={{required: true}}
+          />
+
+          <TextInput
+            size=\"l\"
+            type=\"password\"
+            label=\"Пароль\"
+            placeholder=\"Введите пароль\"
+            value={password}
+            onUpdate={setPassword}
+            startContent={<Lock width={16} height={16} />}
+            autoComplete=\"current-password\"
+            controlProps={{required: true}}
+          />
+
+          <Checkbox
+            size=\"l\"
+            checked={rememberMe}
+            onUpdate={setRememberMe}
+            content=\"Запомнить меня\"
+          />
+
+          <Button view=\"action\" size=\"l\" type=\"submit\" width=\"max\">
+            Войти
+          </Button>
+        </form>
+      </Card>
+    </main>
+  );
+}
+
+
+body {
+  margin: 0;
+}
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background-color: var(--g-color-base-background);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 32px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-form > .g-text {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+
+import '@gravity-ui/uikit/styles/styles.css';
+import './index.css';
+
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import {ThemeProvider} from '@gravity-ui/uikit';
+
+import {App} from './App';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <ThemeProvider theme=\"light\">
+      <App />
+    </ThemeProvider>
+  </React.StrictMode>,
+);
+
+
+/// <reference types=\"vite/client\" />
+"
+
+ ❯ EVAL.ts:72:15
+     70| });
+     71| test("imports @gravity-ui/uikit fonts.css", () => {
+     72|   expect(src).toMatch(/['"]@gravity-ui\/uikit\/styles\/fonts\.css['"]/…
+       |               ^
+     73| });
+     74| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  EVAL.ts > judge: implements the task with the intended Gravity UI API
+Error: [judge:environment] FAIL — @gravity-ui/uikit is added to the project and set up once at the entry point: its fonts.css and styles.css are imported before the app's own CSS, and the app is wrapped in uikit's ThemeProvider (or the all-in-one Provider) with a theme. The login page is built from uikit controls — TextInput or PasswordInput for email and password, Checkbox for remember me, Button to sign in — not raw HTML inputs or another UI library.
+  reason: @gravity-ui/uikit 8.0.0 is installed and src/main.tsx wraps the app in <ThemeProvider theme="light"> while the login page uses uikit TextInput/Checkbox/Button (no raw HTML inputs), but only '@gravity-ui/uikit/styles/styles.css' is imported — the required '@gravity-ui/uikit/styles/fonts.css' import is entirely missing (grep over src/ and index.html finds no reference to fonts.css).
+ ❯ EVAL.ts:114:3
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+

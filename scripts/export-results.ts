@@ -173,7 +173,7 @@ table{width:calc(100% - 32px);margin:0 16px 16px;border:1px solid #e5e5e5;border
 th{text-align:left;color:#666;font-weight:500;padding:10px 12px;background:#fafafa;border-bottom:1px solid #e5e5e5}
 td{padding:9px 12px;border-bottom:1px solid #eee;white-space:nowrap}tr:last-child td{border-bottom:0}td.ev{font-family:ui-monospace,Menlo,monospace;font-size:13px}
 </style>
-<h1>Current evals</h1><p class="sub">Latest result of every model and eval; base vs the gravity-ui skill. 17 evals × 4 runs, judged in the sandbox.</p>
+<h1>Current evals</h1><p class="sub">Latest result of every model and eval; base vs the gravity-ui skill. ${dirs(join(root, 'evals')).length} evals × 4 runs, judged in the sandbox.</p>
 <div class="head"><span>Model</span><span>Gateway</span><span>Agent</span><span>Avg duration</span><span style="text-align:right">Success rate</span><span style="text-align:right">With skill</span></div>
 ${sections.join('\n')}
 `);

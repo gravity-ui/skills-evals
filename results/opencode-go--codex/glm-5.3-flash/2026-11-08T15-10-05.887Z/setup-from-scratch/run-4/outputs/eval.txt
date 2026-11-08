@@ -1,0 +1,53 @@
+
+ RUN  v3.2.7 /home/sandbox/workspace
+
+ ❯ EVAL.ts (8 tests | 2 failed) 26829ms
+   ✓ adds @gravity-ui/uikit as a dependency 1ms
+   ✓ imports @gravity-ui/uikit styles.css 0ms
+   ✓ imports @gravity-ui/uikit fonts.css 0ms
+   ✓ app CSS is imported after the uikit styles 0ms
+   × wraps the app in a uikit theme provider 3ms
+     → expected false to be true // Object.is equality
+   ✓ no foreign UI library 0ms
+   ✓ builds the form from uikit controls 0ms
+   × judge: implements the task with the intended Gravity UI API 26824ms
+     → [judge:environment] FAIL — @gravity-ui/uikit is added to the project and set up once at the entry point: its fonts.css and styles.css are imported before the app's own CSS, and the app is wrapped in uikit's ThemeProvider (or the all-in-one Provider) with a theme. The login page is built from uikit controls — TextInput or PasswordInput for email and password, Checkbox for remember me, Button to sign in — not raw HTML inputs or another UI library.
+  reason: package.json and package-lock.json add @gravity-ui/uikit, and src/main.tsx imports fonts.css and styles.css before src/index.css, but the app is not wrapped in uikit's ThemeProvider or Provider with a theme: src/main.tsx renders <App /> directly and src/App.tsx imports only Button, Checkbox, and TextInput.
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  15:11:49
+   Duration  26.98s (transform 25ms, setup 13ms, collect 12ms, tests 26.83s, environment 0ms, prepare 34ms)
+
+npm warn Unknown env config "store-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown env config "dangerously-allow-all-builds". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  EVAL.ts > wraps the app in a uikit theme provider
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ EVAL.ts:97:67
+     95| // The theme comes from a uikit provider around the app (ThemeProvider…
+     96| test("wraps the app in a uikit theme provider", () => {
+     97|   expect(uikitImport('ThemeProvider') || uikitImport('Provider')).toBe…
+       |                                                                   ^
+     98|   expect(src).toMatch(/<(ThemeProvider|Provider)\b[^>]*>/);
+     99| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  EVAL.ts > judge: implements the task with the intended Gravity UI API
+Error: [judge:environment] FAIL — @gravity-ui/uikit is added to the project and set up once at the entry point: its fonts.css and styles.css are imported before the app's own CSS, and the app is wrapped in uikit's ThemeProvider (or the all-in-one Provider) with a theme. The login page is built from uikit controls — TextInput or PasswordInput for email and password, Checkbox for remember me, Button to sign in — not raw HTML inputs or another UI library.
+  reason: package.json and package-lock.json add @gravity-ui/uikit, and src/main.tsx imports fonts.css and styles.css before src/index.css, but the app is not wrapped in uikit's ThemeProvider or Provider with a theme: src/main.tsx renders <App /> directly and src/App.tsx imports only Button, Checkbox, and TextInput.
+ ❯ EVAL.ts:114:3
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+

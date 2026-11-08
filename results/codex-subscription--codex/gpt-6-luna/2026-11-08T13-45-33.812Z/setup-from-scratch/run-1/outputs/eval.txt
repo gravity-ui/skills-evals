@@ -1,0 +1,51 @@
+
+ RUN  v3.2.7 /home/sandbox/workspace
+
+ ❯ EVAL.ts (8 tests | 2 failed) 32569ms
+   ✓ adds @gravity-ui/uikit as a dependency 1ms
+   ✓ imports @gravity-ui/uikit styles.css 0ms
+   ✓ imports @gravity-ui/uikit fonts.css 0ms
+   × app CSS is imported after the uikit styles 3ms
+     → no file imports styles.css: expected undefined to be truthy
+   ✓ wraps the app in a uikit theme provider 0ms
+   ✓ no foreign UI library 0ms
+   ✓ builds the form from uikit controls 0ms
+   × judge: implements the task with the intended Gravity UI API 32565ms
+     → [judge:environment] FAIL — @gravity-ui/uikit is added to the project and set up once at the entry point: its fonts.css and styles.css are imported before the app's own CSS, and the app is wrapped in uikit's ThemeProvider (or the all-in-one Provider) with a theme. The login page is built from uikit controls — TextInput or PasswordInput for email and password, Checkbox for remember me, Button to sign in — not raw HTML inputs or another UI library.
+  reason: @gravity-ui/uikit is declared and the login form uses TextInput, PasswordInput, Checkbox, and Button inside a themed ThemeProvider. However, src/main.tsx imports only ./index.css; fonts.css and styles.css are imported from within src/index.css, so they are not set up at the entry point as required.
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 passed (8)
+   Start at  13:52:38
+   Duration  32.74s (transform 29ms, setup 15ms, collect 15ms, tests 32.57s, environment 0ms, prepare 33ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  EVAL.ts > app CSS is imported after the uikit styles
+AssertionError: no file imports styles.css: expected undefined to be truthy
+
+[32m- Expected:[39m 
+true
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ EVAL.ts:89:47
+     87|   walk('src');
+     88|   const entry = files.find((t) => /@gravity-ui\/uikit\/styles\/styles\…
+     89|   expect(entry, 'no file imports styles.css').toBeTruthy();
+       |                                               ^
+     90|   const uikitAt = entry!.search(/@gravity-ui\/uikit\/styles\/styles\.c…
+     91|   const localCss = [...entry!.matchAll(/import\s+['"]\.{1,2}\/[^'"]+\.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  EVAL.ts > judge: implements the task with the intended Gravity UI API
+Error: [judge:environment] FAIL — @gravity-ui/uikit is added to the project and set up once at the entry point: its fonts.css and styles.css are imported before the app's own CSS, and the app is wrapped in uikit's ThemeProvider (or the all-in-one Provider) with a theme. The login page is built from uikit controls — TextInput or PasswordInput for email and password, Checkbox for remember me, Button to sign in — not raw HTML inputs or another UI library.
+  reason: @gravity-ui/uikit is declared and the login form uses TextInput, PasswordInput, Checkbox, and Button inside a themed ThemeProvider. However, src/main.tsx imports only ./index.css; fonts.css and styles.css are imported from within src/index.css, so they are not set up at the entry point as required.
+ ❯ EVAL.ts:114:3
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+

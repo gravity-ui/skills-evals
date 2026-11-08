@@ -1,0 +1,208 @@
+{
+  "status": "passed",
+  "duration": 487.215,
+  "provenance": {
+    "agentEvalVersion": "2.6.0",
+    "sandboxBackend": "docker",
+    "sandboxUser": "node",
+    "agentCliVersion": "codex-cli 0.167.0"
+  },
+  "usage": {
+    "inputTokens": 48469,
+    "outputTokens": 10322,
+    "cacheReadTokens": 1366912,
+    "cacheWriteTokens": 0,
+    "reasoningTokens": 772,
+    "totalTokens": 1425703
+  },
+  "model": "gpt-6-astra",
+  "transcriptPath": "./transcript.json",
+  "transcriptRawPath": "./transcript-raw.jsonl",
+  "o11y": {
+    "totalTurns": 6,
+    "toolCalls": {
+      "file_read": 0,
+      "file_write": 0,
+      "file_edit": 0,
+      "shell": 31,
+      "web_fetch": 0,
+      "web_search": 1,
+      "glob": 0,
+      "grep": 0,
+      "list_dir": 0,
+      "agent_task": 0,
+      "unknown": 0
+    },
+    "totalToolCalls": 32,
+    "webFetches": [],
+    "filesRead": [],
+    "filesModified": [],
+    "shellCommands": [
+      {
+        "command": "/bin/bash -lc \"pwd && rg --files -g '\"'!node_modules'\"' -g '\"'!package-lock.json'\"' -g '\"'!yarn.lock'\"' -g '\"'!pnpm-lock.yaml'\"' -g 'AGENTS.md' -g 'package.json' -g '*lock*' -g 'src/**' -g 'app/**' -g 'pages/**' -g 'index.html' -g '*config*' -g 'README*'\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"ls -la && cat package.json src/App.tsx src/main.tsx src/index.css vite.config.ts && find .. -name AGENTS.md -not -path '*/node_modules/*' -print\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'npm install @gravity-ui/uikit @gravity-ui/icons'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"cat node_modules/@gravity-ui/uikit/package.json | head -45 && rg 'export.*(Provider|configure)' node_modules/@gravity-ui/uikit/build/esm/index.d.ts && cat node_modules/@gravity-ui/uikit/build/esm/components/TextInput/TextInput.d.ts && cat node_modules/@gravity-ui/uikit/build/esm/components/ThemeProvider/ThemeProvider.d.ts && ls node_modules/@gravity-ui/icons | head && cat index.html\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"rg --files node_modules/@gravity-ui/uikit/build/esm | rg '(TextInput|Provider|Checkbox|Button).*d.ts\"'$'\"' | head -35 && cat node_modules/@gravity-ui/uikit/build/esm/index.d.ts && cat index.html && rg --files node_modules/@gravity-ui/icons | head\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'cat node_modules/@gravity-ui/uikit/build/esm/components/controls/TextInput/TextInput.d.ts node_modules/@gravity-ui/uikit/build/esm/components/theme/Provider.d.ts node_modules/@gravity-ui/uikit/build/esm/components/Checkbox/Checkbox.d.ts && cat node_modules/@gravity-ui/uikit/build/esm/components/controls/types.d.ts && ls node_modules/@gravity-ui/icons/{ArrowRight,ArrowUpRight,Eye,EyeSlash,Lock,Sun,Moon,Globe,ShieldCheck,ArrowRightToSquare}.js'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"cat > src/App.tsx <<'EOF'\nimport {useRef, useState, type FormEvent} from 'react';\nimport {Alert, Button, Checkbox, Icon, Provider, TextInput} from '@gravity-ui/uikit';\nimport {ArrowRight, ArrowRightToSquare, ArrowUpRight, Eye, EyeSlash, Lock, Moon, Sun} from '@gravity-ui/icons';\n\nfunction GravityMark({small = false}: {small?: boolean}) {\n  return <span className={\"'`gravity-mark${small ? '\"' gravity-mark-small' : ''}\"'`} aria-hidden=\"true\"><span /><span /><span /></span>;\n}\n\nexport function App() {\n  const [dark, setDark] = useState(false);\n  const [email, setEmail] = useState('\"'');\n  const [password, setPassword] = useState('');\n  const [remember, setRemember] = useState(false);\n  const [showPassword, setShowPassword] = useState(false);\n  const [submitted, setSubmitted] = useState(false);\n  const [notice, setNotice] = useState(false);\n  const emailRef = useRef<HTMLInputElement>(null);\n  const passwordRef = useRef<HTMLInputElement>(null);\n  const emailError = \"'!email.trim() ? '\"'Введите email' : \"'!/''^[''^'\"\\\\s@]+@[\"'^'\"\\\\s@]+\\\\.[\"'^'\"\\\\s@]+\"'$/.test(email.trim()) ? '\"'Введите корректный email' : '';\n  const passwordError = \"'!password ? '\"'Введите пароль' : '';\n\n  function handleSubmit(event: FormEvent<HTMLFormElement>) {\n    event.preventDefault();\n    setSubmitted(true);\n    setNotice(false);\n    if (emailError) { emailRef.current?.focus(); return; }\n    if (passwordError) { passwordRef.current?.focus(); return; }\n    setNotice(true);\n  }\n\n  return (\n    <Provider theme={dark ? 'dark' : 'light'} lang=\\\"ru\\\">\n      <div className={\"'`page${dark ? '\"' page-dark' : ''}\"'`}>\n        <header className=\"header\">\n          <a className=\"brand\" href=\"./\" aria-label=\"Gravity — главная\"><GravityMark /><span>gravity<span className=\"brand-ui\">ui</span></span></a>\n          <div className=\"header-right\"><span className=\"account-label\">Личный кабинет</span><span className=\"header-divider\" /><Button view=\"flat\" size=\"l\" onClick={() => setDark(!dark)} aria-label={dark ? '\"'Включить светлую тему' : 'Включить тёмную тему'} title={dark ? 'Светлая тема' : 'Тёмная тема'}><Icon data={dark ? Sun : Moon} size={18} /></Button></div>\n        </header>\n\n        <main className=\\\"main\\\">\n          <section className=\\\"login-card\\\" aria-labelledby=\\\"login-title\\\">\n            <aside className=\\\"welcome-panel\\\">\n              <div className=\\\"welcome-top\\\"><span className=\\\"welcome-eyebrow\\\"><span className=\\\"status-dot\\\" /> МЕСТО ДЛЯ ВАШИХ ИДЕЙ</span><h2>Всё начинается<br />с простого входа.</h2><p>Ваши проекты, инструменты и команда.<br />В одном пространстве.</p></div>\n              <div className=\\\"orbit-art\\\" aria-hidden=\\\"true\\\">\n                <div className=\\\"art-grid\\\" />\n                <div className=\\\"orbit orbit-one\\\" /><div className=\\\"orbit orbit-two\\\" /><div className=\\\"orbit orbit-three\\\" />\n                <div className=\\\"planet\\\"><div className=\\\"planet-light\\\" /><GravityMark /></div>\n                <div className=\\\"satellite satellite-one\\\"><svg viewBox=\\\"0 0 24 24\\\" fill=\\\"none\\\"><path d=\\\"m8 6-6 6 6 6M16 6l6 6-6 6M14 3l-4 18\\\" stroke=\\\"currentColor\\\" strokeWidth=\\\"1.7\\\" strokeLinecap=\\\"round\\\" strokeLinejoin=\\\"round\\\" /></svg></div>\n                <div className=\\\"satellite satellite-two\\\"><span /><span /><span /><span /></div>\n                <div className=\\\"orbit-dot dot-one\\\" /><div className=\\\"orbit-dot dot-two\\\" /><div className=\\\"tiny-star star-one\\\">✦</div><div className=\\\"tiny-star star-two\\\">✦</div>\n              </div>\n              <div className=\\\"welcome-bottom\\\"><span className=\\\"mini-symbol\\\">✳</span><span>Меньше сложностей. Больше возможностей.</span></div>\n            </aside>\n\n            <div className=\\\"form-panel\\\">\n              <div className=\\\"login-icon\\\"><Icon data={ArrowRightToSquare} size={22} /></div>\n              <h1 id=\\\"login-title\\\">С возвращением</h1>\n              <p className=\\\"form-description\\\">Войдите, чтобы продолжить работу.</p>\n              <form onSubmit={handleSubmit} noValidate>\n                <div className=\\\"field\\\"><label htmlFor=\\\"email\\\">Email</label><TextInput id=\\\"email\\\" name=\\\"email\\\" type=\\\"email\\\" size=\\\"xl\\\" placeholder=\\\"name@example.com\\\" autoComplete=\\\"username\\\" value={email} controlRef={emailRef} onUpdate={(value) => {setEmail(value); setNotice(false);}} validationState={submitted && emailError ? 'invalid' : undefined} errorMessage={submitted ? emailError : undefined} controlProps={{required: true, spellCheck: false, autoCapitalize: 'none', 'aria-invalid': submitted && \"'!!emailError}} /></div>\n                <div className=\"field password-field\"><label htmlFor=\"password\">Пароль</label><TextInput id=\"password\" name=\"password\" type={showPassword ? '\"'text' : 'password'} size=\\\"xl\\\" placeholder=\\\"Введите пароль\\\" autoComplete=\\\"current-password\\\" value={password} controlRef={passwordRef} onUpdate={(value) => {setPassword(value); setNotice(false);}} validationState={submitted && passwordError ? 'invalid' : undefined} errorMessage={submitted ? passwordError : undefined} controlProps={{required: true, 'aria-invalid': submitted && \"'!!passwordError}} endContent={<Button type=\"button\" view=\"flat\" size=\"m\" className=\"password-toggle\" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? '\"'Скрыть пароль' : 'Показать пароль'} aria-pressed={showPassword}><Icon data={showPassword ? EyeSlash : Eye} size={18} /></Button>} /></div>\n                <div className=\\\"form-options\\\"><Checkbox size=\\\"m\\\" name=\\\"remember\\\" checked={remember} onUpdate={setRemember}>Запомнить меня</Checkbox></div>\n                <Button type=\\\"submit\\\" view=\\\"action\\\" size=\\\"xl\\\" width=\\\"max\\\" className=\\\"submit-button\\\"><span>Войти</span><Icon data={ArrowRight} size={18} /></Button>\n                {notice && <div className=\\\"form-notice\\\" role=\\\"status\\\"><Alert theme=\\\"info\\\" title=\\\"Форма готова к подключению\\\" message=\\\"Сервис авторизации ещё не подключён. Вход пока недоступен.\\\" /></div>}\n              </form>\n              <div className=\\\"security-note\\\"><Icon data={Lock} size={14} /><span>Ваше пространство начинается здесь</span></div>\n            </div>\n          </section>\n          <p className=\\\"below-card\\\">Простые инструменты для больших идей.</p>\n        </main>\n\n        <footer className=\\\"footer\\\"><span>© {new Date().getFullYear()} Gravity UI</span><a href=\\\"https://gravity-ui.com\\\" target=\\\"_blank\\\" rel=\\\"noreferrer\\\">Создано на Gravity UI <Icon data={ArrowUpRight} size={14} /></a><span className=\\\"footer-language\\\"><span aria-hidden=\\\"true\\\">◎</span> Русский</span></footer>\n      </div>\n    </Provider>\n  );\n}\nEOF\ncat > src/index.css <<'EOF'\n* { box-sizing: border-box; }\nbody { margin: 0; min-width: 320px; }\nbutton, input, a { -webkit-tap-highlight-color: transparent; }\na { color: inherit; text-decoration: none; }\n.page { --page-bg: #f8f9fb; --panel-bg: #fff; --ink: #22242a; --muted: #81858d; --line: #e9eaed; min-height: 100svh; background: var(--page-bg); color: var(--ink); display: flex; flex-direction: column; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; }\n.header { height: 104px; padding: 0 5%; display: flex; align-items: center; justify-content: space-between; }\n.brand { display: inline-flex; gap: 10px; align-items: center; font-size: 26px; font-weight: 750; letter-spacing: -1.1px; }\n.brand-ui { font-weight: 400; margin-left: 3px; }\n.gravity-mark { width: 33px; height: 35px; display: inline-block; position: relative; flex-shrink: 0; transform: rotate(-9deg); }\n.gravity-mark > span { display: block; position: absolute; width: 11px; height: 11px; background: #ffcf38; border-radius: 3px; }\n.gravity-mark > span:nth-child(1) { top: 0; left: 11px; }\n.gravity-mark > span:nth-child(2) { top: 12px; left: 0; }\n.gravity-mark > span:nth-child(3) { top: 24px; left: 11px; }\n.header-right { display: flex; align-items: center; gap: 19px; }\n.account-label { color: #777b84; font-size: 13px; }\n.header-divider { width: 1px; height: 20px; background: #dedfe3; }\n.main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 28px 50px; }\n.login-card { display: grid; grid-template-columns: 1fr 1.08fr; width: 100%; max-width: 1000px; min-height: 586px; padding: 9px; background: var(--panel-bg); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 10px 40px -20px #242f4620, 0 2px 5px #242f4603; }\n.welcome-panel { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; min-height: 566px; border-radius: 16px; padding: 39px 33px 27px; background: #f7f5ed; color: #2b2b27; }\n.welcome-top { position: relative; z-index: 2; }\n.welcome-eyebrow { display: flex; align-items: center; gap: 8px; font-size: 9px; letter-spacing: 1.8px; font-weight: 600; color: #727269; }\n.status-dot { width: 6px; height: 6px; border-radius: 50%; background: #b5a573; }\n.welcome-top h2 { font-size: 33px; letter-spacing: -1.1px; line-height: 1.26; font-weight: 550; margin: 24px 0 15px; }\n.welcome-top p { color: #85847a; font-size: 13px; line-height: 1.8; margin: 0; }\n.orbit-art { position: relative; height: 270px; width: 100%; margin-top: 3px; }\n.art-grid { position: absolute; inset: 0 -20px; opacity: .45; background-image: linear-gradient(#c4c2ac35 1px, transparent 1px), linear-gradient(90deg, #c4c2ac35 1px, transparent 1px); background-size: 35px 35px; mask-image: radial-gradient(ellipse, black 15%, transparent 68%); }\n.planet { position: absolute; width: 151px; height: 151px; left: calc(50% - 75px); top: 64px; border-radius: 50%; background: radial-gradient(circle at 32% 26%, #ffefad 0%, #ffdd58 33%, #f9bd1c 65%, #dda015 94%); box-shadow: inset -8px -9px 20px #ce940d24, 9px 22px 30px -13px #b18d3a45; display: grid; place-items: center; transform: rotate(-10deg); }\n.planet-light { position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 3px 4px 7px #fff7cf88; }\n.planet .gravity-mark { transform: scale(1.8) rotate(0); opacity: .8; margin-left: 10px; }\n.planet .gravity-mark > span { background: #fff7d0; box-shadow: 0 2px 2px #b8870c25; border-radius: 2px; }\n.orbit { position: absolute; width: 326px; height: 135px; border: 1px solid #c8c2a579; border-radius: 50%; left: calc(50% - 163px); top: 74px; transform: rotate(-27deg); }\n.orbit-two { transform: rotate(34deg); width: 302px; left: calc(50% - 151px); height: 145px; top: 69px; border-color: #d2cbb26b; }\n.orbit-three { transform: rotate(-61deg); width: 270px; left: calc(50% - 135px); top: 87px; height: 105px; border-color: #d2cbb25c; }\n.satellite { position: absolute; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg,#fff,#fbfaf7); border: 1px solid #fff; box-shadow: 0 5px 15px #70613212; z-index: 2; }\n.satellite-one { top: 47px; right: 21px; transform: rotate(12deg); color: #938572; }\n.satellite-one svg { width: 23px; height: 23px; }\n.satellite-two { top: 185px; left: 29px; transform: rotate(-15deg); grid-template-columns: 8px 8px; grid-template-rows: 8px 8px; align-content: center; justify-content: center; gap: 3px; }\n.satellite-two span { width: 8px; height: 8px; border-radius: 2px; background: #b3a588; }\n.satellite-two span:last-child { background: #daceb4; }\n.orbit-dot { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: #d9b455; box-shadow: inset 1px 1px 2px #fff8; }\n.dot-one { left: 23px; top: 128px; }\n.dot-two { right: 53px; top: 212px; width: 6px; height: 6px; }\n.tiny-star { position: absolute; color: #b6a77d; font-size: 15px; }\n.star-one { top: 23px; left: 100px; }.star-two { bottom: 21px; right: 107px; font-size: 11px; }\n.welcome-bottom { display: flex; align-items: center; justify-content: center; gap: 8px; color: #8b887d; font-size: 10px; white-space: nowrap; position: relative; z-index: 2; }\n.mini-symbol { color: #9f977f; font-size: 20px; }\n.form-panel { padding: 43px 54px 35px; align-self: center; }\n.login-icon { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 23px; box-shadow: 0 2px 3px #00000003; }\nh1 { font-size: 29px; font-weight: 600; letter-spacing: -.85px; line-height: 1.2; margin: 0 0 11px; }\n.form-description { font-size: 13px; color: var(--muted); margin: 0 0 31px; line-height: 1.6; }\n.field { margin-bottom: 20px; }.field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 9px; }\n.field .g-text-input { --g-text-input-border-radius: 9px; --g-text-input-background-color: var(--panel-bg); }\n.field .g-text-input__control { font-size: 13px; }\n.password-field { margin-bottom: 21px; }.password-toggle { color: #8a8d94; margin-right: 4px; }\n.form-options { margin-bottom: 25px; }.form-options .g-checkbox__content { font-size: 12px; }\n.submit-button { --g-button-border-radius: 9px; --g-color-base-brand: #ffcf38; --g-color-base-brand-hover: #f5c328; color: #292618; font-weight: 600; }\n.submit-button .g-button__text { width: 100%; display: flex; justify-content: center; align-items: center; gap: 11px; font-size: 14px; }\n.security-note { display: flex; justify-content: center; align-items: center; gap: 7px; color: #999ca3; font-size: 10px; margin-top: 24px; }\n.form-notice { margin-top: 18px; }.form-notice .g-alert { font-size: 12px; }\n.below-card { color: #a1a4ab; font-size: 11px; margin: 24px 0 0; letter-spacing: .1px; }\n.footer { display: flex; align-items: center; justify-content: space-between; margin: 0 5%; padding: 25px 0 28px; color: #969aa2; font-size: 11px; border-top: 1px solid var(--line); }\n.footer a { display: flex; align-items: center; gap: 5px; }.footer a:hover { color: var(--ink); }.footer-language { display: flex; align-items: center; gap: 7px; }.footer-language > span { font-size: 17px; }\n.page-dark { --page-bg: #17191e; --panel-bg: #23252b; --ink: #f0f0f2; --muted: #a1a4ac; --line: #36383f; }.page-dark .welcome-panel { background: #34332b; color: #f0ecdc; }.page-dark .welcome-top p, .page-dark .welcome-bottom, .page-dark .welcome-eyebrow { color: #b3ae9c; }.page-dark .header-divider { background: #36383f; }.page-dark .submit-button { --g-color-text-brand-contrast: #292618; }\na:focus-visible { outline: 2px solid #bf8b00; outline-offset: 5px; border-radius: 3px; }\n@media (min-width: 1500px) { .main { padding-bottom: 90px; } }\n@media (max-width: 900px) { .login-card { max-width: 820px; grid-template-columns: 1fr 1.08fr; }.form-panel { padding: 35px 30px; }.welcome-panel { padding: 38px 25px 25px; }.welcome-top h2 { font-size: 29px; }.welcome-bottom { font-size: 9px; }.orbit-art { transform: scale(.9); } }\n@media (max-width: 680px) { .header { height: 85px; padding: 0 24px; }.brand { font-size: 23px; }.account-label { display: none; }.header-divider { display: none; }.main { padding: 25px 20px 44px; }.login-card { display: block; max-width: 440px; min-height: auto; padding: 0; border-radius: 19px; }.welcome-panel { display: none; }.form-panel { padding: 35px 30px 36px; }h1 { font-size: 28px; }.login-icon { margin-bottom: 24px; }.form-description { margin-bottom: 29px; }.footer { margin: 0 24px; flex-wrap: wrap; gap: 20px; font-size: 10px; }.footer-language { display: none; }.below-card { font-size: 10px; } }\n@media (prefers-reduced-motion: no-preference) { .login-card { animation: appear .5s ease-out; }@keyframes appear { from { opacity: 0; transform: translateY(8px); }to { opacity: 1; transform: translateY(0); } } }\nEOF\npython3 - <<'PY'\np='src/main.tsx'\ns=open(p).read();s=\\\"import '@gravity-ui/uikit/styles/fonts.css';\\\\nimport '@gravity-ui/uikit/styles/styles.css';\\\\n\\\"+s;open(p,'w').write(s)\np='index.html';s=open(p).read().replace('lang=\\\"en\\\"','lang=\\\"ru\\\"').replace('<title>Gravity UI eval</title>','<meta name=\\\"theme-color\\\" content=\\\"#f8f9fb\\\" />\\\\n    <meta name=\\\"description\\\" content=\\\"Вход в личный кабинет — ваши проекты и инструменты в одном пространстве.\\\" />\\\\n    <title>Вход — Gravity UI</title>');open(p,'w').write(s)\nPY\nnpm run build\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"node --input-type=module <<'JS'\nimport fs from 'node:fs';\nconst p = 'src/main.tsx';\nfs.writeFileSync(p, \\\"import '@gravity-ui/uikit/styles/fonts.css';\\\\nimport '@gravity-ui/uikit/styles/styles.css';\\\\n\\\" + fs.readFileSync(p, 'utf8'));\nconst h = 'index.html';\nfs.writeFileSync(h, fs.readFileSync(h, 'utf8').replace('lang=\\\"en\\\"', 'lang=\\\"ru\\\"').replace('<title>Gravity UI eval</title>', '<meta name=\\\"theme-color\\\" content=\\\"#f8f9fb\\\" />\\\\n    <meta name=\\\"description\\\" content=\\\"Вход в личный кабинет — ваши проекты и инструменты в одном пространстве.\\\" />\\\\n    <title>Вход — Gravity UI</title>'));\nfor (const p of ['playwright', '@playwright/test', 'puppeteer']) {try { console.log(p, import.meta.resolve(p)); } catch { console.log(p, 'not installed'); }}\nJS\nnpm run build\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'git diff --stat && git status --short'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'npm run dev -- --host 0.0.0.0'"
+      },
+      {
+        "command": "/bin/bash -lc 'npm install --prefix /tmp/gravity-check playwright && /tmp/gravity-check/node_modules/.bin/playwright install chromium'"
+      },
+      {
+        "command": "/bin/bash -lc 'cat .gitignore && cat node_modules/@gravity-ui/uikit/styles/fonts.css | head -25 && npm audit --omit=dev --json'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"printf '\\\\ndist/\\\\n' >> .gitignore\nnpx --yes prettier --write src/App.tsx src/index.css src/main.tsx index.html\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"cat > /tmp/gravity-check/check.cjs <<'EOF'\nconst {chromium} = require('playwright');\nconst assert = require('node:assert/strict');\n(async () => {\n  const browser = await chromium.launch({headless: true, args: ['--no-sandbox']});\n  const page = await browser.newPage({viewport: {width: 1440, height: 1000}, deviceScaleFactor: 1});\n  const errors = [];\n  page.on('pageerror', (error) => errors.push(error.message));\n  await page.goto('http://localhost:5173');\n  await page.getByRole('heading', {name:'С возвращением'}).waitFor();\n  await page.screenshot({path: '/tmp/gravity-desktop.png', fullPage: true});\n  await page.getByRole('button', {name: 'Войти', exact: true}).click();\n  assert(await page.getByText('Введите email', {exact:true}).isVisible());\n  assert(await page.locator('#email').evaluate(el => el === document.activeElement));\n  await page.getByLabel('Email', {exact:true}).fill('invalid');\n  await page.getByRole('button', {name:'Войти',exact:true}).click();\n  assert(await page.getByText('Введите корректный email', {exact:true}).isVisible());\n  await page.getByLabel('Email', {exact:true}).fill('test@example.com');\n  await page.getByLabel('Пароль', {exact:true}).fill('test-password');\n  await page.getByRole('button', {name:'Показать пароль',exact:true}).click();\n  assert.equal(await page.locator('#password').getAttribute('type'), 'text');\n  await page.getByRole('button', {name:'Скрыть пароль',exact:true}).click();\n  assert.equal(await page.locator('#password').getAttribute('type'), 'password');\n  await page.getByRole('checkbox', {name:'Запомнить меня'}).check();\n  assert(await page.getByRole('checkbox', {name:'Запомнить меня'}).isChecked());\n  await page.locator('#password').press('Enter');\n  assert(await page.getByRole('status').isVisible());\n  await page.getByRole('button', {name:'Включить тёмную тему'}).click();\n  assert(await page.locator('.page-dark').isVisible());\n  await page.screenshot({path: '/tmp/gravity-dark.png', fullPage:true});\n  await page.getByRole('button', {name:'Включить светлую тему'}).click();\n  await page.setViewportSize({width: 390,height: 844});\n  await page.reload();\n  await page.getByRole('heading', {name:'С возвращением'}).waitFor();\n  await page.screenshot({path: '/tmp/gravity-mobile.png',fullPage:true});\n  assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));\n  assert(await page.getByRole('button', {name:'Войти',exact:true}).isVisible());\n  assert.deepEqual(errors, []);\n  console.log('PASS: validation, focus, password visibility, remember checkbox, Enter submission, theme switching, mobile layout, no runtime errors');\n  await browser.close();\n})();\nEOF\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'sed -i \"s/headless: true, args/headless: true, executablePath: chromium.executablePath(), args/\" /tmp/gravity-check/check.cjs\nnode /tmp/gravity-check/check.cjs'",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc '/tmp/gravity-check/node_modules/.bin/playwright install-deps chromium'",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"ldd /home/node/.cache/ms-playwright/chromium-1254/chrome-linux-arm64/chrome | rg 'not found' && command -v apt && command -v dpkg-deb\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'mkdir -p /tmp/gravity-libs && cd /tmp/gravity-libs && apt download libglib2.0-0 libnspr4 libnss3 libatk1.0-0 libatk-bridge2.0-0 libdbus-1-3 libcups2 libxkbcommon0 libasound2 libgbm1 libcairo2 libpango-1.0-0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libatspi2.0-0 libxrender1 libpixman-1-0 libxcb-render0 libxcb-shm0 libthai0 libdatrie1 libfribidi0 libharfbuzz0b libgraphite2-3 libwayland-server0 libdrm2 libavahi-client3 libavahi-common3 libfontconfig1 libfreetype6 libpng16-16 && for file in *.deb; do dpkg-deb -x \"$file\" /tmp/gravity-libs/extracted; done'"
+      },
+      {
+        "command": "/bin/bash -lc 'LD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu node /tmp/gravity-check/check.cjs'",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc 'ls /tmp/gravity-libs | tail -5 && git diff --check && npm run build'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'LD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu node /tmp/gravity-check/check.cjs'",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc 'LD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-libs/extracted/lib/aarch64-linux-gnu node /tmp/gravity-check/check.cjs'",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"LD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-libs/extracted/lib/aarch64-linux-gnu ldd /home/node/.cache/ms-playwright/chromium-1254/chrome-linux-arm64/chrome | rg 'not found'\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'cd /tmp/gravity-libs && apt download libxi6 && dpkg-deb -x libxi6*.deb /tmp/gravity-libs/extracted && LD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-libs/extracted/lib/aarch64-linux-gnu node /tmp/gravity-check/check.cjs'",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"sed -i 's/executablePath: chromium.executablePath(), //' /tmp/gravity-check/check.cjs\nLD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-libs/extracted/lib/aarch64-linux-gnu node /tmp/gravity-check/check.cjs\"",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc 'DEBUG=pw:browser LD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-libs/extracted/lib/aarch64-linux-gnu node /tmp/gravity-check/check.cjs 2>&1 | tail -35'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"cd /tmp/gravity-libs && apt download fonts-dejavu-core && dpkg-deb -x fonts-dejavu-core*.deb /tmp/gravity-libs/extracted\ncat > /tmp/gravity-libs/fonts.conf <<'EOF'\n<?xml version=\\\"1.0\\\"?><\"'!DOCTYPE fontconfig SYSTEM \"fonts.dtd\"><fontconfig><dir>/tmp/gravity-libs/extracted/usr/share/fonts</dir><cachedir>/tmp/gravity-libs/font-cache</cachedir></fontconfig>\nEOF\nFONTCONFIG_FILE=/tmp/gravity-libs/fonts.conf LD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-libs/extracted/lib/aarch64-linux-gnu node /tmp/gravity-check/check.cjs'",
+        "success": false,
+        "exitCode": 1
+      },
+      {
+        "command": "/bin/bash -lc \"DEBUG=pw:browser FONTCONFIG_FILE=/tmp/gravity-libs/fonts.conf FONTCONFIG_PATH=/tmp/gravity-libs LD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-libs/extracted/lib/aarch64-linux-gnu node /tmp/gravity-check/check.cjs 2>&1 | rg 'Font|FATAL|error|PASS'\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"find /tmp/gravity-libs/extracted -name '*softokn*' -o -name '*freebl*' && LD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-libs/extracted/lib/aarch64-linux-gnu ldd /tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu/libsoftokn3.so\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'cd /tmp/gravity-libs && apt download libsqlite3-0 && dpkg-deb -x libsqlite3-0*.deb /tmp/gravity-libs/extracted && FONTCONFIG_FILE=/tmp/gravity-libs/fonts.conf FONTCONFIG_PATH=/tmp/gravity-libs LD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-libs/extracted/lib/aarch64-linux-gnu node /tmp/gravity-check/check.cjs'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"sed -i \\\"s/fullPage: true/fullPage: true, animations: 'disabled'/g; s/fullPage:true/fullPage:true, animations: 'disabled'/g\\\" /tmp/gravity-check/check.cjs\nFONTCONFIG_FILE=/tmp/gravity-libs/fonts.conf FONTCONFIG_PATH=/tmp/gravity-libs LD_LIBRARY_PATH=/tmp/gravity-libs/extracted/usr/lib/aarch64-linux-gnu:/tmp/gravity-libs/extracted/lib/aarch64-linux-gnu node /tmp/gravity-check/check.cjs\"",
+        "success": true,
+        "exitCode": 0
+      }
+    ],
+    "errors": [],
+    "thinkingBlocks": 0,
+    "usage": {
+      "inputTokens": 48469,
+      "outputTokens": 10322,
+      "cacheReadTokens": 1366912,
+      "cacheWriteTokens": 0,
+      "reasoningTokens": 772,
+      "totalTokens": 1425703
+    }
+  },
+  "outputPaths": {
+    "eval": "./outputs/eval.txt",
+    "scripts": {
+      "build": "./outputs/scripts/build.txt"
+    }
+  }
+}

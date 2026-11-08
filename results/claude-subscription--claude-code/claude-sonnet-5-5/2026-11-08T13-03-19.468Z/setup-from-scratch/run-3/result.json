@@ -1,0 +1,109 @@
+{
+  "status": "passed",
+  "duration": 246.401,
+  "provenance": {
+    "agentEvalVersion": "2.6.0",
+    "sandboxBackend": "docker",
+    "sandboxUser": "node",
+    "agentCliVersion": "2.1.319 (Claude Code)"
+  },
+  "usage": {
+    "inputTokens": 28,
+    "outputTokens": 5339,
+    "cacheReadTokens": 356800,
+    "cacheWriteTokens": 23154,
+    "totalTokens": 385321
+  },
+  "model": "claude-sonnet-5-5",
+  "transcriptPath": "./transcript.json",
+  "transcriptRawPath": "./transcript-raw.jsonl",
+  "o11y": {
+    "totalTurns": 3,
+    "toolCalls": {
+      "file_read": 0,
+      "file_write": 0,
+      "file_edit": 0,
+      "shell": 13,
+      "web_fetch": 0,
+      "web_search": 0,
+      "glob": 0,
+      "grep": 0,
+      "list_dir": 0,
+      "agent_task": 0,
+      "unknown": 0
+    },
+    "totalToolCalls": 13,
+    "webFetches": [],
+    "filesRead": [],
+    "filesModified": [],
+    "shellCommands": [
+      {
+        "command": "ls -la && cat package.json && git ls-files | head -50 && head -c 600 package-lock.json",
+        "success": true
+      },
+      {
+        "command": "for f in index.html src/* tsconfig.json vite.config.ts .gitignore; do echo \"=== $f\"; cat $f; done; ls __agent_eval__; ls node_modules | head -30; ls node_modules/@gravity-ui 2>&1",
+        "success": false
+      },
+      {
+        "command": "npm view @gravity-ui/uikit version peerDependencies 2>&1 | head -20",
+        "success": true
+      },
+      {
+        "command": "npm install @gravity-ui/uikit 2>&1 | tail -15; npm ls @gravity-ui/uikit sass 2>&1 | head; ls node_modules/@gravity-ui/uikit/build | head; grep -n '\"sass\\|\"dependencies\"' -A12 node_modules/@gravity-ui/uikit/package.json | head -40",
+        "success": true
+      },
+      {
+        "command": "ls node_modules/@gravity-ui/uikit/build/esm/styles/ | head; sed -n 1,80p node_modules/@gravity-ui/uikit/README.md | head -120; grep -n '\"exports\"' -A25 node_modules/@gravity-ui/uikit/package.json | head -40; grep -rn \"Checkbox\\b\" node_modules/@gravity-ui/uikit/build/esm/components/Checkbox/Checkbox.d.ts | head -3",
+        "success": true
+      },
+      {
+        "command": "U=node_modules/@gravity-ui/uikit; sed -n 80,200p $U/README.md; cat $U/docs/theming.md | head -80; ls $U/styles; ls $U/build/esm/components | tr '\\n' ' '",
+        "success": true
+      },
+      {
+        "command": "D=node_modules/@gravity-ui/uikit/build/docs; ls $D | head -5; ls $D/* 2>/dev/null | grep -i -E \"textinput|checkbox|card|flex|provider|text\\b|password\" | head -20; sed -n 1,200p node_modules/@gravity-ui/uikit/build/esm/components/controls/TextInput/TextInput.d.ts | head -60; ls node_modules/@gravity-ui/uikit/build/esm/components/controls node_modules/@gravity-ui/uikit/build/esm/components/layout",
+        "success": true
+      },
+      {
+        "command": "D=node_modules/@gravity-ui/uikit/build/docs; ls $D/components | tr '\\n' ' '; echo; cat $D/components/PasswordInput.md | head -80; cat $D/components/Card.md | head -50; cat $D/components/Checkbox.md | head -40",
+        "success": true
+      },
+      {
+        "command": "D=node_modules/@gravity-ui/uikit/build; ls $D/docs/components/controls; cat $D/docs/components/controls/PasswordInput.md 2>/dev/null | head -60; cat $D/esm/components/controls/PasswordInput/PasswordInput.d.ts | head -30; grep -n \"Provider\\|theme\" $D/docs/guides/theming.md 2>/dev/null | head -20; ls $D/docs/guides",
+        "success": true
+      },
+      {
+        "command": "D=node_modules/@gravity-ui/uikit/build; sed -n 1,40p $D/docs/guides/i18n.md; grep -n \"gap\\|direction\\|space\" $D/esm/components/layout/Flex/Flex.d.ts | head; grep -n \"variant\\|color\" $D/esm/components/Text/Text.d.ts | head",
+        "success": true
+      },
+      {
+        "command": "cat > src/main.tsx <<'EOF'\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\nimport './index.css';\n\nimport { Provider, configure } from '@gravity-ui/uikit';\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\n\nimport { App } from './App';\n\nconfigure({ lang: 'ru' });\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <Provider theme=\"system\">\n      <App />\n    </Provider>\n  </React.StrictMode>,\n);\nEOF\ncat > src/App.tsx <<'EOF'\nimport { LoginPage } from './LoginPage';\n\nexport function App() {\n  return <LoginPage />;\n}\nEOF\ncat > src/LoginPage.tsx <<'EOF'\nimport { Button, Card, Checkbox, Flex, PasswordInput, Text, TextInput } from '@gravity-ui/uikit';\nimport { useState } from 'react';\nimport type { FormEvent } from 'react';\n\nexport interface LoginValues {\n  email: string;\n  password: string;\n  rememberMe: boolean;\n}\n\ninterface LoginPageProps {\n  onSubmit?: (values: LoginValues) => void;\n}\n\nconst EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n\nfunction validateEmail(email: string) {\n  if (!email.trim()) return 'Введите email';\n  if (!EMAIL_RE.test(email.trim())) return 'Некорректный email';\n  return undefined;\n}\n\nfunction validatePassword(password: string) {\n  return password ? undefined : 'Введите пароль';\n}\n\nexport function LoginPage({ onSubmit }: LoginPageProps) {\n  const [email, setEmail] = useState('');\n  const [password, setPassword] = useState('');\n  const [rememberMe, setRememberMe] = useState(false);\n  const [submitted, setSubmitted] = useState(false);\n\n  const emailError = submitted ? validateEmail(email) : undefined;\n  const passwordError = submitted ? validatePassword(password) : undefined;\n\n  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {\n    event.preventDefault();\n    setSubmitted(true);\n    if (validateEmail(email) || validatePassword(password)) return;\n    onSubmit?.({ email: email.trim(), password, rememberMe });\n  };\n\n  return (\n    <main className=\"page\">\n      <Card type=\"container\" view=\"outlined\" className=\"login-card\">\n        <form onSubmit={handleSubmit} noValidate>\n          <Flex direction=\"column\" gap={5}>\n            <Text variant=\"header-1\" as=\"h1\">\n              Вход\n            </Text>\n\n            <TextInput\n              type=\"email\"\n              name=\"email\"\n              size=\"l\"\n              label=\"Email\"\n              placeholder=\"name@example.com\"\n              autoComplete=\"email\"\n              autoFocus\n              value={email}\n              onUpdate={setEmail}\n              validationState={emailError ? 'invalid' : undefined}\n              errorMessage={emailError}\n            />\n\n            <PasswordInput\n              name=\"password\"\n              size=\"l\"\n              label=\"Пароль\"\n              placeholder=\"Введите пароль\"\n              autoComplete=\"current-password\"\n              hideCopyButton\n              value={password}\n              onUpdate={setPassword}\n              validationState={passwordError ? 'invalid' : undefined}\n              errorMessage={passwordError}\n            />\n\n            <Checkbox size=\"l\" checked={rememberMe} onUpdate={setRememberMe}>\n              Запомнить меня\n            </Checkbox>\n\n            <Button type=\"submit\" view=\"action\" size=\"xl\" width=\"max\">\n              Войти\n            </Button>\n          </Flex>\n        </form>\n      </Card>\n    </main>\n  );\n}\nEOF\ncat > src/index.css <<'EOF'\nbody {\n  margin: 0;\n}\n\n.page {\n  min-height: 100vh;\n  display: grid;\n  place-items: center;\n  padding: 16px;\n  box-sizing: border-box;\n  background: var(--g-color-base-background);\n}\n\n.login-card {\n  width: 100%;\n  max-width: 400px;\n  padding: 32px;\n  box-sizing: border-box;\n}\nEOF\nnpm run build 2>&1 | tail -30",
+        "success": true
+      },
+      {
+        "command": "sed -i 's/gap={5}/gap=\"spacing-5\"/' src/LoginPage.tsx && npm run build 2>&1 | tail -20",
+        "success": true
+      },
+      {
+        "command": "rm -rf dist && which chromium chromium-browser google-chrome 2>&1 | head -3; git status --short",
+        "success": true
+      }
+    ],
+    "errors": [],
+    "thinkingBlocks": 0,
+    "usage": {
+      "inputTokens": 28,
+      "outputTokens": 5339,
+      "cacheReadTokens": 356800,
+      "cacheWriteTokens": 23154,
+      "totalTokens": 385321
+    }
+  },
+  "outputPaths": {
+    "eval": "./outputs/eval.txt",
+    "scripts": {
+      "build": "./outputs/scripts/build.txt"
+    }
+  }
+}

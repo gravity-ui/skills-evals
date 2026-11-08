@@ -1,0 +1,109 @@
+{
+  "status": "passed",
+  "duration": 140.106,
+  "provenance": {
+    "agentEvalVersion": "2.6.0",
+    "sandboxBackend": "docker",
+    "sandboxUser": "node",
+    "agentCliVersion": "2.1.319 (Claude Code)"
+  },
+  "usage": {
+    "inputTokens": 26,
+    "outputTokens": 5168,
+    "cacheReadTokens": 367473,
+    "cacheWriteTokens": 29962,
+    "totalTokens": 402629
+  },
+  "model": "claude-sonnet-5-5",
+  "transcriptPath": "./transcript.json",
+  "transcriptRawPath": "./transcript-raw.jsonl",
+  "o11y": {
+    "totalTurns": 3,
+    "toolCalls": {
+      "file_read": 0,
+      "file_write": 0,
+      "file_edit": 0,
+      "shell": 13,
+      "web_fetch": 0,
+      "web_search": 0,
+      "glob": 0,
+      "grep": 0,
+      "list_dir": 0,
+      "agent_task": 0,
+      "unknown": 0
+    },
+    "totalToolCalls": 13,
+    "webFetches": [],
+    "filesRead": [],
+    "filesModified": [],
+    "shellCommands": [
+      {
+        "command": "ls -la && cat package.json 2>/dev/null; git ls-files; head -c 600 package-lock.json",
+        "success": true
+      },
+      {
+        "command": "for f in index.html src/* tsconfig.json vite.config.ts .gitignore; do echo \"== $f\"; cat $f; done; ls __agent_eval__; ls node_modules | head -50; ls node_modules/@gravity-ui 2>&1",
+        "success": false
+      },
+      {
+        "command": "npm install @gravity-ui/uikit 2>&1 | tail -15; npm ls @gravity-ui/uikit @gravity-ui/icons 2>&1 | head; grep -E '\"(version|peerDependencies)\"' -A6 node_modules/@gravity-ui/uikit/package.json | head -30",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit && ls; ls build 2>/dev/null | head; ls styles 2>/dev/null; grep -n '\"exports\"' -A25 package.json | head -50; grep -n -i -B2 -A12 'styles' README.md | head -60",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit/build/esm/components && sed -n 1,80p TextInput/TextInput.d.ts 2>/dev/null; ls Checkbox PasswordInput 2>&1 | head -20",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit && sed -n 95,260p README.md; ls docs",
+        "success": false
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit/build/docs && ls | head -30; sed -n 1,200p INDEX.md",
+        "success": true
+      },
+      {
+        "command": "cat components/controls/PasswordInput.md | head -80; echo ======; sed -n 1,80p components/controls/TextInput.md; echo ======; sed -n 1,50p components/Checkbox.md; echo =====; sed -n 1,40p guides/theming.md",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit/build/esm/components && cat controls/PasswordInput/PasswordInput.d.ts; sed -n 1,60p Flex/Flex.d.ts 2>/dev/null; sed -n 1,40p ../../docs/components/Card.md; grep -n \"Flex\" -m5 ../../docs/guides/layout.md",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit/build/docs/guides && sed -n 30,110p layout.md; grep -n \"Card\\b\" ../components/Card.md | sed -n 1,3p; sed -n 40,100p ../components/Card.md",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace && cat > src/main.tsx <<'EOF'\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\nimport './index.css';\n\nimport { Provider } from '@gravity-ui/uikit';\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\n\nimport { App } from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <Provider theme=\"system\">\n      <App />\n    </Provider>\n  </React.StrictMode>,\n);\nEOF\ncat > src/App.tsx <<'EOF'\nimport { LoginPage } from './LoginPage';\n\nexport function App() {\n  return (\n    <main className=\"page\">\n      <LoginPage />\n    </main>\n  );\n}\nEOF\ncat > src/LoginPage.tsx <<'EOF'\nimport { Button, Card, Checkbox, Flex, PasswordInput, Text, TextInput } from '@gravity-ui/uikit';\nimport { useState } from 'react';\nimport type { FormEvent } from 'react';\n\nexport interface LoginCredentials {\n  email: string;\n  password: string;\n  remember: boolean;\n}\n\ninterface LoginPageProps {\n  onSubmit?: (credentials: LoginCredentials) => void;\n}\n\nconst EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n\nexport function LoginPage({ onSubmit }: LoginPageProps) {\n  const [email, setEmail] = useState('');\n  const [password, setPassword] = useState('');\n  const [remember, setRemember] = useState(false);\n  const [submitted, setSubmitted] = useState(false);\n\n  const emailError = !email.trim()\n    ? 'Введите email'\n    : !EMAIL_RE.test(email.trim())\n      ? 'Введите корректный email'\n      : undefined;\n  const passwordError = !password ? 'Введите пароль' : undefined;\n\n  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {\n    event.preventDefault();\n    setSubmitted(true);\n    if (emailError || passwordError) {\n      return;\n    }\n    onSubmit?.({ email: email.trim(), password, remember });\n  };\n\n  return (\n    <Card view=\"outlined\" className=\"login-card\">\n      <form onSubmit={handleSubmit} noValidate>\n        <Flex direction=\"column\" gap=\"spacing-5\">\n          <Text as=\"h1\" variant=\"header-1\">\n            Вход\n          </Text>\n\n          <Flex direction=\"column\" gap=\"spacing-1\">\n            <Text as=\"label\" variant=\"subheader-1\" htmlFor=\"login-email\">\n              Email\n            </Text>\n            <TextInput\n              id=\"login-email\"\n              name=\"email\"\n              type=\"email\"\n              size=\"l\"\n              autoComplete=\"username\"\n              placeholder=\"name@example.com\"\n              value={email}\n              onUpdate={setEmail}\n              validationState={submitted && emailError ? 'invalid' : undefined}\n              errorMessage={submitted ? emailError : undefined}\n            />\n          </Flex>\n\n          <Flex direction=\"column\" gap=\"spacing-1\">\n            <Text as=\"label\" variant=\"subheader-1\" htmlFor=\"login-password\">\n              Пароль\n            </Text>\n            <PasswordInput\n              id=\"login-password\"\n              name=\"password\"\n              size=\"l\"\n              autoComplete=\"current-password\"\n              hideCopyButton\n              value={password}\n              onUpdate={setPassword}\n              validationState={submitted && passwordError ? 'invalid' : undefined}\n              errorMessage={submitted ? passwordError : undefined}\n            />\n          </Flex>\n\n          <Checkbox size=\"l\" name=\"remember\" checked={remember} onUpdate={setRemember}>\n            Запомнить меня\n          </Checkbox>\n\n          <Button type=\"submit\" view=\"action\" size=\"xl\" width=\"max\">\n            Войти\n          </Button>\n        </Flex>\n      </form>\n    </Card>\n  );\n}\nEOF\ncat >> src/index.css <<'EOF'\n\n.login-card {\n  box-sizing: border-box;\n  width: 100%;\n  max-width: 400px;\n  padding: var(--g-spacing-8);\n}\nEOF\nnpx tsc --noEmit 2>&1 | head -30",
+        "success": true
+      },
+      {
+        "command": "sed -i 's/^  place-items: center;/  place-items: center;\\n  padding: var(--g-spacing-4);\\n  box-sizing: border-box;/' src/index.css && cat src/index.css && npm run build 2>&1 | tail -15; git status --short",
+        "success": true
+      },
+      {
+        "command": "rm -rf dist && which chromium chromium-browser google-chrome 2>&1 | head -3; ls ~/.cache/ms-playwright 2>&1 | head -3; git diff package.json",
+        "success": true
+      }
+    ],
+    "errors": [],
+    "thinkingBlocks": 0,
+    "usage": {
+      "inputTokens": 26,
+      "outputTokens": 5168,
+      "cacheReadTokens": 367473,
+      "cacheWriteTokens": 29962,
+      "totalTokens": 402629
+    }
+  },
+  "outputPaths": {
+    "eval": "./outputs/eval.txt",
+    "scripts": {
+      "build": "./outputs/scripts/build.txt"
+    }
+  }
+}

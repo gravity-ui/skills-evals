@@ -1,27 +1,27 @@
 # gravity-ui skill evals
 
 Does the [`gravity-ui`](https://github.com/gravity-ui/skills/tree/main/skills/gravity-ui) skill make coding
-agents build better Gravity UI code? This repository answers with a benchmark: 17 realistic tasks, each solved by 10 models four times **without** the
+agents build better Gravity UI code? This repository answers with a benchmark: 18 realistic tasks, each solved by 10 models four times **without** the
 skill and four times **with** it, graded by deterministic checks plus an LLM judge. Built on
 [`@vercel/agent-eval`](https://www.npmjs.com/package/@vercel/agent-eval), the harness behind
 [nextjs.org/evals](https://nextjs.org/evals).
 
 ## Results
 
-Across all 10 models the skill lifts the pass rate from **49% to 89%** (334/679 → 606/680 runs).
+Across all 10 models the skill lifts the pass rate from **50% to 89%** (362/719 → 641/720 runs).
 
 | Model | Agent CLI | Served by | Without skill | With skill | Δ |
 |---|---|---|---|---|---|
-| Claude Sonnet 5.5 | Claude Code | Claude subscription | 65% (44/68) | 99% (67/68) | +34 pp |
-| Claude Fable 5.1 | Claude Code | Claude subscription | 68% (46/68) | 96% (65/68) | +28 pp |
-| Claude Opus 5.5 | Claude Code | Claude subscription | 72% (49/68) | 94% (64/68) | +22 pp |
-| GPT-6 Astra | Codex | ChatGPT subscription | 28% (19/68) | 91% (62/68) | +63 pp |
-| Claude Haiku 5.5 | Claude Code | OpenCode Go / OpenRouter | 66% (45/68) | 88% (60/68) | +22 pp |
-| DeepSeek v4 Pro | Codex | OpenCode Go / OpenRouter | 56% (38/68) | 88% (60/68) | +32 pp |
-| GLM 5.3 Flash | Codex | OpenCode Go / OpenRouter | 48% (32/67) +1 t/o | 85% (58/68) | +37 pp |
-| GPT-6.1 Sol | Codex | ChatGPT subscription | 25% (17/68) | 85% (58/68) | +60 pp |
-| GPT-6 Luna | Codex | ChatGPT subscription | 15% (10/68) | 85% (58/68) | +70 pp |
-| Kimi K3 | Claude Code | OpenCode Go / OpenRouter | 50% (34/68) | 79% (54/68) | +29 pp |
+| Claude Sonnet 5.5 | Claude Code | Claude subscription | 67% (48/72) | 99% (71/72) | +32 pp |
+| Claude Fable 5.1 | Claude Code | Claude subscription | 69% (50/72) | 96% (69/72) | +27 pp |
+| Claude Opus 5.5 | Claude Code | Claude subscription | 74% (53/72) | 94% (68/72) | +20 pp |
+| GPT-6 Astra | Codex | ChatGPT subscription | 32% (23/72) | 92% (66/72) | +60 pp |
+| Claude Haiku 5.5 | Claude Code | OpenCode Go / OpenRouter | 68% (49/72) | 89% (64/72) | +21 pp |
+| DeepSeek v4 Pro | Codex | OpenCode Go / OpenRouter | 53% (38/72) | 89% (64/72) | +36 pp |
+| GPT-6.1 Sol | Codex | ChatGPT subscription | 29% (21/72) | 86% (62/72) | +57 pp |
+| GPT-6 Luna | Codex | ChatGPT subscription | 15% (11/72) | 86% (62/72) | +71 pp |
+| GLM 5.3 Flash | Codex | OpenCode Go / OpenRouter | 45% (32/71) +1 t/o | 81% (58/72) | +36 pp |
+| Kimi K3 | Claude Code | OpenCode Go / OpenRouter | 51% (37/72) | 79% (57/72) | +28 pp |
 
 Per task, all models pooled:
 
@@ -40,6 +40,7 @@ Per task, all models pooled:
 | cross-theme-persist | A theme switch remembered in localStorage | 95% | 95% |
 | edge-calendar | A date-picking calendar | 65% | 100% |
 | edge-stale-api | A light/dark switch on the current API of the installed major version | 90% | 95% |
+| setup-from-scratch | A React app without Gravity UI: add it and build a login page on it | 70% | 88% |
 | viz-chart-themed | A line chart that matches the current light/dark theme | 0% | 47% |
 | viz-chartkit-mixed | One widget switching between a sales line chart and a dense monitoring series, engines lazy-loaded | 35% | 70% |
 | viz-widgets-dashboard | A dashboard of widgets the user can freely arrange on a grid | 0% | 87% |
@@ -53,7 +54,11 @@ What the numbers say:
 - **GPT-6 models gain the most.** Without the skill they often spend the time budget on side quests
   (downloading stock photos, installing Playwright to screenshot their own app) and often hit the 45-minute
   limit; with it they finish in 10–13 minutes.
-- **Cheap models close most of the gap**: Haiku 5.5 and DeepSeek v4 Pro reach 88%.
+- **Cheap models close most of the gap**: Haiku 5.5 and DeepSeek v4 Pro reach 89%.
+- **Setting uikit up from scratch** (`setup-from-scratch`) is easy for the strong models even without the
+  skill. Weaker ones forget `fonts.css` or import the app's own CSS before uikit's; the skill fixes GPT-6 Luna
+  (1/4 → 4/4) and DeepSeek (0/4 → 4/4). GLM still appends the uikit imports below the app's existing
+  `index.css` import with the skill (0/4): the trap shows the right order but not "move it above existing CSS".
 - **What is left**: `viz-chart-themed` — models pick `@gravity-ui/charts` but still hand-build a palette
   per theme, which the chart already does; `viz-chartkit-mixed` — the skill's decision table steers weaker
   models away from `@gravity-ui/chartkit`, the package this task needs.
@@ -67,7 +72,8 @@ What the numbers say:
 
 ## How it is measured
 
-- **An eval** is a Vite + React fixture with `@gravity-ui/uikit` installed (`evals/<id>/`), a prompt written
+- **An eval** is a Vite + React fixture with `@gravity-ui/uikit` installed and set up (`evals/<id>/`; only
+  `setup-from-scratch` starts without it), a prompt written
   the way a user would (`PROMPT.md`, in Russian, naming the goal and never the API), and `EVAL.ts`:
   deterministic checks (the right package is imported, no foreign UI library, no hand-rolled replacement)
   plus one `toSatisfyCriterion` judge test describing the intended Gravity UI solution.

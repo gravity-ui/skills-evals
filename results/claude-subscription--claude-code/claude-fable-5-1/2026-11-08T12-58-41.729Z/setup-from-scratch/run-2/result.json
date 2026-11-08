@@ -1,0 +1,113 @@
+{
+  "status": "passed",
+  "duration": 247.766,
+  "provenance": {
+    "agentEvalVersion": "2.6.0",
+    "sandboxBackend": "docker",
+    "sandboxUser": "node",
+    "agentCliVersion": "2.1.319 (Claude Code)"
+  },
+  "usage": {
+    "inputTokens": 450,
+    "outputTokens": 11285,
+    "cacheReadTokens": 499011,
+    "cacheWriteTokens": 38309,
+    "totalTokens": 549055
+  },
+  "model": "claude-fable-5-1",
+  "transcriptPath": "./transcript.json",
+  "transcriptRawPath": "./transcript-raw.jsonl",
+  "o11y": {
+    "totalTurns": 4,
+    "toolCalls": {
+      "file_read": 0,
+      "file_write": 0,
+      "file_edit": 0,
+      "shell": 14,
+      "web_fetch": 0,
+      "web_search": 0,
+      "glob": 0,
+      "grep": 0,
+      "list_dir": 0,
+      "agent_task": 0,
+      "unknown": 0
+    },
+    "totalToolCalls": 14,
+    "webFetches": [],
+    "filesRead": [],
+    "filesModified": [],
+    "shellCommands": [
+      {
+        "command": "ls -la && cat package.json 2>/dev/null && echo \"---\" && find . -path ./node_modules -prune -o -type f -print | grep -v '^./.git/' | head -50",
+        "success": true
+      },
+      {
+        "command": "for f in index.html src/App.tsx src/main.tsx src/index.css src/vite-env.d.ts tsconfig.json vite.config.ts .gitignore __agent_eval__/run.mjs; do echo \"=== $f ===\"; cat \"$f\"; echo; done; echo \"=== node ===\"; node -v; npm -v; ls node_modules | head -30; ls node_modules/@gravity-ui 2>/dev/null",
+        "success": false
+      },
+      {
+        "command": "npm install @gravity-ui/uikit 2>&1 | tail -5 && echo \"--- version:\" && node -p \"require('./node_modules/@gravity-ui/uikit/package.json').version\" && echo \"--- peers:\" && node -p \"JSON.stringify(require('./node_modules/@gravity-ui/uikit/package.json').peerDependencies)\" && echo \"--- styles:\" && ls node_modules/@gravity-ui/uikit/styles/ && echo \"--- components:\" && ls node_modules/@gravity-ui/uikit/build/esm/components/ | grep -iE 'TextInput|PasswordInput|Checkbox|Button|ThemeProvider|Card|Text$|Flex|layout' ",
+        "success": true
+      },
+      {
+        "command": "ls node_modules/@gravity-ui/uikit/build/esm/components/ | tr '\\n' ' ' && echo && echo \"--- controls:\" && ls node_modules/@gravity-ui/uikit/build/esm/components/controls 2>/dev/null && echo \"--- ThemeProvider:\" && ls node_modules/@gravity-ui/uikit/build/esm/components/theme && echo \"--- optional peers:\" && node -p \"JSON.stringify(require('./node_modules/@gravity-ui/uikit/package.json').peerDependenciesMeta)\" && echo \"--- exports:\" && node -p \"Object.keys(require('./node_modules/@gravity-ui/uikit/package.json').exports || {}).join(' ')\" && echo \"--- installed react:\" && node -p \"require('./node_modules/react/package.json').version\"",
+        "success": true
+      },
+      {
+        "command": "U=node_modules/@gravity-ui/uikit && echo \"=== README setup ===\" && grep -n -A12 -iE '^## (Usage|Install|Getting started)' $U/README.md | head -60; echo \"=== ThemeProvider props ===\"; cat $U/build/esm/components/theme/ThemeProvider.d.ts; echo \"=== TextInput props ===\"; cat $U/build/esm/components/controls/TextInput/TextInput.d.ts; echo \"=== PasswordInput props ===\"; cat $U/build/esm/components/controls/PasswordInput/PasswordInput.d.ts; echo \"=== controls common types ===\"; sed -n 1,80p $U/build/esm/components/controls/types.d.ts",
+        "success": true
+      },
+      {
+        "command": "U=node_modules/@gravity-ui/uikit && echo \"=== README styles/theme section ===\" && grep -n -B2 -A14 -iE 'styles\\.css|ThemeProvider' $U/README.md | head -80; echo \"=== Checkbox ===\"; cat $U/build/esm/components/Checkbox/Checkbox.d.ts; echo \"=== Button ===\"; sed -n 1,60p $U/build/esm/components/Button/Button.d.ts; echo \"=== Card ===\"; cat $U/build/esm/components/Card/Card.d.ts; echo \"=== Flex ===\"; sed -n 1,60p $U/build/esm/components/layout/Flex/Flex.d.ts; echo \"=== Text ===\"; sed -n 1,40p $U/build/esm/components/Text/Text.d.ts",
+        "success": true
+      },
+      {
+        "command": "U=node_modules/@gravity-ui/uikit && echo \"=== README Provider snippet ===\" && sed -n 52,62p $U/README.md && grep -n -B3 -A20 '<Provider' $U/README.md | head -60; echo \"=== Provider.d.ts ===\"; cat $U/build/esm/components/theme/Provider.d.ts; echo \"=== ControlProps ===\"; grep -n -A25 'interface ControlProps' $U/build/esm/components/types.d.ts; echo \"=== Button types ===\"; sed -n 1,80p $U/build/esm/components/Button/types.d.ts; echo \"=== AI docs index ===\"; sed -n 1,80p $U/build/docs/INDEX.md",
+        "success": true
+      },
+      {
+        "command": "U=node_modules/@gravity-ui/uikit && cat $U/build/esm/components/theme/LangProvider.d.ts; echo \"--- i18n langs:\"; ls $U/build/esm/components/controls/PasswordInput/i18n/ 2>/dev/null; grep -rn \"lang\" $U/build/docs/guides/theming.md | head -5",
+        "success": true
+      },
+      {
+        "command": "mkdir -p src/pages && cat > src/main.tsx <<'EOF'\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\nimport './index.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport { Provider } from '@gravity-ui/uikit';\n\nimport { App } from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <Provider theme=\"system\" lang=\"ru\">\n      <App />\n    </Provider>\n  </React.StrictMode>,\n);\nEOF\ncat > src/App.tsx <<'EOF'\nimport { LoginPage } from './pages/LoginPage';\n\nexport function App() {\n  return (\n    <main className=\"page\">\n      <LoginPage />\n    </main>\n  );\n}\nEOF\ncat > src/pages/LoginPage.tsx <<'EOF'\nimport { useState, type FormEvent } from 'react';\nimport { Button, Card, Checkbox, Flex, PasswordInput, Text, TextInput } from '@gravity-ui/uikit';\n\nexport interface LoginFormValues {\n  email: string;\n  password: string;\n  remember: boolean;\n}\n\ninterface LoginPageProps {\n  /** Вызывается после успешной клиентской валидации формы. */\n  onSubmit?: (values: LoginFormValues) => void | Promise<void>;\n}\n\ninterface FieldErrors {\n  email?: string;\n  password?: string;\n}\n\nconst EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n\nfunction validate(values: LoginFormValues): FieldErrors {\n  const errors: FieldErrors = {};\n  const email = values.email.trim();\n\n  if (!email) {\n    errors.email = 'Введите email';\n  } else if (!EMAIL_RE.test(email)) {\n    errors.email = 'Некорректный email';\n  }\n\n  if (!values.password) {\n    errors.password = 'Введите пароль';\n  }\n\n  return errors;\n}\n\nexport function LoginPage({ onSubmit }: LoginPageProps) {\n  const [email, setEmail] = useState('');\n  const [password, setPassword] = useState('');\n  const [remember, setRemember] = useState(false);\n  const [errors, setErrors] = useState<FieldErrors>({});\n  const [submitting, setSubmitting] = useState(false);\n\n  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {\n    event.preventDefault();\n\n    const values: LoginFormValues = { email: email.trim(), password, remember };\n    const nextErrors = validate(values);\n    setErrors(nextErrors);\n    if (nextErrors.email || nextErrors.password) {\n      return;\n    }\n\n    setSubmitting(true);\n    try {\n      await onSubmit?.(values);\n    } finally {\n      setSubmitting(false);\n    }\n  };\n\n  return (\n    <Card type=\"container\" view=\"raised\" size=\"l\" className=\"login-card\">\n      <form onSubmit={handleSubmit} noValidate>\n        <Flex direction=\"column\" gap=\"4\">\n          <Flex direction=\"column\" gap=\"1\">\n            <Text as=\"h1\" variant=\"header-2\">\n              Вход\n            </Text>\n            <Text color=\"secondary\">Введите данные учётной записи</Text>\n          </Flex>\n\n          <Flex direction=\"column\" gap=\"3\">\n            <Flex direction=\"column\" gap=\"1\">\n              <Text as=\"label\" variant=\"body-1\" {...{ htmlFor: 'login-email' }}>\n                Email\n              </Text>\n              <TextInput\n                id=\"login-email\"\n                name=\"email\"\n                type=\"email\"\n                size=\"l\"\n                autoComplete=\"email\"\n                autoFocus\n                placeholder=\"name@example.com\"\n                value={email}\n                onUpdate={(value) => {\n                  setEmail(value);\n                  if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));\n                }}\n                validationState={errors.email ? 'invalid' : undefined}\n                errorMessage={errors.email}\n              />\n            </Flex>\n\n            <Flex direction=\"column\" gap=\"1\">\n              <Text as=\"label\" variant=\"body-1\" {...{ htmlFor: 'login-password' }}>\n                Пароль\n              </Text>\n              <PasswordInput\n                id=\"login-password\"\n                name=\"password\"\n                size=\"l\"\n                autoComplete=\"current-password\"\n                hideCopyButton\n                value={password}\n                onUpdate={(value) => {\n                  setPassword(value);\n                  if (errors.password) setErrors((prev) => ({ ...prev, password: undefined }));\n                }}\n                validationState={errors.password ? 'invalid' : undefined}\n                errorMessage={errors.password}\n              />\n            </Flex>\n\n            <Checkbox\n              size=\"l\"\n              name=\"remember\"\n              checked={remember}\n              onUpdate={setRemember}\n            >\n              Запомнить меня\n            </Checkbox>\n          </Flex>\n\n          <Button type=\"submit\" view=\"action\" size=\"l\" width=\"max\" loading={submitting}>\n            Войти\n          </Button>\n        </Flex>\n      </form>\n    </Card>\n  );\n}\nEOF\ncat > src/index.css <<'EOF'\nbody {\n  margin: 0;\n}\n\n.page {\n  min-height: 100vh;\n  display: grid;\n  place-items: center;\n  padding: var(--g-spacing-4);\n  box-sizing: border-box;\n}\n\n.login-card {\n  width: 100%;\n  max-width: 400px;\n  padding: var(--g-spacing-6);\n  box-sizing: border-box;\n}\nEOF\nsed -i 's/<html lang=\"en\">/<html lang=\"ru\">/; s|<title>Gravity UI eval</title>|<title>Вход</title>|' index.html\necho \"--- typecheck + build:\" && npm run build 2>&1 | tail -25",
+        "success": true
+      },
+      {
+        "command": "sed -i 's/<Text as=\"label\" variant=\"body-1\" {...{ htmlFor: '\"'\"'login-email'\"'\"' }}>/<Text as=\"label\" variant=\"body-1\" htmlFor=\"login-email\">/; s/<Text as=\"label\" variant=\"body-1\" {...{ htmlFor: '\"'\"'login-password'\"'\"' }}>/<Text as=\"label\" variant=\"body-1\" htmlFor=\"login-password\">/' src/pages/LoginPage.tsx && grep -n 'as=\"label\"' src/pages/LoginPage.tsx && rm -rf dist && printf 'node_modules/\\n__agent_eval__/\\ndist/\\n' > .gitignore && npx tsc --noEmit && echo TSC_OK; echo \"--- test deps:\"; ls node_modules | grep -E '^(jsdom|happy-dom|@testing-library)$'; ls node_modules/@testing-library 2>/dev/null; echo \"--- git status:\"; git status --short",
+        "success": true
+      },
+      {
+        "command": "cat > src/pages/LoginPage.test.tsx <<'EOF'\nimport { renderToString } from 'react-dom/server';\nimport { Provider } from '@gravity-ui/uikit';\nimport { describe, expect, it } from 'vitest';\n\nimport { LoginPage } from './LoginPage';\n\ndescribe('LoginPage', () => {\n  it('renders email, password, remember-me checkbox and submit button', () => {\n    const html = renderToString(\n      <Provider theme=\"light\" lang=\"ru\">\n        <LoginPage />\n      </Provider>,\n    );\n\n    expect(html).toContain('<form');\n    expect(html).toMatch(/<input[^>]*type=\"email\"[^>]*id=\"login-email\"/);\n    expect(html).toMatch(/<input[^>]*type=\"password\"[^>]*id=\"login-password\"/);\n    expect(html).toMatch(/<input[^>]*type=\"checkbox\"[^>]*name=\"remember\"/);\n    expect(html).toContain('Запомнить меня');\n    expect(html).toMatch(/<button[^>]*type=\"submit\"[^>]*>[\\s\\S]*Войти/);\n    expect(html).toContain('g-text-input');\n    expect(html).toContain('g-button_view_action');\n  });\n});\nEOF\necho \"=== vitest ===\" && npx vitest run 2>&1 | tail -20\necho \"=== dev server ===\" && (npx vite --port 5179 --strictPort >/tmp/vite.log 2>&1 &) && for i in $(seq 1 30); do curl -sf http://localhost:5179/ >/tmp/index.out && break; sleep 0.5; done; grep -o '<title>[^<]*</title>' /tmp/index.out; curl -sf http://localhost:5179/src/main.tsx | grep -oE '@gravity-ui/uikit/styles/[a-z]+\\.css|from \"[^\"]*uikit[^\"]*\"' | sort -u; curl -sf http://localhost:5179/src/pages/LoginPage.tsx | grep -c 'PasswordInput'; pkill -f 'vite --port 5179'; tail -3 /tmp/vite.log",
+        "success": true
+      },
+      {
+        "command": "cat > vite.config.ts <<'EOF'\nimport { defineConfig } from 'vitest/config';\nimport react from '@vitejs/plugin-react';\n\nexport default defineConfig({\n  plugins: [react()],\n  test: {\n    // uikit компоненты импортируют свой CSS; инлайним пакет, чтобы vitest обработал эти импорты.\n    server: { deps: { inline: [/@gravity-ui\\/uikit/] } },\n  },\n});\nEOF\necho \"=== vitest ===\" && npx vitest run 2>&1 | tail -12\necho \"=== dev server (already running on 5179) ===\" && node -e '\nconst get = async (p) => { const r = await fetch(\"http://localhost:5179\"+p); if(!r.ok) throw new Error(p+\" \"+r.status); return r.text(); };\n(async () => {\n  const idx = await get(\"/\"); console.log(\"title:\", idx.match(/<title>[^<]*<\\/title>/)?.[0], \"| lang:\", idx.match(/<html lang=\"[^\"]*\"/)?.[0]);\n  const main = await get(\"/src/main.tsx\"); console.log(\"main imports:\", [...new Set(main.match(/@gravity-ui\\/uikit[^\"\\x27]*/g))].join(\", \"));\n  const page = await get(\"/src/pages/LoginPage.tsx\"); console.log(\"LoginPage compiled, uikit components:\", [...new Set(page.match(/\\b(TextInput|PasswordInput|Checkbox|Button|Card|Flex|Text)\\b/g))].join(\", \"));\n  const css = await get(\"/node_modules/@gravity-ui/uikit/styles/styles.css\"); console.log(\"styles.css served:\", css.length > 1000);\n})().catch(e => { console.error(\"FAIL\", e.message); process.exit(1); });\n'\necho \"=== stop server ===\" && for p in /proc/[0-9]*; do if tr \"\\0\" \" \" < $p/cmdline 2>/dev/null | grep -q 'vite --port 5179'; then kill ${p#/proc/} && echo \"killed ${p#/proc/}\"; fi; done",
+        "success": false
+      },
+      {
+        "command": "npx vitest run 2>&1 | grep -E 'AssertionError|Expected|Received|^\\s+\\d+\\|' | head -12; echo \"=== checkbox html ===\"; cat > /tmp/dump.test.tsx <<'EOF'\nimport { renderToString } from 'react-dom/server';\nimport { Provider } from '@gravity-ui/uikit';\nimport { it } from 'vitest';\nimport { LoginPage } from '/home/sandbox/workspace/src/pages/LoginPage';\nit('dump', () => {\n  const html = renderToString(<Provider theme=\"light\" lang=\"ru\"><LoginPage /></Provider>);\n  console.log(html.match(/<input[^>]*type=\"checkbox\"[^>]*>/)?.[0]);\n  console.log(html.match(/<input[^>]*type=\"email\"[^>]*>/)?.[0]);\n  console.log(html.match(/<input[^>]*type=\"password\"[^>]*>/)?.[0]);\n  console.log(html.match(/<button[^>]*type=\"submit\"[^>]*>/)?.[0]);\n});\nEOF\ncp /tmp/dump.test.tsx src/__dump.test.tsx && npx vitest run src/__dump.test.tsx 2>&1 | grep -E '^<(input|button)'; rm -f src/__dump.test.tsx",
+        "success": true
+      },
+      {
+        "command": "sed -i 's#expect(html).toMatch(/<input\\[^>\\]\\*type=\"checkbox\"\\[^>\\]\\*name=\"remember\"/);#expect(html).toMatch(/<input[^>]*name=\"remember\"[^>]*type=\"checkbox\"/);#' src/pages/LoginPage.test.tsx && grep -n 'checkbox' src/pages/LoginPage.test.tsx && echo \"=== vitest ===\" && npx vitest run 2>&1 | grep -E 'Test Files|Tests|✓|✗|FAIL' && echo \"=== build ===\" && npm run build 2>&1 | grep -E 'error|✓ built|dist/' ; rm -rf dist; echo \"=== git status ===\" && git status --short && echo \"=== package.json deps ===\" && node -p \"JSON.stringify(require('./package.json').dependencies)\"",
+        "success": true
+      }
+    ],
+    "errors": [],
+    "thinkingBlocks": 0,
+    "usage": {
+      "inputTokens": 450,
+      "outputTokens": 11285,
+      "cacheReadTokens": 499011,
+      "cacheWriteTokens": 38309,
+      "totalTokens": 549055
+    }
+  },
+  "outputPaths": {
+    "eval": "./outputs/eval.txt",
+    "scripts": {
+      "build": "./outputs/scripts/build.txt"
+    }
+  }
+}

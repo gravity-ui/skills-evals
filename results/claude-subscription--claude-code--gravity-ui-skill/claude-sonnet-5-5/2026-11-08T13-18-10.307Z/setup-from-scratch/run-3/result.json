@@ -1,0 +1,123 @@
+{
+  "status": "passed",
+  "duration": 267.748,
+  "provenance": {
+    "agentEvalVersion": "2.6.0",
+    "sandboxBackend": "docker",
+    "sandboxUser": "node",
+    "agentCliVersion": "2.1.319 (Claude Code)"
+  },
+  "usage": {
+    "inputTokens": 34,
+    "outputTokens": 5082,
+    "cacheReadTokens": 661619,
+    "cacheWriteTokens": 37203,
+    "totalTokens": 703938
+  },
+  "model": "claude-sonnet-5-5",
+  "transcriptPath": "./transcript.json",
+  "transcriptRawPath": "./transcript-raw.jsonl",
+  "o11y": {
+    "totalTurns": 2,
+    "toolCalls": {
+      "file_read": 1,
+      "file_write": 0,
+      "file_edit": 0,
+      "shell": 16,
+      "web_fetch": 0,
+      "web_search": 0,
+      "glob": 0,
+      "grep": 0,
+      "list_dir": 0,
+      "agent_task": 0,
+      "unknown": 0
+    },
+    "totalToolCalls": 17,
+    "webFetches": [],
+    "filesRead": [
+      "/home/sandbox/workspace/.agents/skills/gravity-ui/SKILL.md"
+    ],
+    "filesModified": [],
+    "shellCommands": [
+      {
+        "command": "ls -la && cat package.json 2>/dev/null; cat AGENTS.md; ls -R .agents | head -50",
+        "success": true
+      },
+      {
+        "command": "cat index.html tsconfig.json vite.config.ts .gitignore; ls -R src; cat src/*; ls node_modules | head -30; ls node_modules/@gravity-ui 2>&1; sed -n 1,60p .agents/skills/gravity-ui/references/package-routing.md; cat .agents/skills/gravity-ui/rules/hallucination-traps.md",
+        "success": true
+      },
+      {
+        "command": "npm install @gravity-ui/uikit 2>&1 | tail -15; node -p \"require('./node_modules/@gravity-ui/uikit/package.json').version\"; node -p \"JSON.stringify(require('./node_modules/@gravity-ui/uikit/package.json').peerDependencies)\"",
+        "success": true
+      },
+      {
+        "command": "ls node_modules/@gravity-ui/uikit/build/docs | head; sed -n 1,200p node_modules/@gravity-ui/uikit/build/docs/INDEX.md | head -120; .agents/skills/gravity-ui/scripts/inspect-package.sh uikit Button TextInput PasswordInput Checkbox ThemeProvider Card Flex Text 2>&1 | head -60",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit/build/docs && ls components | tr '\\n' ' '; echo; grep -n \"ThemeProvider\\|Provider\" guides/migration-to-v8.md | head -15; for c in TextInput PasswordInput Checkbox Button Card; do echo \"=== $c\"; ls components/$c* 2>/dev/null; done",
+        "success": true
+      },
+      {
+        "command": "ls components/controls; sed -n 1,200p components/controls/TextInput.md 2>/dev/null | head -150; echo ======; grep -n \"^#\\|checked\\|onUpdate\\|content\" components/Checkbox.md | head -30; echo =====; grep -n \"type=\\|loading\\|width\\|view\" components/Button.md | head -20",
+        "success": true
+      },
+      {
+        "command": "sed -n '/## Properties/,$p' components/controls/PasswordInput.md | cut -c1-200 | head -30; grep -n \"| type\\|| width\\|| loading\\|| href\\|| disabled\" components/Button.md | cut -c1-200; grep -n \"| theme\\|| lang\\|| rootClassName\" guides/*.md | head -5; sed -n '/## Properties/,/^$/p' components/Card.md | head -5; grep -n \"type=\\|Card\" components/Card.md | head -12; grep -n \"^| *\\(variant\\|as\\|color\\)\" components/Text.md | cut -c1-160",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit/build && sed -n 185,200p docs/components/Button.md | cut -c1-150; sed -n 10,30p docs/components/Card.md; grep -rn \"type?\" components/Button/Button.d.ts | head; grep -n \"export\" components/Provider/*.d.ts | head",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit && find . -path ./node_modules -prune -o -name \"Button.d.ts\" -print -o -name \"Provider.d.ts\" -print | head; ",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/uikit/build/esm/components && cat Button/Button.d.ts | head -40; cat theme/Provider.d.ts | head -30",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace && cat > src/main.tsx <<'EOF'\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\nimport './index.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport {Provider} from '@gravity-ui/uikit';\n\nimport {App} from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <Provider theme=\"system\" lang=\"ru\">\n      <App />\n    </Provider>\n  </React.StrictMode>,\n);\nEOF\ncat > src/index.css <<'EOF'\nbody {\n  margin: 0;\n}\n\n.page {\n  min-height: 100vh;\n  display: grid;\n  place-items: center;\n  padding: var(--g-spacing-4);\n  box-sizing: border-box;\n  background: var(--g-color-base-background);\n}\n\n.login-card {\n  width: 100%;\n  max-width: 400px;\n}\nEOF\ncat > src/App.tsx <<'EOF'\nimport React from 'react';\nimport {Button, Card, Checkbox, Flex, PasswordInput, Text, TextInput} from '@gravity-ui/uikit';\n\nexport function App() {\n  const [email, setEmail] = React.useState('');\n  const [password, setPassword] = React.useState('');\n  const [rememberMe, setRememberMe] = React.useState(false);\n\n  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {\n    event.preventDefault();\n    // TODO: подключить реальную авторизацию\n    console.info('login', {email, rememberMe});\n  };\n\n  return (\n    <main className=\"page\">\n      <Card className=\"login-card\" type=\"container\" view=\"outlined\" spacing={{p: 6}}>\n        <form onSubmit={handleSubmit}>\n          <Flex direction=\"column\" gap={5}>\n            <Text variant=\"header-1\">Вход</Text>\n\n            <Flex direction=\"column\" gap={4}>\n              <TextInput\n                type=\"email\"\n                name=\"email\"\n                size=\"l\"\n                label=\"Email\"\n                placeholder=\"name@example.com\"\n                autoComplete=\"email\"\n                value={email}\n                onUpdate={setEmail}\n                controlProps={{required: true}}\n              />\n              <PasswordInput\n                name=\"password\"\n                size=\"l\"\n                label=\"Пароль\"\n                autoComplete=\"current-password\"\n                value={password}\n                onUpdate={setPassword}\n                controlProps={{required: true}}\n              />\n              <Checkbox size=\"l\" checked={rememberMe} onUpdate={setRememberMe}>\n                Запомнить меня\n              </Checkbox>\n            </Flex>\n\n            <Button type=\"submit\" view=\"action\" size=\"xl\" width=\"max\">\n              Войти\n            </Button>\n          </Flex>\n        </form>\n      </Card>\n    </main>\n  );\n}\nEOF\nnpm run build 2>&1 | tail -30",
+        "success": true
+      },
+      {
+        "command": "grep -n \"gap\\|SpacingValue\" node_modules/@gravity-ui/uikit/build/docs/guides/layout.md | head -20; grep -rn \"SpacingValue =\" node_modules/@gravity-ui/uikit/build/esm --include=*.d.ts | head -3",
+        "success": true
+      },
+      {
+        "command": "sed -n 270,310p node_modules/@gravity-ui/uikit/build/docs/guides/layout.md",
+        "success": true
+      },
+      {
+        "command": "grep -n \"padding\" node_modules/@gravity-ui/uikit/build/docs/guides/layout.md | head -8",
+        "success": true
+      },
+      {
+        "command": "sed -i 's| spacing={{p: 6}}||; s|<Flex direction=\"column\" gap={5}>|<Flex direction=\"column\" gap=\"spacing-5\" padding=\"spacing-6\">|; s|<Flex direction=\"column\" gap={4}>|<Flex direction=\"column\" gap=\"spacing-4\">|' src/App.tsx && npm run build 2>&1 | tail -20",
+        "success": true
+      },
+      {
+        "command": "rm -rf dist && git status --short",
+        "success": true
+      }
+    ],
+    "errors": [],
+    "thinkingBlocks": 0,
+    "usage": {
+      "inputTokens": 34,
+      "outputTokens": 5082,
+      "cacheReadTokens": 661619,
+      "cacheWriteTokens": 37203,
+      "totalTokens": 703938
+    }
+  },
+  "outputPaths": {
+    "eval": "./outputs/eval.txt",
+    "scripts": {
+      "build": "./outputs/scripts/build.txt"
+    }
+  }
+}
