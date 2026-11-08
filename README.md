@@ -178,3 +178,7 @@ agents read from `node_modules` are redacted in the committed transcripts.
 Create `evals/<id>/` with `PROMPT.md` (the user's goal, never the API), `EVAL.ts` (deterministic checks and
 one focused judge criterion), `package.json` with a `build` script and the starting `src/`; add
 `solutions/<id>/`, then `pnpm verify-evals <id>` and `RUNS=1 EVAL_FILTER=<id> pnpm eval:run '<experiment>'`.
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.
