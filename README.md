@@ -61,8 +61,8 @@ What the numbers say:
 ### Browse
 
 - [`results-evals.html`](results-evals.html) — the nextjs.org/evals view: a row per model, expandable into
-  per-eval pass counts, tokens, duration and cost. Open it from a local checkout.
-- [`results-summary.md`](results-summary.md) — per experiment and model: pass rate, mean time, cost estimate.
+  per-eval pass counts, tokens and duration. Open it from a local checkout.
+- [`results-summary.md`](results-summary.md) — per experiment and model: pass rate and mean time.
 - `results/<experiment>/<model>/<timestamp>/<eval>/` — the raw data, see [Layout](#layout).
 
 ## How it is measured

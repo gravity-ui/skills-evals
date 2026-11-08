@@ -1,5 +1,5 @@
 // Aggregate agent-eval results into results-summary.md: one block per gateway/CLI/model, baseline vs
-// skill, with pass@k, mean duration, tokens and an API-equivalent cost estimate from pricing.json.
+// skill, with pass@k and mean duration.
 // Reads the newest results/<experiment>/<model>/<timestamp>/<eval>/summary.json per (experiment, model).
 import { INFRA } from '../lib/infra.ts';
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
@@ -10,8 +10,6 @@ const resultsDir = join(root, 'results');
 const SKILL = '--gravity-ui-skill';
 
 type Summary = { totalRuns: number; passedRuns: number; meanDuration?: number; usage?: Record<string, number>; valid?: boolean };
-type Price = { input: number; output: number; cacheRead?: number; cacheWrite?: number };
-const pricing: Record<string, Price> = JSON.parse(readFileSync(join(root, 'pricing.json'), 'utf8'));
 
 const dirs = (p: string) => (existsSync(p) ? readdirSync(p).filter((d) => statSync(join(p, d)).isDirectory()) : []);
 
@@ -53,14 +51,7 @@ function latestRuns(experiment: string): Map<string, Map<string, string>> {
   return new Map([...latest].map(([model, evals]) => [model, new Map([...evals].map(([e, v]) => [e, v.dir]))]));
 }
 
-function costUsd(model: string, usage?: Record<string, number>): number | null {
-  const price = pricing[model.replace(/^[^/]+\//, '')] ?? pricing[model];
-  if (!price || !usage) return null;
-  const input = usage.inputTokens ?? 0, cached = usage.cacheReadTokens ?? 0, write = usage.cacheWriteTokens ?? 0, output = usage.outputTokens ?? 0;
-  return (input * price.input + cached * (price.cacheRead ?? price.input * 0.1) + write * (price.cacheWrite ?? price.input) + output * price.output) / 1e6;
-}
-
-type Cell = { passed: number; total: number; timeouts: number; evals: number; seconds: number; tokens: number; cost: number | null };
+type Cell = { passed: number; total: number; timeouts: number; evals: number; seconds: number };
 
 // agent-eval's failure classifier needs the Vercel AI Gateway, so timeouts are not auto-classified
 // here; they are an infrastructure outcome (sleep, throttling, a leaked sandbox), not a model one, and
@@ -81,8 +72,8 @@ function runStatuses(evalDir: string): { passed: number; failed: number; timeout
   return out;
 }
 
-function aggregate(evalDirs: Map<string, string>, model: string): Cell {
-  const cell: Cell = { passed: 0, total: 0, timeouts: 0, evals: 0, seconds: 0, tokens: 0, cost: 0 };
+function aggregate(evalDirs: Map<string, string>): Cell {
+  const cell: Cell = { passed: 0, total: 0, timeouts: 0, evals: 0, seconds: 0 };
   for (const evalDir of evalDirs.values()) {
     const s: Summary = JSON.parse(readFileSync(join(evalDir, 'summary.json'), 'utf8'));
     if (s.valid === false) continue; // infra failure, not a model observation
@@ -92,15 +83,11 @@ function aggregate(evalDirs: Map<string, string>, model: string): Cell {
     cell.total += runs.passed + runs.failed;
     cell.timeouts += runs.timeouts;
     cell.seconds += runs.passed + runs.failed ? runs.seconds / (runs.passed + runs.failed) : 0; // mean of real runs
-    cell.tokens += s.usage?.totalTokens ?? 0;
-    const c = costUsd(model, s.usage);
-    cell.cost = cell.cost === null || c === null ? null : cell.cost + c;
   }
   return cell;
 }
 
 const pct = (c: Cell) => (c.total ? `${Math.round((100 * c.passed) / c.total)}% (${c.passed}/${c.total})` : 'n/a') + (c.timeouts ? ` +${c.timeouts} t/o` : '');
-const money = (v: number | null) => (v === null ? 'n/a' : `$${v.toFixed(2)}`);
 const secs = (c: Cell) => (c.evals ? `${Math.round(c.seconds / c.evals)}s` : 'n/a');
 
 const experiments = dirs(resultsDir).filter((e) => !e.endsWith(SKILL)).sort();
@@ -108,35 +95,33 @@ const lines = [
   '# Results',
   '',
   'pass@k over the latest run of every experiment (`runs` per eval, all counted — no early exit). Runs that hit the',
-  'harness timeout or whose runner was killed (OOM) are excluded from the rate and shown as `+n t/o`. Cost is an',
-  'API-equivalent estimate from the tokens the CLI reported and `pricing.json`; n/a when a model has no price.',
+  'harness timeout, a gateway limit or whose runner was killed are excluded from the rate and shown as `+n t/o`.',
   '',
 ];
 for (const experiment of experiments) {
   const base = latestRuns(experiment);
   const withSkill = latestRuns(experiment + SKILL);
-  lines.push(`## ${experiment}`, '', '| Model | Baseline | + gravity-ui skill | Δ | Mean eval time (base → skill) | Est. cost (base → skill) |', '| --- | --- | --- | --- | --- | --- |');
+  lines.push(`## ${experiment}`, '', '| Model | Baseline | + gravity-ui skill | Δ | Mean eval time (base → skill) |', '| --- | --- | --- | --- | --- |');
   for (const model of [...new Set([...base.keys(), ...withSkill.keys()])].sort()) {
-    const b = base.has(model) ? aggregate(base.get(model)!, model) : null;
-    const s = withSkill.has(model) ? aggregate(withSkill.get(model)!, model) : null;
+    const b = base.has(model) ? aggregate(base.get(model)!) : null;
+    const s = withSkill.has(model) ? aggregate(withSkill.get(model)!) : null;
     const delta = b?.total && s?.total ? `${Math.round((100 * s.passed) / s.total) - Math.round((100 * b.passed) / b.total)} pp` : '';
-    lines.push(`| ${model} | ${b ? pct(b) : '—'} | ${s ? pct(s) : '—'} | ${delta} | ${b ? secs(b) : '—'} → ${s ? secs(s) : '—'} | ${b ? money(b.cost) : '—'} → ${s ? money(s.cost) : '—'} |`);
+    lines.push(`| ${model} | ${b ? pct(b) : '—'} | ${s ? pct(s) : '—'} | ${delta} | ${b ? secs(b) : '—'} → ${s ? secs(s) : '—'} |`);
   }
   lines.push('');
 }
 writeFileSync(join(root, 'results-summary.md'), lines.join('\n'));
 console.log(`Wrote results-summary.md (${experiments.length} experiment pair(s)).`);
 
-// results-evals.html — the nextjs.org/evals layout: one row per model (agent, mean duration, mean cost,
-// success rate without and with the skill), expandable into one row per eval with the pass counts, mean
-// input tokens, duration and cost of that eval.
+// results-evals.html — the nextjs.org/evals layout: one row per model (agent, mean duration, success rate
+// without and with the skill), expandable into one row per eval with the pass counts, mean input tokens
+// and duration of that eval.
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 const fmtPct = (p: number, n: number) => (n ? `${Math.round((100 * p) / n)}%` : '—');
 const fmtSec = (s: number) => `${s.toFixed(0)}s`;
-const fmtUsd = (v: number | null) => (v === null ? '—' : `$${v.toFixed(3)}`);
 const fmtTok = (t: number) => (t >= 1e6 ? `${(t / 1e6).toFixed(1)}M` : t >= 1e3 ? `${(t / 1e3).toFixed(1)}K` : String(t));
 const PRETTY: Record<string, string> = { 'claude-subscription': 'Claude subscription', 'codex-subscription': 'ChatGPT subscription', 'opencode-go': 'OpenCode Go', openrouter: 'OpenRouter' };
-type EvalRow = { name: string; base?: { passed: number; total: number; timeouts: number }; skill?: { passed: number; total: number; timeouts: number }; tokens: number[]; seconds: number[]; costs: (number | null)[] };
+type EvalRow = { name: string; base?: { passed: number; total: number; timeouts: number }; skill?: { passed: number; total: number; timeouts: number }; tokens: number[]; seconds: number[] };
 const sections: string[] = [];
 for (const experiment of experiments) {
   const [gateway, cli] = experiment.split('--');
@@ -144,7 +129,7 @@ for (const experiment of experiments) {
   const withSkill = latestRuns(experiment + SKILL);
   for (const model of [...new Set([...base.keys(), ...withSkill.keys()])].sort()) {
     const rows = new Map<string, EvalRow>();
-    const row = (name: string) => rows.get(name) ?? rows.set(name, { name, tokens: [], seconds: [], costs: [] }).get(name)!;
+    const row = (name: string) => rows.get(name) ?? rows.set(name, { name, tokens: [], seconds: [] }).get(name)!;
     for (const [skill, evals] of [[false, base.get(model)], [true, withSkill.get(model)]] as const) {
       for (const [name, dir] of evals ?? []) {
         const s: Summary = JSON.parse(readFileSync(join(dir, 'summary.json'), 'utf8'));
@@ -153,7 +138,7 @@ for (const experiment of experiments) {
         const r = row(name);
         r[skill ? 'skill' : 'base'] = { passed: st.passed, total: st.passed + st.failed, timeouts: st.timeouts };
         if (st.passed + st.failed) r.seconds.push(st.seconds / (st.passed + st.failed));
-        if (s.usage?.runsWithUsage) { r.tokens.push(((s.usage.inputTokens ?? 0) + (s.usage.cacheReadTokens ?? 0)) / s.usage.runsWithUsage); const c = costUsd(model, s.usage); r.costs.push(c === null ? null : c / s.usage.runsWithUsage); }
+        if (s.usage?.runsWithUsage) { r.tokens.push(((s.usage.inputTokens ?? 0) + (s.usage.cacheReadTokens ?? 0)) / s.usage.runsWithUsage); }
       }
     }
     if (!rows.size) continue;
@@ -162,23 +147,21 @@ for (const experiment of experiments) {
     const b = sum('base'), s = sum('skill');
     const mean = (xs: number[]) => (xs.length ? xs.reduce((a, x) => a + x, 0) / xs.length : 0);
     const secs = mean(all.flatMap((r) => r.seconds));
-    const costs = all.flatMap((r) => r.costs);
-    const cost = costs.length && costs.every((c) => c !== null) ? mean(costs as number[]) : null;
     const tok = mean(all.flatMap((r) => r.tokens));
     const detail = all.map((r) => {
       const cell = (x?: { passed: number; total: number; timeouts: number }) => (x ? `${x.passed}/${x.total}${x.timeouts ? `<small> +${x.timeouts} t/o</small>` : ''}` : '—');
-      return `<tr><td class="ev">${esc(r.name)}</td><td>${cell(r.base)}</td><td>${cell(r.skill)}</td><td>${fmtTok(mean(r.tokens))}</td><td>${fmtSec(mean(r.seconds))}</td><td>${fmtUsd(r.costs.length && r.costs.every((c) => c !== null) ? mean(r.costs as number[]) : null)}</td></tr>`;
+      return `<tr><td class="ev">${esc(r.name)}</td><td>${cell(r.base)}</td><td>${cell(r.skill)}</td><td>${fmtTok(mean(r.tokens))}</td><td>${fmtSec(mean(r.seconds))}</td></tr>`;
     }).join('');
-    sections.push(`<details><summary><span class="model">${esc(model)}</span><span>${esc(PRETTY[gateway] ?? gateway)}</span><span>${esc(cli)}</span><span>${fmtSec(secs)}</span><span>${fmtUsd(cost)}</span><span class="rate">${fmtPct(b.p, b.n)}${b.t ? `<small> +${b.t} t/o</small>` : ''}</span><span class="rate skill">${fmtPct(s.p, s.n)}${s.t ? `<small> +${s.t} t/o</small>` : ''}</span></summary>
+    sections.push(`<details><summary><span class="model">${esc(model)}</span><span>${esc(PRETTY[gateway] ?? gateway)}</span><span>${esc(cli)}</span><span>${fmtSec(secs)}</span><span class="rate">${fmtPct(b.p, b.n)}${b.t ? `<small> +${b.t} t/o</small>` : ''}</span><span class="rate skill">${fmtPct(s.p, s.n)}${s.t ? `<small> +${s.t} t/o</small>` : ''}</span></summary>
 <p class="note">Model avg input tokens: ${fmtTok(tok)} (cached reads included). Runs per eval: 4; a cell is passed/run; t/o are timeouts and gateway limits, excluded from the rate.</p>
-<table><thead><tr><th>Evaluation</th><th>Base</th><th>+ skill</th><th>Avg input tokens</th><th>Avg duration</th><th>Avg cost</th></tr></thead><tbody>${detail}</tbody></table></details>`);
+<table><thead><tr><th>Evaluation</th><th>Base</th><th>+ skill</th><th>Avg input tokens</th><th>Avg duration</th></tr></thead><tbody>${detail}</tbody></table></details>`);
   }
 }
 writeFileSync(join(root, 'results-evals.html'), `<!doctype html><meta charset="utf-8"><title>gravity-ui skill — evals</title>
 <style>
 body{font:15px/1.45 -apple-system,Inter,system-ui,sans-serif;color:#1a1a1a;margin:40px auto;max-width:1240px;padding:0 24px}
 h1{font-size:34px;font-weight:600;margin:0 0 6px}p.sub{color:#666;margin:0 0 24px}
-.head,summary{display:grid;grid-template-columns:2.6fr 1.3fr .9fr .9fr .8fr 1fr 1fr;gap:12px;align-items:center;padding:12px 16px}
+.head,summary{display:grid;grid-template-columns:2.6fr 1.3fr .9fr .9fr 1fr 1fr;gap:12px;align-items:center;padding:12px 16px}
 .head{color:#666;font-size:14px;border:1px solid #e5e5e5;border-radius:10px 10px 0 0;background:#fafafa}
 details{border:1px solid #e5e5e5;border-top:0}details:last-of-type{border-radius:0 0 10px 10px}
 summary{cursor:pointer;list-style:none}summary::-webkit-details-marker{display:none}
@@ -191,7 +174,7 @@ th{text-align:left;color:#666;font-weight:500;padding:10px 12px;background:#fafa
 td{padding:9px 12px;border-bottom:1px solid #eee;white-space:nowrap}tr:last-child td{border-bottom:0}td.ev{font-family:ui-monospace,Menlo,monospace;font-size:13px}
 </style>
 <h1>Current evals</h1><p class="sub">Latest result of every model and eval; base vs the gravity-ui skill. 17 evals × 4 runs, judged in the sandbox.</p>
-<div class="head"><span>Model</span><span>Gateway</span><span>Agent</span><span>Avg duration</span><span>Avg cost</span><span style="text-align:right">Success rate</span><span style="text-align:right">With skill</span></div>
+<div class="head"><span>Model</span><span>Gateway</span><span>Agent</span><span>Avg duration</span><span style="text-align:right">Success rate</span><span style="text-align:right">With skill</span></div>
 ${sections.join('\n')}
 `);
 console.log(`Wrote results-evals.html (${sections.length} model row(s)).`);
