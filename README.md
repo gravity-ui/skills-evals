@@ -98,9 +98,10 @@ What the numbers say:
   grades against the installed version. Stored projects were re-graded under the new text without
   regenerating code (`scripts/rejudge-results.ts`); on the last pass 1 verdict in 77 moved against the
   direction of the change — the judge's own noise, about 1%.
-- **The skill under test** is [gravity-ui/skills](https://github.com/gravity-ui/skills) at commit `5a361e3` plus [`skill-snapshot.diff`](skill-snapshot.diff)
-  (efficiency guardrails, an install-when-absent rule, `.d.ts` inspection). Later skill changes (the spacing,
-  theme-state and `Dialog` traps) are not in these numbers.
+- **The skill under test** is [gravity-ui/skills](https://github.com/gravity-ui/skills) at commit `5a361e3`
+  with the efficiency guardrails, install-when-absent rule, `.d.ts` inspection and `scripts/inspect-package.sh`
+  that [gravity-ui/skills#11](https://github.com/gravity-ui/skills/pull/11) moves into the skill. The spacing,
+  theme-state and `Dialog` traps merged in between (#7, #8) are not in these numbers.
 
 ## Run it
 

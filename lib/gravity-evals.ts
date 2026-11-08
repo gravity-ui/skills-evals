@@ -116,8 +116,8 @@ export const CLI_EFFORT = 'high';
 // 4-way concurrent matrix noticeably (gpt-6.1-sol: ~8 min alone, 13–20 min in a batch), hence the margin.
 const TIMEOUT_S = Number(process.env.EVAL_TIMEOUT_S) || 1800; // EVAL_TIMEOUT_S: e.g. 2700 for a slow gateway route
 const SUBSCRIPTION_TIMEOUT_S = 2700;
-// Default: a gravity-ui/skills checkout next to this one (../skills). The published results used a snapshot
-// of the skill — see skill-snapshot.diff.
+// Default: a gravity-ui/skills checkout next to this one (../skills). The skill version behind the published
+// results is described in README.md ("The skill under test").
 const SKILL_DIR = process.env.GRAVITY_UI_SKILL_DIR || join(ROOT, '..', 'skills', 'skills', 'gravity-ui');
 const SKILL_MOUNT = '.agents/skills/gravity-ui';
 const CLAUDE_SKILL_MOUNT = '.claude/skills/gravity-ui';
