@@ -1,0 +1,756 @@
+{
+  "agent": "opencode-go/codex",
+  "model": "glm-5.3-flash",
+  "events": [
+    {
+      "type": "message",
+      "role": "system",
+      "content": "thread.started",
+      "raw": {
+        "type": "thread.started",
+        "thread_id": "01a1ae19-5558-7d43-8fbf-63ffe2274eee"
+      }
+    },
+    {
+      "type": "message",
+      "role": "system",
+      "content": "turn.started",
+      "raw": {
+        "type": "turn.started"
+      }
+    },
+    {
+      "type": "thinking",
+      "content": "Need inspect workspace. Must respond Russian. Preamble then ls.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_1",
+          "type": "reasoning",
+          "text": "Need inspect workspace. Must respond Russian. Preamble then ls."
+        }
+      }
+    },
+    {
+      "type": "message",
+      "role": "assistant",
+      "content": "Сначала посмотрю структуру проекта, чтобы точечно встроить кнопку и уведомление.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_2",
+          "type": "agent_message",
+          "text": "Сначала посмотрю структуру проекта, чтобы точечно встроить кнопку и уведомление."
+        }
+      }
+    },
+    {
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "args": {
+          "command": "/bin/bash -lc \"pwd && rg --files -g '\"'!*node_modules*'\"' | head -100\"",
+          "_extractedCommand": "/bin/bash -lc \"pwd && rg --files -g '\"'!*node_modules*'\"' | head -100\""
+        }
+      },
+      "raw": {
+        "type": "item.started",
+        "item": {
+          "id": "item_3",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"pwd && rg --files -g '\"'!*node_modules*'\"' | head -100\"",
+          "aggregated_output": "",
+          "exit_code": null,
+          "status": "in_progress"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "result": {
+          "output": "/home/sandbox/workspace\nindex.html\npackage.json\ntsconfig.json\npackage-lock.json\nvite.config.ts\nsrc/vite-env.d.ts\nsrc/main.tsx\nsrc/App.tsx\n",
+          "exitCode": 0
+        },
+        "success": true
+      },
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_3",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"pwd && rg --files -g '\"'!*node_modules*'\"' | head -100\"",
+          "aggregated_output": "/home/sandbox/workspace\nindex.html\npackage.json\ntsconfig.json\npackage-lock.json\nvite.config.ts\nsrc/vite-env.d.ts\nsrc/main.tsx\nsrc/App.tsx\n",
+          "exit_code": 0,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "type": "thinking",
+      "content": "Need inspect.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_4",
+          "type": "reasoning",
+          "text": "Need inspect."
+        }
+      }
+    },
+    {
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "args": {
+          "command": "/bin/bash -lc \"cat src/App.tsx && printf '\\\\n--- main.tsx ---\\\\n' && cat src/main.tsx && printf '\\\\n--- index.html ---\\\\n' && cat index.html && printf '\\\\n--- package.json ---\\\\n' && cat package.json\"",
+          "_extractedCommand": "/bin/bash -lc \"cat src/App.tsx && printf '\\\\n--- main.tsx ---\\\\n' && cat src/main.tsx && printf '\\\\n--- index.html ---\\\\n' && cat index.html && printf '\\\\n--- package.json ---\\\\n' && cat package.json\""
+        }
+      },
+      "raw": {
+        "type": "item.started",
+        "item": {
+          "id": "item_5",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"cat src/App.tsx && printf '\\\\n--- main.tsx ---\\\\n' && cat src/main.tsx && printf '\\\\n--- index.html ---\\\\n' && cat index.html && printf '\\\\n--- package.json ---\\\\n' && cat package.json\"",
+          "aggregated_output": "",
+          "exit_code": null,
+          "status": "in_progress"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "result": {
+          "output": "// Implement the requested feature here (and may add sibling files).\nexport function App() {\n  return <div style={{ padding: 24 }}>{/* TODO: implement the requested component */}</div>;\n}\n\n--- main.tsx ---\n// Preconfigured Gravity UI setup is ALREADY wired here (both CSS imports + ThemeProvider).\n// Implement the requested feature in App.tsx (you may add sibling files).\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport { ThemeProvider } from '@gravity-ui/uikit';\n\nimport { App } from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <ThemeProvider theme=\"light\">\n      <App />\n    </ThemeProvider>\n  </React.StrictMode>,\n);\n\n--- index.html ---\n<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>Gravity UI eval</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/src/main.tsx\"></script>\n  </body>\n</html>\n\n--- package.json ---\n{\n  \"name\": \"comp-toast\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"build\": \"tsc --noEmit && vite build\",\n    \"dev\": \"vite\"\n  },\n  \"dependencies\": {\n    \"@gravity-ui/uikit\": \"7.43.0\",\n    \"react\": \"^18.3.1\",\n    \"react-dom\": \"^18.3.1\"\n  },\n  \"devDependencies\": {\n    \"@types/react\": \"^18.3.12\",\n    \"@types/react-dom\": \"^18.3.1\",\n    \"@vitejs/plugin-react\": \"^4.3.4\",\n    \"typescript\": \"^7.0.2\",\n    \"vite\": \"^5.4.11\",\n    \"vitest\": \"^3.1.3\"\n  }\n}\n",
+          "exitCode": 0
+        },
+        "success": true
+      },
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_5",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"cat src/App.tsx && printf '\\\\n--- main.tsx ---\\\\n' && cat src/main.tsx && printf '\\\\n--- index.html ---\\\\n' && cat index.html && printf '\\\\n--- package.json ---\\\\n' && cat package.json\"",
+          "aggregated_output": "// Implement the requested feature here (and may add sibling files).\nexport function App() {\n  return <div style={{ padding: 24 }}>{/* TODO: implement the requested component */}</div>;\n}\n\n--- main.tsx ---\n// Preconfigured Gravity UI setup is ALREADY wired here (both CSS imports + ThemeProvider).\n// Implement the requested feature in App.tsx (you may add sibling files).\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport { ThemeProvider } from '@gravity-ui/uikit';\n\nimport { App } from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <ThemeProvider theme=\"light\">\n      <App />\n    </ThemeProvider>\n  </React.StrictMode>,\n);\n\n--- index.html ---\n<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>Gravity UI eval</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/src/main.tsx\"></script>\n  </body>\n</html>\n\n--- package.json ---\n{\n  \"name\": \"comp-toast\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"build\": \"tsc --noEmit && vite build\",\n    \"dev\": \"vite\"\n  },\n  \"dependencies\": {\n    \"@gravity-ui/uikit\": \"7.43.0\",\n    \"react\": \"^18.3.1\",\n    \"react-dom\": \"^18.3.1\"\n  },\n  \"devDependencies\": {\n    \"@types/react\": \"^18.3.12\",\n    \"@types/react-dom\": \"^18.3.1\",\n    \"@vitejs/plugin-react\": \"^4.3.4\",\n    \"typescript\": \"^7.0.2\",\n    \"vite\": \"^5.4.11\",\n    \"vitest\": \"^3.1.3\"\n  }\n}\n",
+          "exit_code": 0,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "type": "thinking",
+      "content": "Need implement Gravity UI likely use Toaster and Button. Need know APIs. Search node_modules perhaps.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_6",
+          "type": "reasoning",
+          "text": "Need implement Gravity UI likely use Toaster and Button. Need know APIs. Search node_modules perhaps."
+        }
+      }
+    },
+    {
+      "type": "message",
+      "role": "assistant",
+      "content": "Здесь подключен Gravity UI, значит использую его `Button` и `Toaster`. Добавлю кнопку в углу и таймер автоскрытия.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_7",
+          "type": "agent_message",
+          "text": "Здесь подключен Gravity UI, значит использую его `Button` и `Toaster`. Добавлю кнопку в углу и таймер автоскрытия."
+        }
+      }
+    },
+    {
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "args": {
+          "command": "/bin/bash -lc \"rg \\\"export .*Toaster|createToast|type Toast|Button\\\" node_modules/@gravity-ui/uikit -g '*.d.ts' | head -80\"",
+          "_extractedCommand": "/bin/bash -lc \"rg \\\"export .*Toaster|createToast|type Toast|Button\\\" node_modules/@gravity-ui/uikit -g '*.d.ts' | head -80\""
+        }
+      },
+      "raw": {
+        "type": "item.started",
+        "item": {
+          "id": "item_8",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"rg \\\"export .*Toaster|createToast|type Toast|Button\\\" node_modules/@gravity-ui/uikit -g '*.d.ts' | head -80\"",
+          "aggregated_output": "",
+          "exit_code": null,
+          "status": "in_progress"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "result": {
+          "output": "node_modules/@gravity-ui/uikit/build/esm/unstable.d.ts:export { Menu as unstable_Menu, MenuItem as unstable_MenuItem, MenuTrigger as unstable_MenuTrigger, MenuDivider as unstable_MenuDivider, type MenuSize as unstable_MenuSize, type MenuProps as unstable_MenuProps, type MenuItemTheme as unstable_MenuItemTheme, type MenuItemProps as unstable_MenuItemProps, type MenuItemButtonProps as unstable_MenuItemButtonProps, type MenuItemLinkProps as unstable_MenuItemLinkProps, type MenuItemComponentProps as unstable_MenuItemComponentProps, type MenuItemComponentElementType as unstable_MenuItemComponentElementType, type MenuTriggerProps as unstable_MenuTriggerProps, } from \"./components/lab/Menu/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/unstable.d.ts:export { Menu as unstable_Menu, MenuItem as unstable_MenuItem, MenuTrigger as unstable_MenuTrigger, MenuDivider as unstable_MenuDivider, type MenuSize as unstable_MenuSize, type MenuProps as unstable_MenuProps, type MenuItemTheme as unstable_MenuItemTheme, type MenuItemProps as unstable_MenuItemProps, type MenuItemButtonProps as unstable_MenuItemButtonProps, type MenuItemLinkProps as unstable_MenuItemLinkProps, type MenuItemComponentProps as unstable_MenuItemComponentProps, type MenuItemComponentElementType as unstable_MenuItemComponentElementType, type MenuTriggerProps as unstable_MenuTriggerProps, } from \"./components/lab/Menu/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/toaster-singleton.d.ts:export declare const toaster: Toaster;\nnode_modules/@gravity-ui/uikit/build/cjs/toaster-singleton.d.ts:export declare const toaster: Toaster;\nnode_modules/@gravity-ui/uikit/build/cjs/i18n/types.d.ts:import type { default as ClipboardButtonKeyset } from \"../components/ClipboardButton/i18n/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/i18n/types.d.ts:import type { default as ClearButtonKeyset } from \"../components/controls/common/ClearButton/i18n/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/i18n/types.d.ts:export type Keysets = typeof ActionsPanelKeyset.keysetData & typeof AlertKeyset.keysetData & typeof AvatarStackKeyset.keysetData & typeof BreadcrumbsKeyset.keysetData & typeof ClipboardButtonKeyset.keysetData & typeof DialogKeyset.keysetData & typeof PaginationKeyset.keysetData & typeof PinInputKeyset.keysetData & typeof WithTableSettingsTableColumnSetupKeyset.keysetData & typeof WithTableSettingsKeyset.keysetData & typeof TableColumnSetupKeyset.keysetData & typeof ClearButtonKeyset.keysetData & typeof LegacyBreadcrumbsKeyset.keysetData & typeof SelectKeyset.keysetData & typeof TableKeyset.keysetData & typeof ToasterKeyset.keysetData & typeof UserLabelKeyset.keysetData;\nnode_modules/@gravity-ui/uikit/build/esm/i18n/types.d.ts:import type { default as ClipboardButtonKeyset } from \"../components/ClipboardButton/i18n/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/i18n/types.d.ts:import type { default as ClearButtonKeyset } from \"../components/controls/common/ClearButton/i18n/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/i18n/types.d.ts:export type Keysets = typeof ActionsPanelKeyset.keysetData & typeof AlertKeyset.keysetData & typeof AvatarStackKeyset.keysetData & typeof BreadcrumbsKeyset.keysetData & typeof ClipboardButtonKeyset.keysetData & typeof DialogKeyset.keysetData & typeof PaginationKeyset.keysetData & typeof PinInputKeyset.keysetData & typeof WithTableSettingsTableColumnSetupKeyset.keysetData & typeof WithTableSettingsKeyset.keysetData & typeof TableColumnSetupKeyset.keysetData & typeof ClearButtonKeyset.keysetData & typeof LegacyBreadcrumbsKeyset.keysetData & typeof SelectKeyset.keysetData & typeof TableKeyset.keysetData & typeof ToasterKeyset.keysetData & typeof UserLabelKeyset.keysetData;\nnode_modules/@gravity-ui/uikit/build/esm/components/index.d.ts:export * from \"./Button/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/index.d.ts:export * from \"./ClipboardButton/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/index.d.ts:export * from \"./Toaster/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/hooks/useFocusWithin/useFocusWithin.d.ts: *       <Button onClick={() => {setOpen(true)}}>Select</Button>\nnode_modules/@gravity-ui/uikit/build/esm/hooks/useFileInput/useFileInput.d.ts:    import {Button, useFileInput} from '@gravity-ui/uikit';\nnode_modules/@gravity-ui/uikit/build/esm/hooks/useFileInput/useFileInput.d.ts:                <Button {...triggerProps}>Upload</Button>\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/Label.d.ts:    onCloseClick?(event: React.MouseEvent<HTMLButtonElement>): void;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/Label.d.ts:    closeButtonLabel?: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/Label.d.ts:    copyButtonLabel?: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/constants.d.ts:    copyButton: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/constants.d.ts:    closeButton: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/constants.d.ts:    mainButton: string;\nnode_modules/@gravity-ui/uikit/build/esm/components/theme/PrivateDefaultPropsProvider.d.ts:import type { ButtonCommonProps } from \"../Button/Button.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/theme/PrivateDefaultPropsProvider.d.ts:import type { ClipboardButtonProps } from \"../ClipboardButton/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/theme/PrivateDefaultPropsProvider.d.ts:    Button?: Partial<ButtonCommonProps>;\nnode_modules/@gravity-ui/uikit/build/esm/components/theme/PrivateDefaultPropsProvider.d.ts:    ClipboardButton?: Partial<ClipboardButtonProps>;\nnode_modules/@gravity-ui/uikit/build/cjs/hooks/useFocusWithin/useFocusWithin.d.ts: *       <Button onClick={() => {setOpen(true)}}>Select</Button>\nnode_modules/@gravity-ui/uikit/build/cjs/components/HelpMark/HelpMark.d.ts:export interface HelpMarkProps extends QAProps, React.ButtonHTMLAttributes<HTMLButtonElement> {\nnode_modules/@gravity-ui/uikit/build/cjs/components/HelpMark/HelpMark.d.ts:export declare const HelpMark: React.ForwardRefExoticComponent<HelpMarkProps & React.RefAttributes<HTMLButtonElement>>;\nnode_modules/@gravity-ui/uikit/build/cjs/hooks/useFileInput/useFileInput.d.ts:    import {Button, useFileInput} from '@gravity-ui/uikit';\nnode_modules/@gravity-ui/uikit/build/cjs/hooks/useFileInput/useFileInput.d.ts:                <Button {...triggerProps}>Upload</Button>\nnode_modules/@gravity-ui/uikit/build/cjs/components/Select/types.d.ts:export type SelectRenderTriggerProps = AriaLabelingProps & Pick<React.ButtonHTMLAttributes<HTMLElement>, 'id' | 'type' | 'role' | 'aria-controls' | 'aria-haspopup' | 'aria-expanded' | 'aria-invalid' | 'aria-activedescendant' | 'onClick' | 'onKeyDown' | 'disabled'>;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Select/Select.d.ts:    ref?: React.Ref<HTMLButtonElement>;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Select/constants.d.ts:export declare const selectControlButtonBlock: import(\"@bem-react/classname\").ClassNameFormatter;\nnode_modules/@gravity-ui/uikit/build/esm/components/UserLabel/types.d.ts:    onCloseClick?: React.MouseEventHandler<HTMLButtonElement>;\nnode_modules/@gravity-ui/uikit/build/esm/components/TreeSelect/types.d.ts:    ref: React.Ref<HTMLButtonElement>;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Select/components/SelectControl/SelectControl.d.ts:} & AriaLabelingProps & React.RefAttributes<HTMLButtonElement>>;\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/types.d.ts:     * <AvatarStack renderMore={({count}) => <Button>+{count}</Button>}>\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/types.d.ts:export type AvatarStackMoreButtonProps = Pick<React.HTMLProps<HTMLButtonElement>, 'onClick'> & AvatarStackMoreProps & {\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/index.d.ts:export type { AvatarStackProps, AvatarStackOverlapSize, AvatarStackMoreProps, AvatarStackMoreButtonProps, } from \"./types.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/utils.d.ts:import type { ButtonSize } from \"../../Button/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/utils.d.ts:export declare const getActionButtonSizeAndIconSize: (textInputSize: InputControlSize) => {\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/utils.d.ts:    actionButtonSize: ButtonSize;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/PasswordInput.d.ts:    hideCopyButton?: boolean;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/PasswordInput.d.ts:    hideRevealButton?: boolean;\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/AvatarStackMoreButton.d.ts:export declare const AvatarStackMoreButton: React.ForwardRefExoticComponent<Pick<React.HTMLProps<HTMLButtonElement>, \"onClick\"> & Pick<React.HTMLProps<HTMLDivElement>, \"className\" | \"aria-label\"> & {\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/AvatarStackMoreButton.d.ts:} & React.RefAttributes<HTMLButtonElement>>;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/constants.d.ts:    revealButton: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/constants.d.ts:    copyButton: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/DropdownMenu/DropdownMenu.d.ts:import type { ButtonProps } from \"../Button/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/components/DropdownMenu/DropdownMenu.d.ts:    defaultSwitcherProps?: ButtonProps;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/withToaster.d.ts:export declare function withToaster<T>(): (WrappedComponent: React.ComponentType<T>) => {\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/AvatarStack.d.ts:    MoreButton: React.ForwardRefExoticComponent<Pick<React.HTMLProps<HTMLButtonElement>, \"onClick\"> & Pick<React.HTMLProps<HTMLDivElement>, \"className\" | \"aria-label\"> & {\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/AvatarStack.d.ts:    } & React.RefAttributes<HTMLButtonElement>>;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:import type { ButtonView } from \"../Button/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export type ToasterArgs = {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export type ToastTheme = (typeof TOAST_THEMES)[number];\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export type ToastAction = {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:    view?: ButtonView;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export type ToastProps = {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export interface ToasterContextMethods {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export interface ToasterPublicMethods extends ToasterContextMethods {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export interface ToasterImplementation extends ToasterContextMethods {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.d.ts:export declare class Toaster implements ToasterImplementation {\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/index.d.ts:export { ClearButton, mapTextInputSizeToButtonSize } from \"./ClearButton/ClearButton.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts:export { Toaster } from \"./Toaster.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts:export { useToaster } from \"./hooks/useToaster.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts:export { withToaster } from \"./withToaster.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts:export { ToasterComponent } from \"./ToasterComponent/ToasterComponent.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts:export { ToasterProvider } from \"./Provider/ToasterProvider.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/hooks/useToaster.d.ts:export declare function useToaster(): ToasterPublicMethods;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/ClearButton/ClearButton.d.ts:import type { ButtonSize } from \"../../../Button/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/ClearButton/ClearButton.d.ts:import \"./ClearButton.css\";\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/ClearButton/ClearButton.d.ts:    size: ButtonSize;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/ClearButton/ClearButton.d.ts:export declare const mapTextInputSizeToButtonSize: (textInputSize: InputControlSize) => ButtonSize;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/ClearButton/ClearButton.d.ts:export declare const ClearButton: (props: Props) => import(\"react/jsx-runtime\").JSX.Element;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/hooks/useInToasterContext.d.ts:export declare function useInToasterContext(): boolean;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.d.ts:export declare const ToasterProvider: {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterContext.d.ts:export declare const ToasterContext: React.Context<ToasterContextMethods | null>;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.d.ts:export declare function ToasterComponent({ className, mobile, hasPortal }: Props): import(\"react/jsx-runtime\").JSX.Element;\n",
+          "exitCode": 0
+        },
+        "success": true
+      },
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_8",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"rg \\\"export .*Toaster|createToast|type Toast|Button\\\" node_modules/@gravity-ui/uikit -g '*.d.ts' | head -80\"",
+          "aggregated_output": "node_modules/@gravity-ui/uikit/build/esm/unstable.d.ts:export { Menu as unstable_Menu, MenuItem as unstable_MenuItem, MenuTrigger as unstable_MenuTrigger, MenuDivider as unstable_MenuDivider, type MenuSize as unstable_MenuSize, type MenuProps as unstable_MenuProps, type MenuItemTheme as unstable_MenuItemTheme, type MenuItemProps as unstable_MenuItemProps, type MenuItemButtonProps as unstable_MenuItemButtonProps, type MenuItemLinkProps as unstable_MenuItemLinkProps, type MenuItemComponentProps as unstable_MenuItemComponentProps, type MenuItemComponentElementType as unstable_MenuItemComponentElementType, type MenuTriggerProps as unstable_MenuTriggerProps, } from \"./components/lab/Menu/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/unstable.d.ts:export { Menu as unstable_Menu, MenuItem as unstable_MenuItem, MenuTrigger as unstable_MenuTrigger, MenuDivider as unstable_MenuDivider, type MenuSize as unstable_MenuSize, type MenuProps as unstable_MenuProps, type MenuItemTheme as unstable_MenuItemTheme, type MenuItemProps as unstable_MenuItemProps, type MenuItemButtonProps as unstable_MenuItemButtonProps, type MenuItemLinkProps as unstable_MenuItemLinkProps, type MenuItemComponentProps as unstable_MenuItemComponentProps, type MenuItemComponentElementType as unstable_MenuItemComponentElementType, type MenuTriggerProps as unstable_MenuTriggerProps, } from \"./components/lab/Menu/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/toaster-singleton.d.ts:export declare const toaster: Toaster;\nnode_modules/@gravity-ui/uikit/build/cjs/toaster-singleton.d.ts:export declare const toaster: Toaster;\nnode_modules/@gravity-ui/uikit/build/cjs/i18n/types.d.ts:import type { default as ClipboardButtonKeyset } from \"../components/ClipboardButton/i18n/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/i18n/types.d.ts:import type { default as ClearButtonKeyset } from \"../components/controls/common/ClearButton/i18n/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/i18n/types.d.ts:export type Keysets = typeof ActionsPanelKeyset.keysetData & typeof AlertKeyset.keysetData & typeof AvatarStackKeyset.keysetData & typeof BreadcrumbsKeyset.keysetData & typeof ClipboardButtonKeyset.keysetData & typeof DialogKeyset.keysetData & typeof PaginationKeyset.keysetData & typeof PinInputKeyset.keysetData & typeof WithTableSettingsTableColumnSetupKeyset.keysetData & typeof WithTableSettingsKeyset.keysetData & typeof TableColumnSetupKeyset.keysetData & typeof ClearButtonKeyset.keysetData & typeof LegacyBreadcrumbsKeyset.keysetData & typeof SelectKeyset.keysetData & typeof TableKeyset.keysetData & typeof ToasterKeyset.keysetData & typeof UserLabelKeyset.keysetData;\nnode_modules/@gravity-ui/uikit/build/esm/i18n/types.d.ts:import type { default as ClipboardButtonKeyset } from \"../components/ClipboardButton/i18n/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/i18n/types.d.ts:import type { default as ClearButtonKeyset } from \"../components/controls/common/ClearButton/i18n/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/i18n/types.d.ts:export type Keysets = typeof ActionsPanelKeyset.keysetData & typeof AlertKeyset.keysetData & typeof AvatarStackKeyset.keysetData & typeof BreadcrumbsKeyset.keysetData & typeof ClipboardButtonKeyset.keysetData & typeof DialogKeyset.keysetData & typeof PaginationKeyset.keysetData & typeof PinInputKeyset.keysetData & typeof WithTableSettingsTableColumnSetupKeyset.keysetData & typeof WithTableSettingsKeyset.keysetData & typeof TableColumnSetupKeyset.keysetData & typeof ClearButtonKeyset.keysetData & typeof LegacyBreadcrumbsKeyset.keysetData & typeof SelectKeyset.keysetData & typeof TableKeyset.keysetData & typeof ToasterKeyset.keysetData & typeof UserLabelKeyset.keysetData;\nnode_modules/@gravity-ui/uikit/build/esm/components/index.d.ts:export * from \"./Button/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/index.d.ts:export * from \"./ClipboardButton/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/index.d.ts:export * from \"./Toaster/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/hooks/useFocusWithin/useFocusWithin.d.ts: *       <Button onClick={() => {setOpen(true)}}>Select</Button>\nnode_modules/@gravity-ui/uikit/build/esm/hooks/useFileInput/useFileInput.d.ts:    import {Button, useFileInput} from '@gravity-ui/uikit';\nnode_modules/@gravity-ui/uikit/build/esm/hooks/useFileInput/useFileInput.d.ts:                <Button {...triggerProps}>Upload</Button>\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/Label.d.ts:    onCloseClick?(event: React.MouseEvent<HTMLButtonElement>): void;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/Label.d.ts:    closeButtonLabel?: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/Label.d.ts:    copyButtonLabel?: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/constants.d.ts:    copyButton: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/constants.d.ts:    closeButton: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Label/constants.d.ts:    mainButton: string;\nnode_modules/@gravity-ui/uikit/build/esm/components/theme/PrivateDefaultPropsProvider.d.ts:import type { ButtonCommonProps } from \"../Button/Button.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/theme/PrivateDefaultPropsProvider.d.ts:import type { ClipboardButtonProps } from \"../ClipboardButton/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/theme/PrivateDefaultPropsProvider.d.ts:    Button?: Partial<ButtonCommonProps>;\nnode_modules/@gravity-ui/uikit/build/esm/components/theme/PrivateDefaultPropsProvider.d.ts:    ClipboardButton?: Partial<ClipboardButtonProps>;\nnode_modules/@gravity-ui/uikit/build/cjs/hooks/useFocusWithin/useFocusWithin.d.ts: *       <Button onClick={() => {setOpen(true)}}>Select</Button>\nnode_modules/@gravity-ui/uikit/build/cjs/components/HelpMark/HelpMark.d.ts:export interface HelpMarkProps extends QAProps, React.ButtonHTMLAttributes<HTMLButtonElement> {\nnode_modules/@gravity-ui/uikit/build/cjs/components/HelpMark/HelpMark.d.ts:export declare const HelpMark: React.ForwardRefExoticComponent<HelpMarkProps & React.RefAttributes<HTMLButtonElement>>;\nnode_modules/@gravity-ui/uikit/build/cjs/hooks/useFileInput/useFileInput.d.ts:    import {Button, useFileInput} from '@gravity-ui/uikit';\nnode_modules/@gravity-ui/uikit/build/cjs/hooks/useFileInput/useFileInput.d.ts:                <Button {...triggerProps}>Upload</Button>\nnode_modules/@gravity-ui/uikit/build/cjs/components/Select/types.d.ts:export type SelectRenderTriggerProps = AriaLabelingProps & Pick<React.ButtonHTMLAttributes<HTMLElement>, 'id' | 'type' | 'role' | 'aria-controls' | 'aria-haspopup' | 'aria-expanded' | 'aria-invalid' | 'aria-activedescendant' | 'onClick' | 'onKeyDown' | 'disabled'>;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Select/Select.d.ts:    ref?: React.Ref<HTMLButtonElement>;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Select/constants.d.ts:export declare const selectControlButtonBlock: import(\"@bem-react/classname\").ClassNameFormatter;\nnode_modules/@gravity-ui/uikit/build/esm/components/UserLabel/types.d.ts:    onCloseClick?: React.MouseEventHandler<HTMLButtonElement>;\nnode_modules/@gravity-ui/uikit/build/esm/components/TreeSelect/types.d.ts:    ref: React.Ref<HTMLButtonElement>;\nnode_modules/@gravity-ui/uikit/build/cjs/components/Select/components/SelectControl/SelectControl.d.ts:} & AriaLabelingProps & React.RefAttributes<HTMLButtonElement>>;\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/types.d.ts:     * <AvatarStack renderMore={({count}) => <Button>+{count}</Button>}>\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/types.d.ts:export type AvatarStackMoreButtonProps = Pick<React.HTMLProps<HTMLButtonElement>, 'onClick'> & AvatarStackMoreProps & {\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/index.d.ts:export type { AvatarStackProps, AvatarStackOverlapSize, AvatarStackMoreProps, AvatarStackMoreButtonProps, } from \"./types.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/utils.d.ts:import type { ButtonSize } from \"../../Button/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/utils.d.ts:export declare const getActionButtonSizeAndIconSize: (textInputSize: InputControlSize) => {\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/utils.d.ts:    actionButtonSize: ButtonSize;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/PasswordInput.d.ts:    hideCopyButton?: boolean;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/PasswordInput.d.ts:    hideRevealButton?: boolean;\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/AvatarStackMoreButton.d.ts:export declare const AvatarStackMoreButton: React.ForwardRefExoticComponent<Pick<React.HTMLProps<HTMLButtonElement>, \"onClick\"> & Pick<React.HTMLProps<HTMLDivElement>, \"className\" | \"aria-label\"> & {\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/AvatarStackMoreButton.d.ts:} & React.RefAttributes<HTMLButtonElement>>;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/constants.d.ts:    revealButton: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/PasswordInput/constants.d.ts:    copyButton: string;\nnode_modules/@gravity-ui/uikit/build/cjs/components/DropdownMenu/DropdownMenu.d.ts:import type { ButtonProps } from \"../Button/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/components/DropdownMenu/DropdownMenu.d.ts:    defaultSwitcherProps?: ButtonProps;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/withToaster.d.ts:export declare function withToaster<T>(): (WrappedComponent: React.ComponentType<T>) => {\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/AvatarStack.d.ts:    MoreButton: React.ForwardRefExoticComponent<Pick<React.HTMLProps<HTMLButtonElement>, \"onClick\"> & Pick<React.HTMLProps<HTMLDivElement>, \"className\" | \"aria-label\"> & {\nnode_modules/@gravity-ui/uikit/build/cjs/components/AvatarStack/AvatarStack.d.ts:    } & React.RefAttributes<HTMLButtonElement>>;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:import type { ButtonView } from \"../Button/index.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export type ToasterArgs = {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export type ToastTheme = (typeof TOAST_THEMES)[number];\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export type ToastAction = {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:    view?: ButtonView;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export type ToastProps = {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export interface ToasterContextMethods {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export interface ToasterPublicMethods extends ToasterContextMethods {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:export interface ToasterImplementation extends ToasterContextMethods {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.d.ts:export declare class Toaster implements ToasterImplementation {\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/index.d.ts:export { ClearButton, mapTextInputSizeToButtonSize } from \"./ClearButton/ClearButton.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts:export { Toaster } from \"./Toaster.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts:export { useToaster } from \"./hooks/useToaster.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts:export { withToaster } from \"./withToaster.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts:export { ToasterComponent } from \"./ToasterComponent/ToasterComponent.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts:export { ToasterProvider } from \"./Provider/ToasterProvider.js\";\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/hooks/useToaster.d.ts:export declare function useToaster(): ToasterPublicMethods;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/ClearButton/ClearButton.d.ts:import type { ButtonSize } from \"../../../Button/index.js\";\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/ClearButton/ClearButton.d.ts:import \"./ClearButton.css\";\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/ClearButton/ClearButton.d.ts:    size: ButtonSize;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/ClearButton/ClearButton.d.ts:export declare const mapTextInputSizeToButtonSize: (textInputSize: InputControlSize) => ButtonSize;\nnode_modules/@gravity-ui/uikit/build/cjs/components/controls/common/ClearButton/ClearButton.d.ts:export declare const ClearButton: (props: Props) => import(\"react/jsx-runtime\").JSX.Element;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/hooks/useInToasterContext.d.ts:export declare function useInToasterContext(): boolean;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.d.ts:export declare const ToasterProvider: {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterContext.d.ts:export declare const ToasterContext: React.Context<ToasterContextMethods | null>;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.d.ts:export declare function ToasterComponent({ className, mobile, hasPortal }: Props): import(\"react/jsx-runtime\").JSX.Element;\n",
+          "exit_code": 0,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "type": "thinking",
+      "content": "Need ToasterProvider in main likely expected? Current ThemeProvider only. Could use toaster singleton or useToaster; need provider maybe singleton handles component? Inspect docs/types/source.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_9",
+          "type": "reasoning",
+          "text": "Need ToasterProvider in main likely expected? Current ThemeProvider only. Could use toaster singleton or useToaster; need provider maybe singleton handles component? Inspect docs/types/source."
+        }
+      }
+    },
+    {
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "args": {
+          "command": "/bin/bash -lc \"cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts && printf '\\\\n--- singleton ---\\\\n' && cat node_modules/@gravity-ui/uikit/build/esm/toaster-singleton.d.ts && printf '\\\\n--- provider ---\\\\n' && cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.d.ts && sed -n '1,220p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.js\"",
+          "_extractedCommand": "/bin/bash -lc \"cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts && printf '\\\\n--- singleton ---\\\\n' && cat node_modules/@gravity-ui/uikit/build/esm/toaster-singleton.d.ts && printf '\\\\n--- provider ---\\\\n' && cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.d.ts && sed -n '1,220p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.js\""
+        }
+      },
+      "raw": {
+        "type": "item.started",
+        "item": {
+          "id": "item_10",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts && printf '\\\\n--- singleton ---\\\\n' && cat node_modules/@gravity-ui/uikit/build/esm/toaster-singleton.d.ts && printf '\\\\n--- provider ---\\\\n' && cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.d.ts && sed -n '1,220p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.js\"",
+          "aggregated_output": "",
+          "exit_code": null,
+          "status": "in_progress"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "result": {
+          "output": "import type { ButtonView } from \"../Button/index.js\";\nimport type { TOAST_THEMES } from \"./constants.js\";\nexport type ToasterArgs = {\n    className?: string;\n    mobile?: boolean;\n};\nexport type ToastTheme = (typeof TOAST_THEMES)[number];\nexport type ToastAction = {\n    onClick: VoidFunction;\n    label: string;\n    view?: ButtonView;\n    removeAfterClick?: boolean;\n};\nexport type ToastProps = {\n    name: string;\n    title?: string;\n    className?: string;\n    autoHiding?: number | false;\n    content?: React.ReactNode;\n    theme?: ToastTheme;\n    isClosable?: boolean;\n    actions?: (() => React.ReactElement) | ToastAction[];\n    onClose?: () => void;\n    /** Function. Use for toast icon customization. By default type-based behavior is used */\n    renderIcon?: (toastProps: ToastProps) => React.ReactNode;\n};\nexport type InternalToastProps = ToastProps & {\n    addedAt?: number;\n    ref?: React.RefObject<HTMLDivElement | null>;\n};\nexport interface ToasterContextMethods {\n    add(toast: ToastProps): void;\n    remove(toastName: ToastProps['name']): void;\n    removeAll(): void;\n    update(toastName: ToastProps['name'], override: Partial<ToastProps>): void;\n    has(toastName: ToastProps['name']): boolean;\n}\nexport interface ToasterPublicMethods extends ToasterContextMethods {\n}\n/**\n * Toaster implementation for usage in `<Toaster.Provider/>`\n */\nexport interface ToasterImplementation extends ToasterContextMethods {\n    subscribe(callback: (toasts: InternalToastProps[]) => void): VoidFunction;\n}\n\n--- singleton ---\nimport { Toaster } from \"./components/Toaster/Toaster.js\";\nexport declare const toaster: Toaster;\n\n--- provider ---\nimport * as React from 'react';\nimport type { ToasterImplementation } from \"../types.js\";\ntype Props = React.PropsWithChildren<{\n    toaster: ToasterImplementation;\n}>;\nexport declare const ToasterProvider: {\n    ({ toaster, children }: Props): import(\"react/jsx-runtime\").JSX.Element;\n    displayName: string;\n};\nexport {};\n'use client';\nimport { jsx as _jsx } from \"react/jsx-runtime\";\nimport * as React from 'react';\nimport { ToasterContext } from \"./ToasterContext.js\";\nimport { ToastsContext } from \"./ToastsContext.js\";\nexport const ToasterProvider = ({ toaster, children }) => {\n    const [toasts, setToasts] = React.useState([]);\n    React.useEffect(() => {\n        const unsubscribe = toaster.subscribe(setToasts);\n        return () => {\n            unsubscribe();\n        };\n    }, [toaster]);\n    return (_jsx(ToasterContext.Provider, { value: toaster, children: _jsx(ToastsContext.Provider, { value: toasts, children: children }) }));\n};\nToasterProvider.displayName = 'ToasterProvider';\n//# sourceMappingURL=ToasterProvider.js.map\n",
+          "exitCode": 0
+        },
+        "success": true
+      },
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_10",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts && printf '\\\\n--- singleton ---\\\\n' && cat node_modules/@gravity-ui/uikit/build/esm/toaster-singleton.d.ts && printf '\\\\n--- provider ---\\\\n' && cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.d.ts && sed -n '1,220p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.js\"",
+          "aggregated_output": "import type { ButtonView } from \"../Button/index.js\";\nimport type { TOAST_THEMES } from \"./constants.js\";\nexport type ToasterArgs = {\n    className?: string;\n    mobile?: boolean;\n};\nexport type ToastTheme = (typeof TOAST_THEMES)[number];\nexport type ToastAction = {\n    onClick: VoidFunction;\n    label: string;\n    view?: ButtonView;\n    removeAfterClick?: boolean;\n};\nexport type ToastProps = {\n    name: string;\n    title?: string;\n    className?: string;\n    autoHiding?: number | false;\n    content?: React.ReactNode;\n    theme?: ToastTheme;\n    isClosable?: boolean;\n    actions?: (() => React.ReactElement) | ToastAction[];\n    onClose?: () => void;\n    /** Function. Use for toast icon customization. By default type-based behavior is used */\n    renderIcon?: (toastProps: ToastProps) => React.ReactNode;\n};\nexport type InternalToastProps = ToastProps & {\n    addedAt?: number;\n    ref?: React.RefObject<HTMLDivElement | null>;\n};\nexport interface ToasterContextMethods {\n    add(toast: ToastProps): void;\n    remove(toastName: ToastProps['name']): void;\n    removeAll(): void;\n    update(toastName: ToastProps['name'], override: Partial<ToastProps>): void;\n    has(toastName: ToastProps['name']): boolean;\n}\nexport interface ToasterPublicMethods extends ToasterContextMethods {\n}\n/**\n * Toaster implementation for usage in `<Toaster.Provider/>`\n */\nexport interface ToasterImplementation extends ToasterContextMethods {\n    subscribe(callback: (toasts: InternalToastProps[]) => void): VoidFunction;\n}\n\n--- singleton ---\nimport { Toaster } from \"./components/Toaster/Toaster.js\";\nexport declare const toaster: Toaster;\n\n--- provider ---\nimport * as React from 'react';\nimport type { ToasterImplementation } from \"../types.js\";\ntype Props = React.PropsWithChildren<{\n    toaster: ToasterImplementation;\n}>;\nexport declare const ToasterProvider: {\n    ({ toaster, children }: Props): import(\"react/jsx-runtime\").JSX.Element;\n    displayName: string;\n};\nexport {};\n'use client';\nimport { jsx as _jsx } from \"react/jsx-runtime\";\nimport * as React from 'react';\nimport { ToasterContext } from \"./ToasterContext.js\";\nimport { ToastsContext } from \"./ToastsContext.js\";\nexport const ToasterProvider = ({ toaster, children }) => {\n    const [toasts, setToasts] = React.useState([]);\n    React.useEffect(() => {\n        const unsubscribe = toaster.subscribe(setToasts);\n        return () => {\n            unsubscribe();\n        };\n    }, [toaster]);\n    return (_jsx(ToasterContext.Provider, { value: toaster, children: _jsx(ToastsContext.Provider, { value: toasts, children: children }) }));\n};\nToasterProvider.displayName = 'ToasterProvider';\n//# sourceMappingURL=ToasterProvider.js.map\n",
+          "exit_code": 0,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "type": "thinking",
+      "content": "Need component mounting and toaster instance. singleton likely globally Toaster but component needs ToasterComponent and provider? Search README docs.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_11",
+          "type": "reasoning",
+          "text": "Need component mounting and toaster instance. singleton likely globally Toaster but component needs ToasterComponent and provider? Search README docs."
+        }
+      }
+    },
+    {
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "args": {
+          "command": "/bin/bash -lc \"sed -n '1,220p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.js && printf '\\\\n--- toaster class ---\\\\n' && sed -n '1,240p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.js\"",
+          "_extractedCommand": "/bin/bash -lc \"sed -n '1,220p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.js && printf '\\\\n--- toaster class ---\\\\n' && sed -n '1,240p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.js\""
+        }
+      },
+      "raw": {
+        "type": "item.started",
+        "item": {
+          "id": "item_12",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"sed -n '1,220p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.js && printf '\\\\n--- toaster class ---\\\\n' && sed -n '1,240p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.js\"",
+          "aggregated_output": "",
+          "exit_code": null,
+          "status": "in_progress"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "result": {
+          "output": "'use client';\nimport { jsx as _jsx } from \"react/jsx-runtime\";\nimport * as React from 'react';\nimport { Portal } from \"../../Portal/index.js\";\nimport { useMobile } from \"../../mobile/index.js\";\nimport { block } from \"../../utils/cn.js\";\nimport { ToastsContext } from \"../Provider/ToastsContext.js\";\nimport { ToastList } from \"../ToastList/ToastList.js\";\nimport { useToaster } from \"../hooks/useToaster.js\";\nconst b = block('toaster');\nexport function ToasterComponent({ className, mobile, hasPortal = true }) {\n    const defaultMobile = useMobile();\n    const { remove } = useToaster();\n    const list = React.useContext(ToastsContext);\n    const toaster = (_jsx(ToastList, { toasts: list, removeCallback: remove, mobile: mobile ?? defaultMobile }));\n    if (!hasPortal) {\n        return toaster;\n    }\n    return (_jsx(Portal, { children: _jsx(\"div\", { className: b({ mobile: mobile ?? defaultMobile }, className), \"aria-live\": \"assertive\", children: toaster }) }));\n}\nToasterComponent.displayName = 'ToasterComponent';\n//# sourceMappingURL=ToasterComponent.js.map\n\n--- toaster class ---\nimport { EventEmitter } from \"../../utils/EventEmitter/index.js\";\nimport { getToastIndex } from \"./utilities/getToastIndex.js\";\nimport { hasToast } from \"./utilities/hasToast.js\";\nimport { removeToast } from \"./utilities/removeToast.js\";\nexport class Toaster {\n    /** We were tried to notify about toaster changes, but no one were listened */\n    hasUndelivered = false;\n    toasts = [];\n    eventEmitter = new EventEmitter();\n    destroy() {\n        this.removeAll();\n        this.eventEmitter.destroy();\n    }\n    add(toast) {\n        let nextToasts = this.toasts;\n        if (hasToast(nextToasts, toast.name)) {\n            nextToasts = removeToast(nextToasts, toast.name);\n        }\n        this.toasts = [\n            ...nextToasts,\n            {\n                ...toast,\n                addedAt: Date.now(),\n                ref: { current: null },\n            },\n        ];\n        this.notify();\n    }\n    remove(name) {\n        this.toasts = removeToast(this.toasts, name);\n        this.notify();\n    }\n    removeAll() {\n        this.toasts = [];\n        this.notify();\n    }\n    update(name, overrideOptions) {\n        if (!hasToast(this.toasts, name)) {\n            return;\n        }\n        const index = getToastIndex(this.toasts, name);\n        this.toasts = [\n            ...this.toasts.slice(0, index),\n            {\n                ...this.toasts[index],\n                ...overrideOptions,\n            },\n            ...this.toasts.slice(index + 1),\n        ];\n        this.notify();\n    }\n    has(name) {\n        return hasToast(this.toasts, name);\n    }\n    subscribe(listener) {\n        const unsubscribe = this.eventEmitter.subscribe('toasts-change', listener);\n        if (this.hasUndelivered) {\n            this.notify();\n        }\n        return unsubscribe;\n    }\n    notify() {\n        const isDelivered = this.eventEmitter.notify('toasts-change', [this.toasts]);\n        this.hasUndelivered = !isDelivered;\n    }\n}\n//# sourceMappingURL=Toaster.js.map\n",
+          "exitCode": 0
+        },
+        "success": true
+      },
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_12",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"sed -n '1,220p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.js && printf '\\\\n--- toaster class ---\\\\n' && sed -n '1,240p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.js\"",
+          "aggregated_output": "'use client';\nimport { jsx as _jsx } from \"react/jsx-runtime\";\nimport * as React from 'react';\nimport { Portal } from \"../../Portal/index.js\";\nimport { useMobile } from \"../../mobile/index.js\";\nimport { block } from \"../../utils/cn.js\";\nimport { ToastsContext } from \"../Provider/ToastsContext.js\";\nimport { ToastList } from \"../ToastList/ToastList.js\";\nimport { useToaster } from \"../hooks/useToaster.js\";\nconst b = block('toaster');\nexport function ToasterComponent({ className, mobile, hasPortal = true }) {\n    const defaultMobile = useMobile();\n    const { remove } = useToaster();\n    const list = React.useContext(ToastsContext);\n    const toaster = (_jsx(ToastList, { toasts: list, removeCallback: remove, mobile: mobile ?? defaultMobile }));\n    if (!hasPortal) {\n        return toaster;\n    }\n    return (_jsx(Portal, { children: _jsx(\"div\", { className: b({ mobile: mobile ?? defaultMobile }, className), \"aria-live\": \"assertive\", children: toaster }) }));\n}\nToasterComponent.displayName = 'ToasterComponent';\n//# sourceMappingURL=ToasterComponent.js.map\n\n--- toaster class ---\nimport { EventEmitter } from \"../../utils/EventEmitter/index.js\";\nimport { getToastIndex } from \"./utilities/getToastIndex.js\";\nimport { hasToast } from \"./utilities/hasToast.js\";\nimport { removeToast } from \"./utilities/removeToast.js\";\nexport class Toaster {\n    /** We were tried to notify about toaster changes, but no one were listened */\n    hasUndelivered = false;\n    toasts = [];\n    eventEmitter = new EventEmitter();\n    destroy() {\n        this.removeAll();\n        this.eventEmitter.destroy();\n    }\n    add(toast) {\n        let nextToasts = this.toasts;\n        if (hasToast(nextToasts, toast.name)) {\n            nextToasts = removeToast(nextToasts, toast.name);\n        }\n        this.toasts = [\n            ...nextToasts,\n            {\n                ...toast,\n                addedAt: Date.now(),\n                ref: { current: null },\n            },\n        ];\n        this.notify();\n    }\n    remove(name) {\n        this.toasts = removeToast(this.toasts, name);\n        this.notify();\n    }\n    removeAll() {\n        this.toasts = [];\n        this.notify();\n    }\n    update(name, overrideOptions) {\n        if (!hasToast(this.toasts, name)) {\n            return;\n        }\n        const index = getToastIndex(this.toasts, name);\n        this.toasts = [\n            ...this.toasts.slice(0, index),\n            {\n                ...this.toasts[index],\n                ...overrideOptions,\n            },\n            ...this.toasts.slice(index + 1),\n        ];\n        this.notify();\n    }\n    has(name) {\n        return hasToast(this.toasts, name);\n    }\n    subscribe(listener) {\n        const unsubscribe = this.eventEmitter.subscribe('toasts-change', listener);\n        if (this.hasUndelivered) {\n            this.notify();\n        }\n        return unsubscribe;\n    }\n    notify() {\n        const isDelivered = this.eventEmitter.notify('toasts-change', [this.toasts]);\n        this.hasUndelivered = !isDelivered;\n    }\n}\n//# sourceMappingURL=Toaster.js.map\n",
+          "exit_code": 0,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "type": "thinking",
+      "content": "Could create own Toaster instance + provider/component in App, simplest. Or use singleton with ToasterProvider toaster={toaster} and ToasterComponent. Need types singleton must ToasterImplementation? singleton d.ts Toaster, class subscribes. Fine.\n\nButton corner \"в углу экрана\" unspecified could bottom right. Use fixed div top-right? \"в углу\" likely corner. Choose bottom-right typical. Could use custom CSS inline. Click -> add toast autoHiding=3000, title. Gravity ToasterComponent positions itself likely styles. Need ensure mobile. Inspect CSS.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_13",
+          "type": "reasoning",
+          "text": "Could create own Toaster instance + provider/component in App, simplest. Or use singleton with ToasterProvider toaster={toaster} and ToasterComponent. Need types singleton must ToasterImplementation? singleton d.ts Toaster, class subscribes. Fine.\n\nButton corner \"в углу экрана\" unspecified could bottom right. Use fixed div top-right? \"в углу\" likely corner. Choose bottom-right typical. Could use custom CSS inline. Click -> add toast autoHiding=3000, title. Gravity ToasterComponent positions itself likely styles. Need ensure mobile. Inspect CSS."
+        }
+      }
+    },
+    {
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "args": {
+          "command": "/bin/bash -lc \"sed -n '1,200p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css && printf '\\\\n--- main toaster css ---\\\\n' && sed -n '1,200p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.css\"",
+          "_extractedCommand": "/bin/bash -lc \"sed -n '1,200p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css && printf '\\\\n--- main toaster css ---\\\\n' && sed -n '1,200p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.css\""
+        }
+      },
+      "raw": {
+        "type": "item.started",
+        "item": {
+          "id": "item_14",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"sed -n '1,200p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css && printf '\\\\n--- main toaster css ---\\\\n' && sed -n '1,200p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.css\"",
+          "aggregated_output": "",
+          "exit_code": null,
+          "status": "in_progress"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "result": {
+          "output": ".g-toaster {\n  --_--width: 312px;\n  position: fixed;\n  inset-block-end: 0;\n  inset-inline-end: 10px;\n  width: var(--g-toaster-width, var(--_--width));\n  z-index: 100000;\n  display: flex;\n  flex-direction: column;\n  align-items: flex-end;\n}\n.g-toaster_mobile {\n  --_--width: calc(100% - 20px);\n  inset-inline-start: 50%;\n  transform: translate(-50%);\n}\n--- main toaster css ---\nsed: can't read node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.css: No such file or directory\n",
+          "exitCode": 2
+        },
+        "success": false
+      },
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_14",
+          "type": "command_execution",
+          "command": "/bin/bash -lc \"sed -n '1,200p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css && printf '\\\\n--- main toaster css ---\\\\n' && sed -n '1,200p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.css\"",
+          "aggregated_output": ".g-toaster {\n  --_--width: 312px;\n  position: fixed;\n  inset-block-end: 0;\n  inset-inline-end: 10px;\n  width: var(--g-toaster-width, var(--_--width));\n  z-index: 100000;\n  display: flex;\n  flex-direction: column;\n  align-items: flex-end;\n}\n.g-toaster_mobile {\n  --_--width: calc(100% - 20px);\n  inset-inline-start: 50%;\n  transform: translate(-50%);\n}\n--- main toaster css ---\nsed: can't read node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.css: No such file or directory\n",
+          "exit_code": 2,
+          "status": "failed"
+        }
+      }
+    },
+    {
+      "type": "thinking",
+      "content": "Implement. Need maybe tests? Could update App only. import Button and toaster, ToasterProvider, ToasterComponent, React. Local toaster instance. Need React StrictMode issue same instance provider works. Use useRef new Toaster? Then add onClick. Auto hiding library may handle auto hide inspect ToastList/ToastItem.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_15",
+          "type": "reasoning",
+          "text": "Implement. Need maybe tests? Could update App only. import Button and toaster, ToasterProvider, ToasterComponent, React. Local toaster instance. Need React StrictMode issue same instance provider works. Use useRef new Toaster? Then add onClick. Auto hiding library may handle auto hide inspect ToastList/ToastItem."
+        }
+      }
+    },
+    {
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "args": {
+          "command": "/bin/bash -lc 'rg \"autoHiding\" node_modules/@gravity-ui/uikit/build/esm/components/Toaster -n'",
+          "_extractedCommand": "/bin/bash -lc 'rg \"autoHiding\" node_modules/@gravity-ui/uikit/build/esm/components/Toaster -n'"
+        }
+      },
+      "raw": {
+        "type": "item.started",
+        "item": {
+          "id": "item_16",
+          "type": "command_execution",
+          "command": "/bin/bash -lc 'rg \"autoHiding\" node_modules/@gravity-ui/uikit/build/esm/components/Toaster -n'",
+          "aggregated_output": "",
+          "exit_code": null,
+          "status": "in_progress"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "result": {
+          "output": "node_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.js.map:1:{\"version\":3,\"file\":\"types.js\",\"sourceRoot\":\"../../../../src\",\"sources\":[\"components/Toaster/types.ts\"],\"names\":[],\"mappings\":\"\",\"sourcesContent\":[\"import type {ButtonView} from '../Button';\\n\\nimport type {TOAST_THEMES} from './constants';\\n\\nexport type ToasterArgs = {\\n    className?: string;\\n    mobile?: boolean;\\n};\\n\\nexport type ToastTheme = (typeof TOAST_THEMES)[number];\\n\\nexport type ToastAction = {\\n    onClick: VoidFunction;\\n    label: string;\\n    view?: ButtonView;\\n    removeAfterClick?: boolean;\\n};\\n\\nexport type ToastProps = {\\n    name: string;\\n    title?: string;\\n    className?: string;\\n    autoHiding?: number | false;\\n    content?: React.ReactNode;\\n    theme?: ToastTheme;\\n    isClosable?: boolean;\\n    actions?: (() => React.ReactElement) | ToastAction[];\\n\\n    onClose?: () => void;\\n\\n    /** Function. Use for toast icon customization. By default type-based behavior is used */\\n    renderIcon?: (toastProps: ToastProps) => React.ReactNode;\\n};\\n\\nexport type InternalToastProps = ToastProps & {\\n    addedAt?: number;\\n    ref?: React.RefObject<HTMLDivElement | null>;\\n};\\n\\nexport interface ToasterContextMethods {\\n    add(toast: ToastProps): void;\\n    remove(toastName: ToastProps['name']): void;\\n    removeAll(): void;\\n    update(toastName: ToastProps['name'], override: Partial<ToastProps>): void;\\n    has(toastName: ToastProps['name']): boolean;\\n}\\n\\nexport interface ToasterPublicMethods extends ToasterContextMethods {}\\n\\n/**\\n * Toaster implementation for usage in `<Toaster.Provider/>`\\n */\\nexport interface ToasterImplementation extends ToasterContextMethods {\\n    subscribe(callback: (toasts: InternalToastProps[]) => void): VoidFunction;\\n}\\n\"]}\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:18:    autoHiding?: number | false;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.js.map:1:{\"version\":3,\"file\":\"Toast.js\",\"sourceRoot\":\"../../../../../src\",\"sources\":[\"components/Toaster/Toast/Toast.tsx\"],\"names\":[],\"mappings\":\"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\",\"sourcesContent\":[\"'use client';\\n\\nimport * as React from 'react';\\n\\nimport {\\n    CircleCheckFill,\\n    CircleInfoFill,\\n    ThunderboltFill,\\n    TriangleExclamationFill,\\n    Xmark,\\n} from '@gravity-ui/icons';\\n\\nimport {useCloseOnTimeout} from '../../../hooks/private';\\nimport {Button} from '../../Button';\\nimport {Icon} from '../../Icon';\\nimport type {IconProps} from '../../Icon';\\nimport {block} from '../../utils/cn';\\nimport i18n from '../i18n';\\nimport type {InternalToastProps, ToastAction, ToastTheme} from '../types';\\n\\nimport './Toast.scss';\\n\\nconst b = block('toast');\\nconst DEFAULT_TIMEOUT = 5000;\\nconst TITLE_ICONS: Record<ToastTheme, IconProps['data'] | null> = {\\n    normal: null,\\n    info: CircleInfoFill,\\n    success: CircleCheckFill,\\n    warning: TriangleExclamationFill,\\n    danger: TriangleExclamationFill,\\n    utility: ThunderboltFill,\\n};\\n\\ninterface ToastInnerProps {\\n    removeCallback: (name: string) => void;\\n    mobile?: boolean;\\n}\\n\\ninterface ToastUnitedProps extends InternalToastProps, ToastInnerProps {}\\n\\ninterface RenderActionsProps {\\n    actions?: (() => React.ReactElement) | ToastAction[];\\n    onClose: VoidFunction;\\n}\\n\\nfunction renderActions({actions, onClose}: RenderActionsProps) {\\n    let component: React.ReactElement | React.ReactElement[] | undefined;\\n\\n    if (Array.isArray(actions)) {\\n        component = actions.map(\\n            ({label, onClick, view = 'outlined', removeAfterClick = true}, index) => {\\n                const onActionClick = () => {\\n                    onClick();\\n                    if (removeAfterClick) {\\n                        onClose();\\n                    }\\n                };\\n\\n                return (\\n                    <Button\\n                        key={`${label}__${index}`}\\n                        onClick={onActionClick}\\n                        type=\\\"button\\\"\\n                        size=\\\"l\\\"\\n                        view={view}\\n                        width=\\\"auto\\\"\\n                    >\\n                        {label}\\n                    </Button>\\n                );\\n            },\\n        );\\n\\n        if (!actions.length) {\\n            return null;\\n        }\\n    } else {\\n        component = actions?.();\\n\\n        if (!component) {\\n            return null;\\n        }\\n    }\\n\\n    return <div className={b('actions')}>{component}</div>;\\n}\\n\\ninterface RenderIconProps {\\n    theme?: ToastTheme;\\n}\\n\\nfunction renderIconByType({theme}: RenderIconProps) {\\n    if (!theme || !TITLE_ICONS[theme]) {\\n        return null;\\n    }\\n\\n    return <Icon data={TITLE_ICONS[theme]!} size={20} className={b('icon', {[theme]: true})} />;\\n}\\n\\nexport const Toast = React.forwardRef<HTMLDivElement, ToastUnitedProps>(function Toast(props, ref) {\\n    const {\\n        name,\\n        content,\\n        actions,\\n        title,\\n        className,\\n        theme = 'normal',\\n        renderIcon,\\n        autoHiding: timeoutProp = DEFAULT_TIMEOUT,\\n        isClosable = true,\\n        mobile = false,\\n        onClose,\\n        removeCallback,\\n    } = props;\\n\\n    const handleClose = React.useCallback(() => {\\n        removeCallback(name);\\n\\n        if (onClose) {\\n            onClose();\\n        }\\n    }, [removeCallback, onClose, name]);\\n    const timeout = typeof timeoutProp === 'number' ? timeoutProp : undefined;\\n    const closeOnTimeoutProps = useCloseOnTimeout<HTMLDivElement>({onClose: handleClose, timeout});\\n\\n    const mods = {\\n        mobile,\\n        theme,\\n    };\\n\\n    const hasTitle = Boolean(title);\\n    const hasContent = Boolean(content);\\n\\n    const {t} = i18n.useTranslation();\\n\\n    const icon = renderIcon ? renderIcon(props) : renderIconByType({theme});\\n    return (\\n        <div ref={ref} className={b(mods, className)} {...closeOnTimeoutProps} data-toast>\\n            {icon && <div className={b('icon-container')}>{icon}</div>}\\n            <div className={b('container')}>\\n                {hasTitle && <h3 className={b('title')}>{title}</h3>}\\n                {isClosable && (\\n                    <Button\\n                        size=\\\"s\\\"\\n                        view=\\\"flat\\\"\\n                        className={b('btn-close')}\\n                        onClick={handleClose}\\n                        aria-label={t('label_close-button')}\\n                    >\\n                        <Icon data={Xmark} />\\n                    </Button>\\n                )}\\n                {hasContent && (\\n                    <div className={b('content', {'without-title': !hasTitle})}>{content}</div>\\n                )}\\n                {renderActions({actions, onClose: handleClose})}\\n            </div>\\n        </div>\\n    );\\n});\\n\"]}\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.js:52:    const { name, content, actions, title, className, theme = 'normal', renderIcon, autoHiding: timeoutProp = DEFAULT_TIMEOUT, isClosable = true, mobile = false, onClose, removeCallback, } = props;\n",
+          "exitCode": 0
+        },
+        "success": true
+      },
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_16",
+          "type": "command_execution",
+          "command": "/bin/bash -lc 'rg \"autoHiding\" node_modules/@gravity-ui/uikit/build/esm/components/Toaster -n'",
+          "aggregated_output": "node_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.js.map:1:{\"version\":3,\"file\":\"types.js\",\"sourceRoot\":\"../../../../src\",\"sources\":[\"components/Toaster/types.ts\"],\"names\":[],\"mappings\":\"\",\"sourcesContent\":[\"import type {ButtonView} from '../Button';\\n\\nimport type {TOAST_THEMES} from './constants';\\n\\nexport type ToasterArgs = {\\n    className?: string;\\n    mobile?: boolean;\\n};\\n\\nexport type ToastTheme = (typeof TOAST_THEMES)[number];\\n\\nexport type ToastAction = {\\n    onClick: VoidFunction;\\n    label: string;\\n    view?: ButtonView;\\n    removeAfterClick?: boolean;\\n};\\n\\nexport type ToastProps = {\\n    name: string;\\n    title?: string;\\n    className?: string;\\n    autoHiding?: number | false;\\n    content?: React.ReactNode;\\n    theme?: ToastTheme;\\n    isClosable?: boolean;\\n    actions?: (() => React.ReactElement) | ToastAction[];\\n\\n    onClose?: () => void;\\n\\n    /** Function. Use for toast icon customization. By default type-based behavior is used */\\n    renderIcon?: (toastProps: ToastProps) => React.ReactNode;\\n};\\n\\nexport type InternalToastProps = ToastProps & {\\n    addedAt?: number;\\n    ref?: React.RefObject<HTMLDivElement | null>;\\n};\\n\\nexport interface ToasterContextMethods {\\n    add(toast: ToastProps): void;\\n    remove(toastName: ToastProps['name']): void;\\n    removeAll(): void;\\n    update(toastName: ToastProps['name'], override: Partial<ToastProps>): void;\\n    has(toastName: ToastProps['name']): boolean;\\n}\\n\\nexport interface ToasterPublicMethods extends ToasterContextMethods {}\\n\\n/**\\n * Toaster implementation for usage in `<Toaster.Provider/>`\\n */\\nexport interface ToasterImplementation extends ToasterContextMethods {\\n    subscribe(callback: (toasts: InternalToastProps[]) => void): VoidFunction;\\n}\\n\"]}\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts:18:    autoHiding?: number | false;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.js.map:1:{\"version\":3,\"file\":\"Toast.js\",\"sourceRoot\":\"../../../../../src\",\"sources\":[\"components/Toaster/Toast/Toast.tsx\"],\"names\":[],\"mappings\":\"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\",\"sourcesContent\":[\"'use client';\\n\\nimport * as React from 'react';\\n\\nimport {\\n    CircleCheckFill,\\n    CircleInfoFill,\\n    ThunderboltFill,\\n    TriangleExclamationFill,\\n    Xmark,\\n} from '@gravity-ui/icons';\\n\\nimport {useCloseOnTimeout} from '../../../hooks/private';\\nimport {Button} from '../../Button';\\nimport {Icon} from '../../Icon';\\nimport type {IconProps} from '../../Icon';\\nimport {block} from '../../utils/cn';\\nimport i18n from '../i18n';\\nimport type {InternalToastProps, ToastAction, ToastTheme} from '../types';\\n\\nimport './Toast.scss';\\n\\nconst b = block('toast');\\nconst DEFAULT_TIMEOUT = 5000;\\nconst TITLE_ICONS: Record<ToastTheme, IconProps['data'] | null> = {\\n    normal: null,\\n    info: CircleInfoFill,\\n    success: CircleCheckFill,\\n    warning: TriangleExclamationFill,\\n    danger: TriangleExclamationFill,\\n    utility: ThunderboltFill,\\n};\\n\\ninterface ToastInnerProps {\\n    removeCallback: (name: string) => void;\\n    mobile?: boolean;\\n}\\n\\ninterface ToastUnitedProps extends InternalToastProps, ToastInnerProps {}\\n\\ninterface RenderActionsProps {\\n    actions?: (() => React.ReactElement) | ToastAction[];\\n    onClose: VoidFunction;\\n}\\n\\nfunction renderActions({actions, onClose}: RenderActionsProps) {\\n    let component: React.ReactElement | React.ReactElement[] | undefined;\\n\\n    if (Array.isArray(actions)) {\\n        component = actions.map(\\n            ({label, onClick, view = 'outlined', removeAfterClick = true}, index) => {\\n                const onActionClick = () => {\\n                    onClick();\\n                    if (removeAfterClick) {\\n                        onClose();\\n                    }\\n                };\\n\\n                return (\\n                    <Button\\n                        key={`${label}__${index}`}\\n                        onClick={onActionClick}\\n                        type=\\\"button\\\"\\n                        size=\\\"l\\\"\\n                        view={view}\\n                        width=\\\"auto\\\"\\n                    >\\n                        {label}\\n                    </Button>\\n                );\\n            },\\n        );\\n\\n        if (!actions.length) {\\n            return null;\\n        }\\n    } else {\\n        component = actions?.();\\n\\n        if (!component) {\\n            return null;\\n        }\\n    }\\n\\n    return <div className={b('actions')}>{component}</div>;\\n}\\n\\ninterface RenderIconProps {\\n    theme?: ToastTheme;\\n}\\n\\nfunction renderIconByType({theme}: RenderIconProps) {\\n    if (!theme || !TITLE_ICONS[theme]) {\\n        return null;\\n    }\\n\\n    return <Icon data={TITLE_ICONS[theme]!} size={20} className={b('icon', {[theme]: true})} />;\\n}\\n\\nexport const Toast = React.forwardRef<HTMLDivElement, ToastUnitedProps>(function Toast(props, ref) {\\n    const {\\n        name,\\n        content,\\n        actions,\\n        title,\\n        className,\\n        theme = 'normal',\\n        renderIcon,\\n        autoHiding: timeoutProp = DEFAULT_TIMEOUT,\\n        isClosable = true,\\n        mobile = false,\\n        onClose,\\n        removeCallback,\\n    } = props;\\n\\n    const handleClose = React.useCallback(() => {\\n        removeCallback(name);\\n\\n        if (onClose) {\\n            onClose();\\n        }\\n    }, [removeCallback, onClose, name]);\\n    const timeout = typeof timeoutProp === 'number' ? timeoutProp : undefined;\\n    const closeOnTimeoutProps = useCloseOnTimeout<HTMLDivElement>({onClose: handleClose, timeout});\\n\\n    const mods = {\\n        mobile,\\n        theme,\\n    };\\n\\n    const hasTitle = Boolean(title);\\n    const hasContent = Boolean(content);\\n\\n    const {t} = i18n.useTranslation();\\n\\n    const icon = renderIcon ? renderIcon(props) : renderIconByType({theme});\\n    return (\\n        <div ref={ref} className={b(mods, className)} {...closeOnTimeoutProps} data-toast>\\n            {icon && <div className={b('icon-container')}>{icon}</div>}\\n            <div className={b('container')}>\\n                {hasTitle && <h3 className={b('title')}>{title}</h3>}\\n                {isClosable && (\\n                    <Button\\n                        size=\\\"s\\\"\\n                        view=\\\"flat\\\"\\n                        className={b('btn-close')}\\n                        onClick={handleClose}\\n                        aria-label={t('label_close-button')}\\n                    >\\n                        <Icon data={Xmark} />\\n                    </Button>\\n                )}\\n                {hasContent && (\\n                    <div className={b('content', {'without-title': !hasTitle})}>{content}</div>\\n                )}\\n                {renderActions({actions, onClose: handleClose})}\\n            </div>\\n        </div>\\n    );\\n});\\n\"]}\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.js:52:    const { name, content, actions, title, className, theme = 'normal', renderIcon, autoHiding: timeoutProp = DEFAULT_TIMEOUT, isClosable = true, mobile = false, onClose, removeCallback, } = props;\n",
+          "exit_code": 0,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "type": "thinking",
+      "content": "So auto works. Implement via provider wrapper. Could just use custom own toast for simplicity? Requirement \"всплывающее уведомление затем само исчезает.\" Use library. Need notes button corner? Inline fixed wrapper. Since toaster itself bottom right. Need Button label \"Показать уведомление\" fixed bottom right. Could screen corner opposed to toast also bottom right overlapping. Better button top-right and toast default bottom-right. User says click button in corner screen. Put top-right using fixed wrapper.\n\nCode:\nimport { Button, ToasterComponent, ToasterProvider }...\nimport { Toaster as ToasterImpl } from '@gravity-ui/uikit'\nCheck top export.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_17",
+          "type": "reasoning",
+          "text": "So auto works. Implement via provider wrapper. Could just use custom own toast for simplicity? Requirement \"всплывающее уведомление затем само исчезает.\" Use library. Need notes button corner? Inline fixed wrapper. Since toaster itself bottom right. Need Button label \"Показать уведомление\" fixed bottom right. Could screen corner opposed to toast also bottom right overlapping. Better button top-right and toast default bottom-right. User says click button in corner screen. Put top-right using fixed wrapper.\n\nCode:\nimport { Button, ToasterComponent, ToasterProvider }...\nimport { Toaster as ToasterImpl } from '@gravity-ui/uikit'\nCheck top export."
+        }
+      }
+    },
+    {
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "args": {
+          "command": "/bin/bash -lc 'cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts && rg \"Toaster\" node_modules/@gravity-ui/uikit/build/esm/index.d.ts | head -20'",
+          "_extractedCommand": "/bin/bash -lc 'cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts && rg \"Toaster\" node_modules/@gravity-ui/uikit/build/esm/index.d.ts | head -20'"
+        }
+      },
+      "raw": {
+        "type": "item.started",
+        "item": {
+          "id": "item_18",
+          "type": "command_execution",
+          "command": "/bin/bash -lc 'cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts && rg \"Toaster\" node_modules/@gravity-ui/uikit/build/esm/index.d.ts | head -20'",
+          "aggregated_output": "",
+          "exit_code": null,
+          "status": "in_progress"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "result": {
+          "output": "export { Toaster } from \"./Toaster.js\";\nexport { Toast } from \"./Toast/Toast.js\";\nexport * from \"./types.js\";\nexport { useToaster } from \"./hooks/useToaster.js\";\nexport { withToaster } from \"./withToaster.js\";\nexport { ToasterComponent } from \"./ToasterComponent/ToasterComponent.js\";\nexport { ToasterProvider } from \"./Provider/ToasterProvider.js\";\n",
+          "exitCode": 0
+        },
+        "success": true
+      },
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_18",
+          "type": "command_execution",
+          "command": "/bin/bash -lc 'cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts && rg \"Toaster\" node_modules/@gravity-ui/uikit/build/esm/index.d.ts | head -20'",
+          "aggregated_output": "export { Toaster } from \"./Toaster.js\";\nexport { Toast } from \"./Toast/Toast.js\";\nexport * from \"./types.js\";\nexport { useToaster } from \"./hooks/useToaster.js\";\nexport { withToaster } from \"./withToaster.js\";\nexport { ToasterComponent } from \"./ToasterComponent/ToasterComponent.js\";\nexport { ToasterProvider } from \"./Provider/ToasterProvider.js\";\n",
+          "exit_code": 0,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "type": "message",
+      "role": "assistant",
+      "content": "Готово к правке: делаю устойчивый локальный тостер, чтобы уведомление исчезало через 3 секунды и не зависело от глобального провайдера.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_19",
+          "type": "agent_message",
+          "text": "Готово к правке: делаю устойчивый локальный тостер, чтобы уведомление исчезало через 3 секунды и не зависело от глобального провайдера."
+        }
+      }
+    },
+    {
+      "type": "thinking",
+      "content": "Need test build.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_21",
+          "type": "reasoning",
+          "text": "Need test build."
+        }
+      }
+    },
+    {
+      "type": "message",
+      "role": "assistant",
+      "content": "Правка внесена. Теперь проверю типы и сборку приложения.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_22",
+          "type": "agent_message",
+          "text": "Правка внесена. Теперь проверю типы и сборку приложения."
+        }
+      }
+    },
+    {
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "args": {
+          "command": "/bin/bash -lc 'npm run build'",
+          "_extractedCommand": "/bin/bash -lc 'npm run build'"
+        }
+      },
+      "raw": {
+        "type": "item.started",
+        "item": {
+          "id": "item_23",
+          "type": "command_execution",
+          "command": "/bin/bash -lc 'npm run build'",
+          "aggregated_output": "",
+          "exit_code": null,
+          "status": "in_progress"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "result": {
+          "output": "\n> build\n> tsc --noEmit && vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 2061 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.40 kB │ gzip:  0.27 kB\ndist/assets/index-BL4Sm7u4.css  121.57 kB │ gzip: 14.18 kB\ndist/assets/index-zHDIOO2Z.js   202.85 kB │ gzip: 67.81 kB\n✓ built in 1.08s\n",
+          "exitCode": 0
+        },
+        "success": true
+      },
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_23",
+          "type": "command_execution",
+          "command": "/bin/bash -lc 'npm run build'",
+          "aggregated_output": "\n> build\n> tsc --noEmit && vite build\n\nvite v5.4.21 building for production...\ntransforming...\n✓ 2061 modules transformed.\nrendering chunks...\ncomputing gzip size...\ndist/index.html                   0.40 kB │ gzip:  0.27 kB\ndist/assets/index-BL4Sm7u4.css  121.57 kB │ gzip: 14.18 kB\ndist/assets/index-zHDIOO2Z.js   202.85 kB │ gzip: 67.81 kB\n✓ built in 1.08s\n",
+          "exit_code": 0,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "type": "thinking",
+      "content": "Need maybe correctness? Local toaster useRef with StrictMode okay. Could lint no. Final concise with line ref. Need determine lines.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_24",
+          "type": "reasoning",
+          "text": "Need maybe correctness? Local toaster useRef with StrictMode okay. Could lint no. Final concise with line ref. Need determine lines."
+        }
+      }
+    },
+    {
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "args": {
+          "command": "/bin/bash -lc 'nl -ba src/App.tsx'",
+          "_extractedCommand": "/bin/bash -lc 'nl -ba src/App.tsx'"
+        }
+      },
+      "raw": {
+        "type": "item.started",
+        "item": {
+          "id": "item_25",
+          "type": "command_execution",
+          "command": "/bin/bash -lc 'nl -ba src/App.tsx'",
+          "aggregated_output": "",
+          "exit_code": null,
+          "status": "in_progress"
+        }
+      }
+    },
+    {
+      "type": "tool_result",
+      "tool": {
+        "name": "shell",
+        "originalName": "command_execution",
+        "result": {
+          "output": "     1\timport * as React from 'react';\n     2\t\n     3\timport { Button, Toaster, ToasterComponent, ToasterProvider } from '@gravity-ui/uikit';\n     4\t\n     5\tconst TOAST_NAME = 'corner-notification';\n     6\t\n     7\texport function App() {\n     8\t  const toaster = React.useRef(new Toaster());\n     9\t\n    10\t  const showNotification = () => {\n    11\t    toaster.current.add({\n    12\t      name: TOAST_NAME,\n    13\t      title: 'Уведомление',\n    14\t      content: 'Оно исчезнет автоматически.',\n    15\t      autoHiding: 3000,\n    16\t      isClosable: false,\n    17\t    });\n    18\t  };\n    19\t\n    20\t  return (\n    21\t    <ToasterProvider toaster={toaster.current}>\n    22\t      <Button\n    23\t        onClick={showNotification}\n    24\t        style={{\n    25\t          position: 'fixed',\n    26\t          top: 24,\n    27\t          right: 24,\n    28\t        }}\n    29\t      >\n    30\t        Показать уведомление\n    31\t      </Button>\n    32\t      <ToasterComponent />\n    33\t    </ToasterProvider>\n    34\t  );\n    35\t}\n",
+          "exitCode": 0
+        },
+        "success": true
+      },
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_25",
+          "type": "command_execution",
+          "command": "/bin/bash -lc 'nl -ba src/App.tsx'",
+          "aggregated_output": "     1\timport * as React from 'react';\n     2\t\n     3\timport { Button, Toaster, ToasterComponent, ToasterProvider } from '@gravity-ui/uikit';\n     4\t\n     5\tconst TOAST_NAME = 'corner-notification';\n     6\t\n     7\texport function App() {\n     8\t  const toaster = React.useRef(new Toaster());\n     9\t\n    10\t  const showNotification = () => {\n    11\t    toaster.current.add({\n    12\t      name: TOAST_NAME,\n    13\t      title: 'Уведомление',\n    14\t      content: 'Оно исчезнет автоматически.',\n    15\t      autoHiding: 3000,\n    16\t      isClosable: false,\n    17\t    });\n    18\t  };\n    19\t\n    20\t  return (\n    21\t    <ToasterProvider toaster={toaster.current}>\n    22\t      <Button\n    23\t        onClick={showNotification}\n    24\t        style={{\n    25\t          position: 'fixed',\n    26\t          top: 24,\n    27\t          right: 24,\n    28\t        }}\n    29\t      >\n    30\t        Показать уведомление\n    31\t      </Button>\n    32\t      <ToasterComponent />\n    33\t    </ToasterProvider>\n    34\t  );\n    35\t}\n",
+          "exit_code": 0,
+          "status": "completed"
+        }
+      }
+    },
+    {
+      "type": "message",
+      "role": "assistant",
+      "content": "Готово.\n\n- Добавлена фиксированная кнопка в правом верхнем углу: `src/App.tsx:22`\n- По клику открывается уведомление Gravity UI Toaster: `src/App.tsx:10`\n- Уведомление автоматически исчезает через 3 секунды: `src/App.tsx:15`\n- Проверил типы и сборку: `npm run build` завершился успешно.",
+      "raw": {
+        "type": "item.completed",
+        "item": {
+          "id": "item_26",
+          "type": "agent_message",
+          "text": "Готово.\n\n- Добавлена фиксированная кнопка в правом верхнем углу: `src/App.tsx:22`\n- По клику открывается уведомление Gravity UI Toaster: `src/App.tsx:10`\n- Уведомление автоматически исчезает через 3 секунды: `src/App.tsx:15`\n- Проверил типы и сборку: `npm run build` завершился успешно."
+        }
+      }
+    },
+    {
+      "type": "message",
+      "role": "system",
+      "content": "turn.completed",
+      "raw": {
+        "type": "turn.completed",
+        "usage": {
+          "input_tokens": 166182,
+          "cached_input_tokens": 149056,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1803,
+          "reasoning_output_tokens": 450
+        }
+      }
+    }
+  ],
+  "summary": {
+    "totalTurns": 5,
+    "toolCalls": {
+      "file_read": 0,
+      "file_write": 0,
+      "file_edit": 0,
+      "shell": 10,
+      "web_fetch": 0,
+      "web_search": 0,
+      "glob": 0,
+      "grep": 0,
+      "list_dir": 0,
+      "agent_task": 0,
+      "unknown": 0
+    },
+    "totalToolCalls": 10,
+    "webFetches": [],
+    "filesRead": [],
+    "filesModified": [],
+    "shellCommands": [
+      {
+        "command": "/bin/bash -lc \"pwd && rg --files -g '\"'!*node_modules*'\"' | head -100\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"cat src/App.tsx && printf '\\\\n--- main.tsx ---\\\\n' && cat src/main.tsx && printf '\\\\n--- index.html ---\\\\n' && cat index.html && printf '\\\\n--- package.json ---\\\\n' && cat package.json\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"rg \\\"export .*Toaster|createToast|type Toast|Button\\\" node_modules/@gravity-ui/uikit -g '*.d.ts' | head -80\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts && printf '\\\\n--- singleton ---\\\\n' && cat node_modules/@gravity-ui/uikit/build/esm/toaster-singleton.d.ts && printf '\\\\n--- provider ---\\\\n' && cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.d.ts && sed -n '1,220p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider/ToasterProvider.js\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"sed -n '1,220p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.js && printf '\\\\n--- toaster class ---\\\\n' && sed -n '1,240p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.js\"",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc \"sed -n '1,200p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css && printf '\\\\n--- main toaster css ---\\\\n' && sed -n '1,200p' node_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent/ToasterComponent.css\"",
+        "success": false,
+        "exitCode": 2
+      },
+      {
+        "command": "/bin/bash -lc 'rg \"autoHiding\" node_modules/@gravity-ui/uikit/build/esm/components/Toaster -n'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'cat node_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts && rg \"Toaster\" node_modules/@gravity-ui/uikit/build/esm/index.d.ts | head -20'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'npm run build'",
+        "success": true,
+        "exitCode": 0
+      },
+      {
+        "command": "/bin/bash -lc 'nl -ba src/App.tsx'",
+        "success": true,
+        "exitCode": 0
+      }
+    ],
+    "errors": [],
+    "thinkingBlocks": 10,
+    "usage": {
+      "inputTokens": 17126,
+      "outputTokens": 1803,
+      "cacheReadTokens": 149056,
+      "cacheWriteTokens": 0,
+      "reasoningTokens": 450,
+      "totalTokens": 167985
+    }
+  },
+  "parseSuccess": true
+}

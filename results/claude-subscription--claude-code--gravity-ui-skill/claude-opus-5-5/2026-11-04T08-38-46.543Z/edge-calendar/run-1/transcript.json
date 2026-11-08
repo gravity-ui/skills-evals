@@ -1,0 +1,1025 @@
+{
+  "agent": "claude-code",
+  "model": "claude-opus-5-5",
+  "events": [
+    {
+      "timestamp": "2026-11-04T08:41:33.269Z",
+      "type": "message",
+      "role": "user",
+      "content": "Добавь на страницу календарь для выбора даты.\n\n\nBefore implementing, read and follow the gravity-ui skill at .agents/skills/gravity-ui/SKILL.md. Read its referenced files as required by the skill.",
+      "raw": {
+        "parentUuid": null,
+        "isSidechain": false,
+        "promptId": "bad2cb3d-0d1a-4939-888c-8a46151817fa",
+        "type": "user",
+        "message": {
+          "role": "user",
+          "content": "Добавь на страницу календарь для выбора даты.\n\n\nBefore implementing, read and follow the gravity-ui skill at .agents/skills/gravity-ui/SKILL.md. Read its referenced files as required by the skill."
+        },
+        "uuid": "c1b92dfe-e4da-42f9-878c-70a479ab7aa5",
+        "timestamp": "2026-11-04T08:41:33.269Z",
+        "permissionMode": "bypassPermissions",
+        "promptSource": "sdk",
+        "turnOrigin": "sdk",
+        "turnPosition": {
+          "promptIndex": 0,
+          "turnIndex": 1
+        },
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "81c43d70-fefd-4a67-bcb8-5dbfa6319ea2",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:41:39.533Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "cat .agents/skills/gravity-ui/SKILL.md && ls -R .agents | head -50 && git ls-files && cat AGENTS.md",
+          "description": "Read skill and list project files",
+          "_extractedCommand": "cat .agents/skills/gravity-ui/SKILL.md && ls -R .agents | head -50 && git ls-files && cat AGENTS.md"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "cat .agents/skills/gravity-ui/SKILL.md && ls -R .agents | head -50 && git ls-files && cat AGENTS.md",
+          "description": "Read skill and list project files"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:41:39.567Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01Mj8epUMiiWyZNEMHLiWuSE",
+        "result": "---\nname: gravity-ui\ndescription: Builds, fixes, styles, and composes UI with the Gravity UI design system — the React ecosystem of @gravity-ui/* packages (uikit, charts, table, navigation, date-components, icons, and more). Routes to the correct package when look-alikes exist, applies theming and required setup, and prevents invented component APIs. Applies when working with @gravity-ui imports, uikit, ThemeProvider, --g- CSS tokens, or any prompt (EN or RU) mentioning gravity-ui, гравити, дизайн-система, компоненты, дашборд, таблица, график, or форма. Also installs required specialized Gravity UI packages when they are absent.\n---\n\n# Building UI with Gravity UI\n\nBuild UI on **real** Gravity UI components, not from memory. Gravity UI is a\nmulti-package React design system (`@gravity-ui/*`), so the two things that go\nwrong are picking the wrong package and using an API from the wrong version.\nThis skill routes you to the right package, grounds you in the installed\nversion, and stops you from inventing APIs — match the installed versions and\nfollow the ecosystem catalog instead of guessing.\n\n## Efficiency guardrails\n\n- Do not read the same file twice. Reuse evidence already present in the session.\n- Do not dump a reference file wholesale. Use targeted `rg -n -C 4` searches and keep each result below\n  200 lines unless the whole file is necessary to resolve the task.\n- Batch package, component, and symbol lookups into as few commands as possible.\n- Stop documentation research as soon as package choice, import path, required setup, and uncertain props\n  are confirmed. Documentation is evidence for decisions, not a checklist to read in full.\n- Do not query unpkg, package source repositories, or alternative documentation mirrors.\n- Do not install browsers or screenshot tooling, and do not start a dev server for routine verification,\n  unless the user explicitly requests visual or browser verification.\n- Run typecheck/build after implementation. If it fails, inspect only the failing API, fix it, and rerun\n  the check. Do not repeatedly rebuild unchanged code.\n\n## Step 0 — pick the right package first (ecosystem routing)\n\nBefore doing anything else, work out which `@gravity-ui/*` library the task\nneeds. Do not guess from training data — the ecosystem has look-alike packages\n(`charts` vs `chartkit`, uikit `Table` vs `@gravity-ui/table`, `date-components`\nvs `date-utils`, …) and picking the wrong one is the #1 failure.\nChoose from the task's functionality, not only from dependencies already present in the project.\nOpen [`references/package-routing.md`](references/package-routing.md) and read\nits top **first**: it opens with a task → package decision table that settles the\ncommon cases (landing page, dashboard, data grid, calendar, charts, editor, app\nshell, i18n), followed by the ecosystem catalog with a one-line \"what it's for /\nwhat to use instead\" per package for everything else. Use it to choose the\npackage, then come back here for Step 1.\n\nSearch the catalog for the task's relevant terms and read the matching package entries. Do not read the\nentire catalog when its top and those entries are sufficient.\n\nOnly after the package is chosen, run Step 1 to ground in that package's\ninstalled version and API.\n\n## Step 1 — ground in the installed version of the chosen package\n\n1. **Read `package.json`.** Note each installed `@gravity-ui/*` package and its\n   version. The installed version is the source of truth, not your memory.\n   Resolve ranges from `node_modules` (`<pkg>/package.json` `version` field), not\n   the range string in the root `package.json`.\n\n   If the chosen specialized package other than `@gravity-ui/uikit` is absent, add it with the project's\n   existing package manager before importing it. Install its documented peer dependencies too, then\n   resolve the installed version and continue with the local evidence below. Do not fall back to uikit,\n   raw HTML, or a foreign library merely because the specialized package was initially absent. If\n   installation is blocked, report the exact failure.\n\n2. **Fetch the docs for the package you are about to use, in this order,\n   stopping at the first source that answers your question:**\n\n   (a) **LOCAL** — start with `node_modules/@gravity-ui/<pkg>/dist/docs/INDEX.md` or `node_modules/@gravity-ui/<pkg>/build/docs/INDEX.md`.\n      If `INDEX.md` is absent for this package, fall back to the package's root `node_modules/@gravity-ui/<pkg>/README.md`.\n      This is the *exact* installed version — always preferred for version-sensitive questions.\n      Note: bundled docs are a recent addition — `uikit` ships `build/docs` only from **7.45.0**;\n      older installs have no local docs at all, and that is expected, not an error. Go to (b).\n      If an import, component, hook, or prop remains uncertain, inspect only its exact installed `.d.ts`\n      before moving online. Batch all uncertain symbol lookups for that package.\n   (b) **ONLINE** — per-package llms.txt at the **major line**:\n      `https://gravity-ui.com/llms/<pkg>/<major>/llms.txt`\n      (e.g. `/llms/uikit/7/llms.txt` for `^7.2.1`). The major-line URL serves the\n      latest minor of that major — it tracks the major but not the exact patch.\n      Use it when LOCAL has no docs for the package.\n\n3. **Fallback rule — never silently proceed on a failed or empty source:**\n\n   - If LOCAL has no README / `dist/docs` / `build/docs` for the package, or they are empty\n     → fetch the ONLINE major-line llms.txt (b).\n   - If the ONLINE request fails — network timeout, DNS, connection refused\n     (air-gapped / corporate proxy), HTTP 404 (major not hosted), or an empty /\n     non-markdown body → fall back to LOCAL README + dist/docs or build/docs (a).\n   - **Do NOT use the `/llms/<pkg>/llms.txt` \"latest\" alias** as a fallback — it\n     serves the newest major, which may differ from the installed one and have a\n     different API. The major-line URL is the versioned fallback; below it, go\n     LOCAL, not \"latest\".\n   - If BOTH are unreachable for a package → STOP and tell the user the\n     package's docs are unreachable. Do not guess its API from training data.\n\nFor a bounded local inspection, run:\n\n```sh\n.agents/skills/gravity-ui/scripts/inspect-package.sh uikit Button Card Switch ThemeProvider\n```\n\nThe script reports the resolved version, available local documentation, and declaration files matching\nthe requested symbols. Read only the returned files needed to confirm an uncertain API.\n\n## Step 2 — implement on the chosen packages, then typecheck\n\n1. **Implement using only the `@gravity-ui/*` packages chosen in Step 0 and\n   confirmed installed in Step 1.** Import from those packages exactly — do\n   not substitute look-alike libraries (MUI, Ant, plain `<input>`) and do not\n   reach for a `@gravity-ui/*` package that Step 1 did not confirm installed.\n   Follow the prop APIs from the docs you just read, not memory; if a prop\n   you want is not documented, it does not exist — use the documented one, or\n   ask the user.\n\n2. **Apply the cross-cutting rules** in `rules/hallucination-traps.md` while\n   writing: typography variants, the flex contract, theming/ladders,\n   `Button view`, `Icon data`. Per-component traps live in the package's own\n   `dist/docs`.\n\n3. **Typecheck before declaring done.** Run the project's typecheck command\n   (typically `tsc --noEmit`; for monorepos, the workspace's typecheck script).\n   Fix every error before reporting completion — a type error almost always\n   means a wrong/invented prop, a wrong import path, or a version mismatch,\n   which is precisely what Steps 0–1 were meant to prevent.\n\n   - If the typecheck surfaces a prop/path that contradicts the docs you read\n     in Step 1, trust the **installed version** (the typechecker), not the\n     docs snapshot — the docs may be from a different minor. Re-ground: read\n     the package's `dist/docs/INDEX.md` in `node_modules` for the exact\n     installed types.\n   - If the typecheck is unavailable (no TS in the project), say so\n     explicitly and ask the user how they want to verify; do not silently\n     skip verification.\n   - **Escape hatch.** If the user explicitly waived verification (\"just\n     sketch it\", \"quick prototype\", \"no need to check\"), you may skip the\n     typecheck — but state this plainly in your reply: *\"typecheck skipped by\n     user request — code is not verified\"*. Do not skip silently.\n   - **Know what typecheck does not cover.** A green `tsc` proves the API is\n     real; it says nothing about layout or contrast. Before reporting done,\n     say so, and either check or list for the user to check by hand: the\n     screen in both `light` and `dark` themes (text and controls on colored\n     fills especially), narrow (~375px) and wide (~1400px) viewports for\n     horizontal overflow, and empty / loading / error states.\n\n## Hard rules\n\n- **`@gravity-ui/uikit` MUST be installed in every Gravity UI project.** It is\n  the base component + design-token library every other `@gravity-ui/*` package\n  builds on; without it components render unstyled. If `package.json` lacks it,\n  stop and have the user install and configure it first (setup:\n  `https://gravity-ui.com/llms/uikit/llms.txt`).\n- **Read `package.json` before importing any `@gravity-ui/*` package.** Never\n  assume a package is installed; never assume its major version.\n- **Do not invent props or components.** Before using a component API you are\n  not 100% sure of, check `rules/hallucination-traps.md` (ecosystem patterns)\n  and the component's README in `dist/docs`. If still unsure, ask the user\n  rather than guessing.\n- **Never guess icon names** — they are hallucinated more often than not. To\n  match an icon from a screenshot/photo/mock, run `scripts/icon-image-search.sh`\n  (reverse image search). With only a description, look the name up on\n  `gravity-ui.com/icons` or ask the user — do not invent one. Then pass it as an\n  object (`<Icon data={CheckIcon} />`), never a string key. See\n  `references/icons.md`.\n- **Theming uses semantic `--g-*` tokens.** Never hardcode colors (`#fff`,\n  `blue-500`); never hand-write `dark:` overrides. Full token tables live in\n  `references/theming.md`; the cross-cutting traps (partial brand overrides,\n  a `ThemeProvider` that themes the whole page, controls on a brand background) live in\n  `rules/hallucination-traps.md`.\n- **Required setup is package-specific** (style imports, `ThemeProvider`,\n  peer-deps). It lives in each package's root README under \"Required setup\" —\n  read it once per package, do not rely on memory.\n\n## What NOT to do\n\nThese are the five most common ways agents break Gravity UI code. They are\nalready implied by the rules above; this section exists as an explicit\nstop-sign. If you are about to do any of these, stop and re-ground.\n\n- **Do not substitute non-Gravity libraries.** No MUI, Ant Design, plain\n  `<input>`/`<button>`, or look-alike component libs. Use the `@gravity-ui/*`\n  package the task needs.\n- **Do not invent component APIs or props.** If a prop is not in the docs you\n  read in Step 1, it does not exist — do not write `variant=`, `color=`,\n  `name=` (on `Icon`), or a `header-3` variant. Use the documented prop or\n  ask the user. See `rules/hallucination-traps.md`.\n- **Do not use the `/llms/<pkg>/llms.txt` \"latest\" alias as a fallback.** It\n  serves the newest major, which may differ from the installed one and have a\n  different API. The versioned online fallback is the major-line URL\n  (`/llms/<pkg>/<major>/llms.txt`); below that, go LOCAL.\n- **Do not partial-brand.** Setting only `--g-color-base-brand` leaves\n  selection, focus, links and contrast on the default accent — a mismatched\n  UI. Override the full brand token set, on each theme you support.\n- **Do not override internal markup with `[class*='…']` / ID selectors.**\n  That's written against one DOM structure and breaks silently when the\n  component changes. Climb the customization ladder\n  (global token → component CSS API → narrow flagged hack) before ever\n  touching structure.\n\n## Deeper material — read on demand\n\nThese files live alongside this SKILL.md and load only when relevant:\n\n- `references/package-routing.md` — offline snapshot of the ecosystem catalog\n  (`gravity-ui.com/llms.txt`), refreshed each skill release. Used as the\n  offline fallback in Step 0.\n- `references/theming.md` — verbatim copy of uikit's `docs/theming.md`:\n  `--g-*` token layers, `ThemeProvider`, branding, custom themes, scoped\n  themes, `uikit-themer`. The bundled copy may lag — read\n  `node_modules/@gravity-ui/uikit/build/docs/guides/theming.md` for the\n  version-matched file.\n- `references/layout.md` — verbatim copy of uikit's `docs/layout.md`:\n  spacing scale (`--g-spacing-*`), `Flex`/`Box`, `Row`/`Col`/`Container`\n  grid, breakpoints, `useLayoutContext`.\n- `references/icons.md` — finding an icon by image\n  (`scripts/icon-image-search.sh`) or on gravity-ui.com/icons; the\n  object-vs-string rendering rule.\n- `rules/hallucination-traps.md` — Incorrect/Correct pairs for the most\n  commonly invented APIs: typography variants (`header-3..6` don't exist, no\n  `Heading`), the flex contract (`min-width:0`, who shrinks), theming traps\n  (partial brand overrides, a `ThemeProvider` that themes the whole page, customization\n  ladder), `Button view` not `variant`, `Icon data` not `name`. Per-component\n  traps live in each package's `dist/docs`, not here.\n.agents:\nskills\n\n.agents/skills:\ngravity-ui\n\n.agents/skills/gravity-ui:\nSKILL.md\nreferences\nrules\nscripts\n\n.agents/skills/gravity-ui/references:\nicons.md\nlayout.md\npackage-routing.md\ntheming.md\n\n.agents/skills/gravity-ui/rules:\nhallucination-traps.md\n\n.agents/skills/gravity-ui/scripts:\nicon-image-search.sh\ninspect-package.sh\n.gitignore\nindex.html\npackage.json\nsrc/App.tsx\nsrc/main.tsx\nsrc/vite-env.d.ts\ntsconfig.json\nvite.config.ts\n# Gravity UI\n\nThis project uses the Gravity UI design system (`@gravity-ui/*`). Before writing or modifying Gravity UI component code, you MUST read and follow the `gravity-ui` skill at `.agents/skills/gravity-ui/SKILL.md`, including every referenced file relevant to the task.",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01Mj8epUMiiWyZNEMHLiWuSE",
+        "type": "tool_result",
+        "content": "---\nname: gravity-ui\ndescription: Builds, fixes, styles, and composes UI with the Gravity UI design system — the React ecosystem of @gravity-ui/* packages (uikit, charts, table, navigation, date-components, icons, and more). Routes to the correct package when look-alikes exist, applies theming and required setup, and prevents invented component APIs. Applies when working with @gravity-ui imports, uikit, ThemeProvider, --g- CSS tokens, or any prompt (EN or RU) mentioning gravity-ui, гравити, дизайн-система, компоненты, дашборд, таблица, график, or форма. Also installs required specialized Gravity UI packages when they are absent.\n---\n\n# Building UI with Gravity UI\n\nBuild UI on **real** Gravity UI components, not from memory. Gravity UI is a\nmulti-package React design system (`@gravity-ui/*`), so the two things that go\nwrong are picking the wrong package and using an API from the wrong version.\nThis skill routes you to the right package, grounds you in the installed\nversion, and stops you from inventing APIs — match the installed versions and\nfollow the ecosystem catalog instead of guessing.\n\n## Efficiency guardrails\n\n- Do not read the same file twice. Reuse evidence already present in the session.\n- Do not dump a reference file wholesale. Use targeted `rg -n -C 4` searches and keep each result below\n  200 lines unless the whole file is necessary to resolve the task.\n- Batch package, component, and symbol lookups into as few commands as possible.\n- Stop documentation research as soon as package choice, import path, required setup, and uncertain props\n  are confirmed. Documentation is evidence for decisions, not a checklist to read in full.\n- Do not query unpkg, package source repositories, or alternative documentation mirrors.\n- Do not install browsers or screenshot tooling, and do not start a dev server for routine verification,\n  unless the user explicitly requests visual or browser verification.\n- Run typecheck/build after implementation. If it fails, inspect only the failing API, fix it, and rerun\n  the check. Do not repeatedly rebuild unchanged code.\n\n## Step 0 — pick the right package first (ecosystem routing)\n\nBefore doing anything else, work out which `@gravity-ui/*` library the task\nneeds. Do not guess from training data — the ecosystem has look-alike packages\n(`charts` vs `chartkit`, uikit `Table` vs `@gravity-ui/table`, `date-components`\nvs `date-utils`, …) and picking the wrong one is the #1 failure.\nChoose from the task's functionality, not only from dependencies already present in the project.\nOpen [`references/package-routing.md`](references/package-routing.md) and read\nits top **first**: it opens with a task → package decision table that settles the\ncommon cases (landing page, dashboard, data grid, calendar, charts, editor, app\nshell, i18n), followed by the ecosystem catalog with a one-line \"what it's for /\nwhat to use instead\" per package for everything else. Use it to choose the\npackage, then come back here for Step 1.\n\nSearch the catalog for the task's relevant terms and read the matching package entries. Do not read the\nentire catalog when its top and those entries are sufficient.\n\nOnly after the package is chosen, run Step 1 to ground in that package's\ninstalled version and API.\n\n## Step 1 — ground in the installed version of the chosen package\n\n1. **Read `package.json`.** Note each installed `@gravity-ui/*` package and its\n   version. The installed version is the source of truth, not your memory.\n   Resolve ranges from `node_modules` (`<pkg>/package.json` `version` field), not\n   the range string in the root `package.json`.\n\n   If the chosen specialized package other than `@gravity-ui/uikit` is absent, add it with the project's\n   existing package manager before importing it. Install its documented peer dependencies too, then\n   resolve the installed version and continue with the local evidence below. Do not fall back to uikit,\n   raw HTML, or a foreign library merely because the specialized package was initially absent. If\n   installation is blocked, report the exact failure.\n\n2. **Fetch the docs for the package you are about to use, in this order,\n   stopping at the first source that answers your question:**\n\n   (a) **LOCAL** — start with `node_modules/@gravity-ui/<pkg>/dist/docs/INDEX.md` or `node_modules/@gravity-ui/<pkg>/build/docs/INDEX.md`.\n      If `INDEX.md` is absent for this package, fall back to the package's root `node_modules/@gravity-ui/<pkg>/README.md`.\n      This is the *exact* installed version — always preferred for version-sensitive questions.\n      Note: bundled docs are a recent addition — `uikit` ships `build/docs` only from **7.45.0**;\n      older installs have no local docs at all, and that is expected, not an error. Go to (b).\n      If an import, component, hook, or prop remains uncertain, inspect only its exact installed `.d.ts`\n      before moving online. Batch all uncertain symbol lookups for that package.\n   (b) **ONLINE** — per-package llms.txt at the **major line**:\n      `https://gravity-ui.com/llms/<pkg>/<major>/llms.txt`\n      (e.g. `/llms/uikit/7/llms.txt` for `^7.2.1`). The major-line URL serves the\n      latest minor of that major — it tracks the major but not the exact patch.\n      Use it when LOCAL has no docs for the package.\n\n3. **Fallback rule — never silently proceed on a failed or empty source:**\n\n   - If LOCAL has no README / `dist/docs` / `build/docs` for the package, or they are empty\n     → fetch the ONLINE major-line llms.txt (b).\n   - If the ONLINE request fails — network timeout, DNS, connection refused\n     (air-gapped / corporate proxy), HTTP 404 (major not hosted), or an empty /\n     non-markdown body → fall back to LOCAL README + dist/docs or build/docs (a).\n   - **Do NOT use the `/llms/<pkg>/llms.txt` \"latest\" alias** as a fallback — it\n     serves the newest major, which may differ from the installed one and have a\n     different API. The major-line URL is the versioned fallback; below it, go\n     LOCAL, not \"latest\".\n   - If BOTH are unreachable for a package → STOP and tell the user the\n     package's docs are unreachable. Do not guess its API from training data.\n\nFor a bounded local inspection, run:\n\n```sh\n.agents/skills/gravity-ui/scripts/inspect-package.sh uikit Button Card Switch ThemeProvider\n```\n\nThe script reports the resolved version, available local documentation, and declaration files matching\nthe requested symbols. Read only the returned files needed to confirm an uncertain API.\n\n## Step 2 — implement on the chosen packages, then typecheck\n\n1. **Implement using only the `@gravity-ui/*` packages chosen in Step 0 and\n   confirmed installed in Step 1.** Import from those packages exactly — do\n   not substitute look-alike libraries (MUI, Ant, plain `<input>`) and do not\n   reach for a `@gravity-ui/*` package that Step 1 did not confirm installed.\n   Follow the prop APIs from the docs you just read, not memory; if a prop\n   you want is not documented, it does not exist — use the documented one, or\n   ask the user.\n\n2. **Apply the cross-cutting rules** in `rules/hallucination-traps.md` while\n   writing: typography variants, the flex contract, theming/ladders,\n   `Button view`, `Icon data`. Per-component traps live in the package's own\n   `dist/docs`.\n\n3. **Typecheck before declaring done.** Run the project's typecheck command\n   (typically `tsc --noEmit`; for monorepos, the workspace's typecheck script).\n   Fix every error before reporting completion — a type error almost always\n   means a wrong/invented prop, a wrong import path, or a version mismatch,\n   which is precisely what Steps 0–1 were meant to prevent.\n\n   - If the typecheck surfaces a prop/path that contradicts the docs you read\n     in Step 1, trust the **installed version** (the typechecker), not the\n     docs snapshot — the docs may be from a different minor. Re-ground: read\n     the package's `dist/docs/INDEX.md` in `node_modules` for the exact\n     installed types.\n   - If the typecheck is unavailable (no TS in the project), say so\n     explicitly and ask the user how they want to verify; do not silently\n     skip verification.\n   - **Escape hatch.** If the user explicitly waived verification (\"just\n     sketch it\", \"quick prototype\", \"no need to check\"), you may skip the\n     typecheck — but state this plainly in your reply: *\"typecheck skipped by\n     user request — code is not verified\"*. Do not skip silently.\n   - **Know what typecheck does not cover.** A green `tsc` proves the API is\n     real; it says nothing about layout or contrast. Before reporting done,\n     say so, and either check or list for the user to check by hand: the\n     screen in both `light` and `dark` themes (text and controls on colored\n     fills especially), narrow (~375px) and wide (~1400px) viewports for\n     horizontal overflow, and empty / loading / error states.\n\n## Hard rules\n\n- **`@gravity-ui/uikit` MUST be installed in every Gravity UI project.** It is\n  the base component + design-token library every other `@gravity-ui/*` package\n  builds on; without it components render unstyled. If `package.json` lacks it,\n  stop and have the user install and configure it first (setup:\n  `https://gravity-ui.com/llms/uikit/llms.txt`).\n- **Read `package.json` before importing any `@gravity-ui/*` package.** Never\n  assume a package is installed; never assume its major version.\n- **Do not invent props or components.** Before using a component API you are\n  not 100% sure of, check `rules/hallucination-traps.md` (ecosystem patterns)\n  and the component's README in `dist/docs`. If still unsure, ask the user\n  rather than guessing.\n- **Never guess icon names** — they are hallucinated more often than not. To\n  match an icon from a screenshot/photo/mock, run `scripts/icon-image-search.sh`\n  (reverse image search). With only a description, look the name up on\n  `gravity-ui.com/icons` or ask the user — do not invent one. Then pass it as an\n  object (`<Icon data={CheckIcon} />`), never a string key. See\n  `references/icons.md`.\n- **Theming uses semantic `--g-*` tokens.** Never hardcode colors (`#fff`,\n  `blue-500`); never hand-write `dark:` overrides. Full token tables live in\n  `references/theming.md`; the cross-cutting traps (partial brand overrides,\n  a `ThemeProvider` that themes the whole page, controls on a brand background) live in\n  `rules/hallucination-traps.md`.\n- **Required setup is package-specific** (style imports, `ThemeProvider`,\n  peer-deps). It lives in each package's root README under \"Required setup\" —\n  read it once per package, do not rely on memory.\n\n## What NOT to do\n\nThese are the five most common ways agents break Gravity UI code. They are\nalready implied by the rules above; this section exists as an explicit\nstop-sign. If you are about to do any of these, stop and re-ground.\n\n- **Do not substitute non-Gravity libraries.** No MUI, Ant Design, plain\n  `<input>`/`<button>`, or look-alike component libs. Use the `@gravity-ui/*`\n  package the task needs.\n- **Do not invent component APIs or props.** If a prop is not in the docs you\n  read in Step 1, it does not exist — do not write `variant=`, `color=`,\n  `name=` (on `Icon`), or a `header-3` variant. Use the documented prop or\n  ask the user. See `rules/hallucination-traps.md`.\n- **Do not use the `/llms/<pkg>/llms.txt` \"latest\" alias as a fallback.** It\n  serves the newest major, which may differ from the installed one and have a\n  different API. The versioned online fallback is the major-line URL\n  (`/llms/<pkg>/<major>/llms.txt`); below that, go LOCAL.\n- **Do not partial-brand.** Setting only `--g-color-base-brand` leaves\n  selection, focus, links and contrast on the default accent — a mismatched\n  UI. Override the full brand token set, on each theme you support.\n- **Do not override internal markup with `[class*='…']` / ID selectors.**\n  That's written against one DOM structure and breaks silently when the\n  component changes. Climb the customization ladder\n  (global token → component CSS API → narrow flagged hack) before ever\n  touching structure.\n\n## Deeper material — read on demand\n\nThese files live alongside this SKILL.md and load only when relevant:\n\n- `references/package-routing.md` — offline snapshot of the ecosystem catalog\n  (`gravity-ui.com/llms.txt`), refreshed each skill release. Used as the\n  offline fallback in Step 0.\n- `references/theming.md` — verbatim copy of uikit's `docs/theming.md`:\n  `--g-*` token layers, `ThemeProvider`, branding, custom themes, scoped\n  themes, `uikit-themer`. The bundled copy may lag — read\n  `node_modules/@gravity-ui/uikit/build/docs/guides/theming.md` for the\n  version-matched file.\n- `references/layout.md` — verbatim copy of uikit's `docs/layout.md`:\n  spacing scale (`--g-spacing-*`), `Flex`/`Box`, `Row`/`Col`/`Container`\n  grid, breakpoints, `useLayoutContext`.\n- `references/icons.md` — finding an icon by image\n  (`scripts/icon-image-search.sh`) or on gravity-ui.com/icons; the\n  object-vs-string rendering rule.\n- `rules/hallucination-traps.md` — Incorrect/Correct pairs for the most\n  commonly invented APIs: typography variants (`header-3..6` don't exist, no\n  `Heading`), the flex contract (`min-width:0`, who shrinks), theming traps\n  (partial brand overrides, a `ThemeProvider` that themes the whole page, customization\n  ladder), `Button view` not `variant`, `Icon data` not `name`. Per-component\n  traps live in each package's `dist/docs`, not here.\n.agents:\nskills\n\n.agents/skills:\ngravity-ui\n\n.agents/skills/gravity-ui:\nSKILL.md\nreferences\nrules\nscripts\n\n.agents/skills/gravity-ui/references:\nicons.md\nlayout.md\npackage-routing.md\ntheming.md\n\n.agents/skills/gravity-ui/rules:\nhallucination-traps.md\n\n.agents/skills/gravity-ui/scripts:\nicon-image-search.sh\ninspect-package.sh\n.gitignore\nindex.html\npackage.json\nsrc/App.tsx\nsrc/main.tsx\nsrc/vite-env.d.ts\ntsconfig.json\nvite.config.ts\n# Gravity UI\n\nThis project uses the Gravity UI design system (`@gravity-ui/*`). Before writing or modifying Gravity UI component code, you MUST read and follow the `gravity-ui` skill at `.agents/skills/gravity-ui/SKILL.md`, including every referenced file relevant to the task.",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:41:46.722Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "head -60 .agents/skills/gravity-ui/references/package-routing.md; rg -n -C 3 -i 'date-components|date-utils|calendar' .agents/skills/gravity-ui/references/package-routing.md | head -80; cat package.json src/App.tsx src/main.tsx; ls node_modules/@gravity-ui",
+          "description": "Read routing and project sources",
+          "_extractedCommand": "head -60 .agents/skills/gravity-ui/references/package-routing.md; rg -n -C 3 -i 'date-components|date-utils|calendar' .agents/skills/gravity-ui/references/package-routing.md | head -80; cat package.json src/App.tsx src/main.tsx; ls node_modules/@gravity-ui"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "head -60 .agents/skills/gravity-ui/references/package-routing.md; rg -n -C 3 -i 'date-components|date-utils|calendar' .agents/skills/gravity-ui/references/package-routing.md | head -80; cat package.json src/App.tsx src/main.tsx; ls node_modules/@gravity-ui",
+          "description": "Read routing and project sources"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:41:46.744Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01M3jTfbq81rWssETHWA16eP",
+        "result": "# Package routing — offline snapshot\n\nThis is an offline snapshot of **https://gravity-ui.com/llms.txt**, the Gravity UI\necosystem catalog. It exists so Step 0 of the skill works when the online catalog\nis unreachable (air-gapped, corporate proxy, timeout).\n\n**Online is primary.** This snapshot may lag the site by one release — if you can\nfetch `https://gravity-ui.com/llms.txt`, prefer it. Refresh this file at each\nskill release by re-copying the catalog verbatim (generator = fetch the URL →\nkeep everything above the `---` line → write the file). Do not hand-edit the\ncatalog body below the line; edit the source `llms.txt` instead. The decision\ntable above the line is hand-maintained and survives the sync.\n\n## Decision table — read this before the catalog\n\nSettle the common tasks here; the catalog below is the reference for everything else (and it is long:\nits decisive entries sit near the end, so do not skim its top and default to `uikit`).\n\n| The task is… | Use | Not |\n|---|---|---|\n| A marketing / landing / promo page assembled from blocks (hero, features, CTA) | `@gravity-ui/page-constructor` (`PageConstructor` + `PageConstructorProvider`, block config) | hand-written sections from uikit primitives |\n| A dashboard of freely arrangeable widgets | `@gravity-ui/dashkit` | a hand-rolled CSS grid, `react-grid-layout` |\n| A table with sorting, checkbox selection, pagination | uikit `Table` + `withTableSorting` / `withTableSelection` + `Pagination` | `@gravity-ui/table` |\n| A data grid that needs virtualization, column resizing / reordering, grouping, tree rows | `@gravity-ui/table` (TanStack-based) | uikit `Table` |\n| A calendar, date / time / range picker | `@gravity-ui/date-components` (peer: `date-utils`) | a `Calendar` from uikit (does not exist), `react-datepicker` |\n| Charts and data visualization | `@gravity-ui/charts` (`<Chart>`); `@gravity-ui/yagr` only for dense realtime series | `chartkit` (legacy wrapper), `recharts`, raw canvas |\n| A Markdown / WYSIWYG editor | `@gravity-ui/markdown-editor` | `<textarea>` + custom preview |\n| The app shell: aside navigation, header, footer | `@gravity-ui/navigation` (`AsideHeader`) | a hand-rolled `<aside>` |\n| Interface language switching | uikit `configure({lang})` + `@gravity-ui/i18n` for app strings | `i18next`, `react-intl` |\n\nEverything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\nIf the package from the table is not installed yet, **install it** with the project's package manager (and\nits documented peer deps) — a project that only has `uikit` is not a reason to build the thing by hand.\n\n---\n\n# Gravity UI\n\nGravity UI is a open-source design system and ecosystem of React libraries for building web applications. This file is a compact catalog: pick a package, then fetch its per-package llms.txt for the full agent-facing docs. Read the user's `package.json` first and match the installed `@gravity-ui/*` versions — peer-version mismatches across the ecosystem are the most common failure.\n\n> **`@gravity-ui/uikit` MUST be installed in every Gravity UI project.** It is the base component and design-token library that every other `@gravity-ui/*` package builds on — without it, components render unstyled. Check the user's `package.json` first.\n>\n> **If it is not installed, stop and have the user install and configure it before doing anything else.** Setup and theming instructions: https://gravity-ui.com/llms/uikit/llms.txt\n\n> **Per-package docs are versioned.** Each package lives at `/llms/<package>/<version>/llms.txt` (exact version), `/llms/<package>/<major>/llms.txt` (latest of a major line), and `/llms/<package>/llms.txt` (latest). The links below point at `latest` — read the user's `package.json` and switch the URL to the installed version (or major) when it differs.\n\n> **Agent skill recommended.** A `gravity-ui` skill is available that helps route to the correct package and avoid common API mistakes. Consider installing it when working with Gravity UI:\n>\n> ```bash\nnpx skills add gravity-ui/skills\n> ```\n>\n> It can help with tasks involving `@gravity-ui/*` imports, `ThemeProvider`, or `--g-` CSS tokens. Details: https://github.com/gravity-ui/skills\n\n## UIKit (primary) — `@gravity-ui/uikit`\n\n> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/uikit/llms.txt)\n> GitHub: [gravity-ui/uikit](https://github.com/gravity-ui/uikit)\n\nThe base React component and design-token library for Gravity UI apps — controls, inputs, overlays, layout, and theming that every other @gravity-ui package builds on.\n22-| A dashboard of freely arrangeable widgets | `@gravity-ui/dashkit` | a hand-rolled CSS grid, `react-grid-layout` |\n23-| A table with sorting, checkbox selection, pagination | uikit `Table` + `withTableSorting` / `withTableSelection` + `Pagination` | `@gravity-ui/table` |\n24-| A data grid that needs virtualization, column resizing / reordering, grouping, tree rows | `@gravity-ui/table` (TanStack-based) | uikit `Table` |\n25:| A calendar, date / time / range picker | `@gravity-ui/date-components` (peer: `date-utils`) | a `Calendar` from uikit (does not exist), `react-datepicker` |\n26-| Charts and data visualization | `@gravity-ui/charts` (`<Chart>`); `@gravity-ui/yagr` only for dense realtime series | `chartkit` (legacy wrapper), `recharts`, raw canvas |\n27-| A Markdown / WYSIWYG editor | `@gravity-ui/markdown-editor` | `<textarea>` + custom preview |\n28-| The app shell: aside navigation, header, footer | `@gravity-ui/navigation` (`AsideHeader`) | a hand-rolled `<aside>` |\n--\n70-- Tables and data grids (selection, sorting, virtualization, column resizing, grouping, reordering) — use [`@gravity-ui/table`](https://github.com/gravity-ui/table), a separate headless package. The `Table` component of uikit lives in `@gravity-ui/uikit/legacy` since v8 and is kept only for existing code.\n71-- Charts and data visualization — use [`@gravity-ui/charts`](https://github.com/gravity-ui/charts) (`@gravity-ui/chartkit` is the legacy wrapper).\n72-- Application navigation shells (aside header, footer, logo) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation).\n73:- Date pickers, calendars, and range controls — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).\n74-- The SVG icon set itself — use [`@gravity-ui/icons`](https://github.com/gravity-ui/icons); uikit only ships the `Icon` renderer.\n75-\n76-## AIKit — `@gravity-ui/aikit`\n--\n182-\n183-- Basic controls, overlays, layout and theming — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit) directly; this package only adds composites on top of it.\n184-- Data grids — use [`@gravity-ui/table`](https://github.com/gravity-ui/table); there is no table here.\n185:- Date pickers and calendars — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).\n186-- Application navigation shells (aside header, footer) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation).\n187-- Schema-driven forms — use [`@gravity-ui/dynamic-forms`](https://github.com/gravity-ui/dynamic-forms); `FormRow` is only a layout row.\n188-\n--\n212-\n213-A wrapper around data fetching.\n214-\n215:## Date Components — `@gravity-ui/date-components`\n216-\n217:> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/date-components/llms.txt)\n218:> GitHub: [gravity-ui/date-components](https://github.com/gravity-ui/date-components)\n219-\n220:React date and time controls for Gravity UI apps — date/time pickers, calendars, and absolute/relative range selectors built on `@gravity-ui/date-utils`.\n221-\n222-#### When to use\n223-\n224-- A single date or date-time input: `DatePicker`, `DateField`.\n225:- Calendars for month/day selection: `Calendar`, `CalendarView`.\n226:- Date ranges: `RangeDatePicker`, `RangeCalendar`, `RangeDateField`.\n227-- Relative and mixed absolute/relative ranges (e.g. \"last 7 days\"): `RelativeDatePicker`, `RelativeRangeDatePicker`, `RelativeDateField`.\n228-\n229-#### When not to use\n230-\n231-- Plain text or number inputs, buttons, or other generic controls — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit).\n232:- Low-level date math, parsing, formatting, or timezone handling without UI — use [`@gravity-ui/date-utils`](https://github.com/gravity-ui/date-utils) directly.\n233-\n234:## Date Utils — `@gravity-ui/date-utils`\n235-\n236:> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/date-utils/llms.txt)\n237:> GitHub: [gravity-ui/date-utils](https://github.com/gravity-ui/date-utils)\n238-\n239:Timezone-aware date/time helpers — parsing (including relative expressions like `now-1d/d`), formatting, and locale management — without any UI, reach for it when you need to compute and format dates reliably across time zones instead of pulling in a full UI calendar.\n240-\n241-#### When to use\n242-\n--\n246-\n247-#### When not to use\n248-\n249:- To render a calendar, date picker, or any date **UI**, use [`@gravity-ui/date-components`](https://gravity-ui.com/components/date-components) — it builds its visuals on top of this package.\n250-- For lightweight immutable date math and no timezone/relative-expression needs, `date-fns` or the native `Intl`/`Date` APIs may suffice.\n251-\n252-## Dialog Fields — `@gravity-ui/dialog-fields`\n{\n  \"name\": \"edge-calendar\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"build\": \"tsc --noEmit && vite build\",\n    \"dev\": \"vite\"\n  },\n  \"dependencies\": {\n    \"@gravity-ui/uikit\": \"7.43.0\",\n    \"react\": \"^18.3.1\",\n    \"react-dom\": \"^18.3.1\"\n  },\n  \"devDependencies\": {\n    \"@types/react\": \"^18.3.12\",\n    \"@types/react-dom\": \"^18.3.1\",\n    \"@vitejs/plugin-react\": \"^4.3.4\",\n    \"typescript\": \"^7.0.2\",\n    \"vite\": \"^5.4.11\",\n    \"vitest\": \"^3.1.3\"\n  }\n}\n// Implement the requested feature here (and may add sibling files).\nexport function App() {\n  return <div style={{ padding: 24 }}>{/* TODO: implement the requested component */}</div>;\n}\n// Preconfigured Gravity UI setup is ALREADY wired here (both CSS imports + ThemeProvider).\n// Implement the requested feature in App.tsx (you may add sibling files).\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport { ThemeProvider } from '@gravity-ui/uikit';\n\nimport { App } from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <ThemeProvider theme=\"light\">\n      <App />\n    </ThemeProvider>\n  </React.StrictMode>,\n);\ni18n\nicons\nuikit",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01M3jTfbq81rWssETHWA16eP",
+        "type": "tool_result",
+        "content": "# Package routing — offline snapshot\n\nThis is an offline snapshot of **https://gravity-ui.com/llms.txt**, the Gravity UI\necosystem catalog. It exists so Step 0 of the skill works when the online catalog\nis unreachable (air-gapped, corporate proxy, timeout).\n\n**Online is primary.** This snapshot may lag the site by one release — if you can\nfetch `https://gravity-ui.com/llms.txt`, prefer it. Refresh this file at each\nskill release by re-copying the catalog verbatim (generator = fetch the URL →\nkeep everything above the `---` line → write the file). Do not hand-edit the\ncatalog body below the line; edit the source `llms.txt` instead. The decision\ntable above the line is hand-maintained and survives the sync.\n\n## Decision table — read this before the catalog\n\nSettle the common tasks here; the catalog below is the reference for everything else (and it is long:\nits decisive entries sit near the end, so do not skim its top and default to `uikit`).\n\n| The task is… | Use | Not |\n|---|---|---|\n| A marketing / landing / promo page assembled from blocks (hero, features, CTA) | `@gravity-ui/page-constructor` (`PageConstructor` + `PageConstructorProvider`, block config) | hand-written sections from uikit primitives |\n| A dashboard of freely arrangeable widgets | `@gravity-ui/dashkit` | a hand-rolled CSS grid, `react-grid-layout` |\n| A table with sorting, checkbox selection, pagination | uikit `Table` + `withTableSorting` / `withTableSelection` + `Pagination` | `@gravity-ui/table` |\n| A data grid that needs virtualization, column resizing / reordering, grouping, tree rows | `@gravity-ui/table` (TanStack-based) | uikit `Table` |\n| A calendar, date / time / range picker | `@gravity-ui/date-components` (peer: `date-utils`) | a `Calendar` from uikit (does not exist), `react-datepicker` |\n| Charts and data visualization | `@gravity-ui/charts` (`<Chart>`); `@gravity-ui/yagr` only for dense realtime series | `chartkit` (legacy wrapper), `recharts`, raw canvas |\n| A Markdown / WYSIWYG editor | `@gravity-ui/markdown-editor` | `<textarea>` + custom preview |\n| The app shell: aside navigation, header, footer | `@gravity-ui/navigation` (`AsideHeader`) | a hand-rolled `<aside>` |\n| Interface language switching | uikit `configure({lang})` + `@gravity-ui/i18n` for app strings | `i18next`, `react-intl` |\n\nEverything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\nIf the package from the table is not installed yet, **install it** with the project's package manager (and\nits documented peer deps) — a project that only has `uikit` is not a reason to build the thing by hand.\n\n---\n\n# Gravity UI\n\nGravity UI is a open-source design system and ecosystem of React libraries for building web applications. This file is a compact catalog: pick a package, then fetch its per-package llms.txt for the full agent-facing docs. Read the user's `package.json` first and match the installed `@gravity-ui/*` versions — peer-version mismatches across the ecosystem are the most common failure.\n\n> **`@gravity-ui/uikit` MUST be installed in every Gravity UI project.** It is the base component and design-token library that every other `@gravity-ui/*` package builds on — without it, components render unstyled. Check the user's `package.json` first.\n>\n> **If it is not installed, stop and have the user install and configure it before doing anything else.** Setup and theming instructions: https://gravity-ui.com/llms/uikit/llms.txt\n\n> **Per-package docs are versioned.** Each package lives at `/llms/<package>/<version>/llms.txt` (exact version), `/llms/<package>/<major>/llms.txt` (latest of a major line), and `/llms/<package>/llms.txt` (latest). The links below point at `latest` — read the user's `package.json` and switch the URL to the installed version (or major) when it differs.\n\n> **Agent skill recommended.** A `gravity-ui` skill is available that helps route to the correct package and avoid common API mistakes. Consider installing it when working with Gravity UI:\n>\n> ```bash\nnpx skills add gravity-ui/skills\n> ```\n>\n> It can help with tasks involving `@gravity-ui/*` imports, `ThemeProvider`, or `--g-` CSS tokens. Details: https://github.com/gravity-ui/skills\n\n## UIKit (primary) — `@gravity-ui/uikit`\n\n> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/uikit/llms.txt)\n> GitHub: [gravity-ui/uikit](https://github.com/gravity-ui/uikit)\n\nThe base React component and design-token library for Gravity UI apps — controls, inputs, overlays, layout, and theming that every other @gravity-ui package builds on.\n22-| A dashboard of freely arrangeable widgets | `@gravity-ui/dashkit` | a hand-rolled CSS grid, `react-grid-layout` |\n23-| A table with sorting, checkbox selection, pagination | uikit `Table` + `withTableSorting` / `withTableSelection` + `Pagination` | `@gravity-ui/table` |\n24-| A data grid that needs virtualization, column resizing / reordering, grouping, tree rows | `@gravity-ui/table` (TanStack-based) | uikit `Table` |\n25:| A calendar, date / time / range picker | `@gravity-ui/date-components` (peer: `date-utils`) | a `Calendar` from uikit (does not exist), `react-datepicker` |\n26-| Charts and data visualization | `@gravity-ui/charts` (`<Chart>`); `@gravity-ui/yagr` only for dense realtime series | `chartkit` (legacy wrapper), `recharts`, raw canvas |\n27-| A Markdown / WYSIWYG editor | `@gravity-ui/markdown-editor` | `<textarea>` + custom preview |\n28-| The app shell: aside navigation, header, footer | `@gravity-ui/navigation` (`AsideHeader`) | a hand-rolled `<aside>` |\n--\n70-- Tables and data grids (selection, sorting, virtualization, column resizing, grouping, reordering) — use [`@gravity-ui/table`](https://github.com/gravity-ui/table), a separate headless package. The `Table` component of uikit lives in `@gravity-ui/uikit/legacy` since v8 and is kept only for existing code.\n71-- Charts and data visualization — use [`@gravity-ui/charts`](https://github.com/gravity-ui/charts) (`@gravity-ui/chartkit` is the legacy wrapper).\n72-- Application navigation shells (aside header, footer, logo) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation).\n73:- Date pickers, calendars, and range controls — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).\n74-- The SVG icon set itself — use [`@gravity-ui/icons`](https://github.com/gravity-ui/icons); uikit only ships the `Icon` renderer.\n75-\n76-## AIKit — `@gravity-ui/aikit`\n--\n182-\n183-- Basic controls, overlays, layout and theming — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit) directly; this package only adds composites on top of it.\n184-- Data grids — use [`@gravity-ui/table`](https://github.com/gravity-ui/table); there is no table here.\n185:- Date pickers and calendars — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).\n186-- Application navigation shells (aside header, footer) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation).\n187-- Schema-driven forms — use [`@gravity-ui/dynamic-forms`](https://github.com/gravity-ui/dynamic-forms); `FormRow` is only a layout row.\n188-\n--\n212-\n213-A wrapper around data fetching.\n214-\n215:## Date Components — `@gravity-ui/date-components`\n216-\n217:> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/date-components/llms.txt)\n218:> GitHub: [gravity-ui/date-components](https://github.com/gravity-ui/date-components)\n219-\n220:React date and time controls for Gravity UI apps — date/time pickers, calendars, and absolute/relative range selectors built on `@gravity-ui/date-utils`.\n221-\n222-#### When to use\n223-\n224-- A single date or date-time input: `DatePicker`, `DateField`.\n225:- Calendars for month/day selection: `Calendar`, `CalendarView`.\n226:- Date ranges: `RangeDatePicker`, `RangeCalendar`, `RangeDateField`.\n227-- Relative and mixed absolute/relative ranges (e.g. \"last 7 days\"): `RelativeDatePicker`, `RelativeRangeDatePicker`, `RelativeDateField`.\n228-\n229-#### When not to use\n230-\n231-- Plain text or number inputs, buttons, or other generic controls — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit).\n232:- Low-level date math, parsing, formatting, or timezone handling without UI — use [`@gravity-ui/date-utils`](https://github.com/gravity-ui/date-utils) directly.\n233-\n234:## Date Utils — `@gravity-ui/date-utils`\n235-\n236:> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/date-utils/llms.txt)\n237:> GitHub: [gravity-ui/date-utils](https://github.com/gravity-ui/date-utils)\n238-\n239:Timezone-aware date/time helpers — parsing (including relative expressions like `now-1d/d`), formatting, and locale management — without any UI, reach for it when you need to compute and format dates reliably across time zones instead of pulling in a full UI calendar.\n240-\n241-#### When to use\n242-\n--\n246-\n247-#### When not to use\n248-\n249:- To render a calendar, date picker, or any date **UI**, use [`@gravity-ui/date-components`](https://gravity-ui.com/components/date-components) — it builds its visuals on top of this package.\n250-- For lightweight immutable date math and no timezone/relative-expression needs, `date-fns` or the native `Intl`/`Date` APIs may suffice.\n251-\n252-## Dialog Fields — `@gravity-ui/dialog-fields`\n{\n  \"name\": \"edge-calendar\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"build\": \"tsc --noEmit && vite build\",\n    \"dev\": \"vite\"\n  },\n  \"dependencies\": {\n    \"@gravity-ui/uikit\": \"7.43.0\",\n    \"react\": \"^18.3.1\",\n    \"react-dom\": \"^18.3.1\"\n  },\n  \"devDependencies\": {\n    \"@types/react\": \"^18.3.12\",\n    \"@types/react-dom\": \"^18.3.1\",\n    \"@vitejs/plugin-react\": \"^4.3.4\",\n    \"typescript\": \"^7.0.2\",\n    \"vite\": \"^5.4.11\",\n    \"vitest\": \"^3.1.3\"\n  }\n}\n// Implement the requested feature here (and may add sibling files).\nexport function App() {\n  return <div style={{ padding: 24 }}>{/* TODO: implement the requested component */}</div>;\n}\n// Preconfigured Gravity UI setup is ALREADY wired here (both CSS imports + ThemeProvider).\n// Implement the requested feature in App.tsx (you may add sibling files).\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport { ThemeProvider } from '@gravity-ui/uikit';\n\nimport { App } from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <ThemeProvider theme=\"light\">\n      <App />\n    </ThemeProvider>\n  </React.StrictMode>,\n);\ni18n\nicons\nuikit",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:41:49.905Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "Нужен `@gravity-ui/date-components` (+ peer `date-utils`), он не установлен. Проверю совместимость версий с uikit 7.43.0.",
+      "raw": {
+        "parentUuid": "a27bb640-1b73-4e55-8817-bab15bbe55da",
+        "isSidechain": false,
+        "message": {
+          "model": "claude-opus-5-5",
+          "id": "msg_011CghbB2mQAKmjz9cV2SocH",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Нужен `@gravity-ui/date-components` (+ peer `date-utils`), он не установлен. Проверю совместимость версий с uikit 7.43.0."
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 4571,
+            "cache_read_input_tokens": 22821,
+            "output_tokens": 304,
+            "output_tokens_details": {
+              "thinking_tokens": 60
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 4571,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 304,
+                "cache_read_input_tokens": 22821,
+                "cache_creation_input_tokens": 4571,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 4571
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "input_transformations": [],
+          "diagnostics": null,
+          "context_management": null
+        },
+        "apiBlockIndex": 1,
+        "requestId": "req_011CghbB2X1q76anSka1TL9e",
+        "requestRef": "71e6cfb3-aa25-4e7a-a576-e94ebf37924c",
+        "requestedModel": "claude-opus-5-5",
+        "promptCacheRequested": "1h",
+        "type": "assistant",
+        "uuid": "5e3c8563-9a59-40d8-807c-a314bc8e061e",
+        "timestamp": "2026-11-04T08:41:49.905Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "81c43d70-fefd-4a67-bcb8-5dbfa6319ea2",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:41:51.240Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; npm view @gravity-ui/date-components version peerDependencies 2>&1 | head -20; npm view @gravity-ui/date-components@3 version 2>&1 | tail -3",
+          "description": "Check installed uikit and date-components peer deps",
+          "_extractedCommand": "cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; npm view @gravity-ui/date-components version peerDependencies 2>&1 | head -20; npm view @gravity-ui/date-components@3 version 2>&1 | tail -3"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; npm view @gravity-ui/date-components version peerDependencies 2>&1 | head -20; npm view @gravity-ui/date-components@3 version 2>&1 | tail -3",
+          "description": "Check installed uikit and date-components peer deps"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:41:53.189Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01R8vtUQmntwMGtww2W2bWhY",
+        "result": "  \"version\": \"7.43.0\",\nversion = '5.0.0'\npeerDependencies = {\n  react: '^18.0.0 || ^19.0.0',\n  'react-dom': '^18.0.0 || ^19.0.0',\n  '@types/react': '^18.0.0 || ^19.0.0',\n  '@gravity-ui/uikit': '^8.0.0',\n  '@gravity-ui/date-utils': '^2.6.0'\n}\n@gravity-ui/date-components@3.4.0 '3.4.0'\n@gravity-ui/date-components@3.4.1 '3.4.1'\n@gravity-ui/date-components@3.4.2 '3.4.2'",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01R8vtUQmntwMGtww2W2bWhY",
+        "type": "tool_result",
+        "content": "  \"version\": \"7.43.0\",\nversion = '5.0.0'\npeerDependencies = {\n  react: '^18.0.0 || ^19.0.0',\n  'react-dom': '^18.0.0 || ^19.0.0',\n  '@types/react': '^18.0.0 || ^19.0.0',\n  '@gravity-ui/uikit': '^8.0.0',\n  '@gravity-ui/date-utils': '^2.6.0'\n}\n@gravity-ui/date-components@3.4.0 '3.4.0'\n@gravity-ui/date-components@3.4.1 '3.4.1'\n@gravity-ui/date-components@3.4.2 '3.4.2'",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:41:57.162Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "for v in 3 4; do npm view @gravity-ui/date-components@$v version peerDependencies.@gravity-ui/uikit peerDependencies.@gravity-ui/date-utils 2>&1 | tail -4; done",
+          "description": "Check peer deps of major 3 and 4",
+          "_extractedCommand": "for v in 3 4; do npm view @gravity-ui/date-components@$v version peerDependencies.@gravity-ui/uikit peerDependencies.@gravity-ui/date-utils 2>&1 | tail -4; done"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "for v in 3 4; do npm view @gravity-ui/date-components@$v version peerDependencies.@gravity-ui/uikit peerDependencies.@gravity-ui/date-utils 2>&1 | tail -4; done",
+          "description": "Check peer deps of major 3 and 4"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:41:58.014Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01JwZLmUupUGxjmjvj7MePUt",
+        "result": "@gravity-ui/date-components@3.4.1 peerDependencies.@gravity-ui/date-utils = '^2.6.0'\n@gravity-ui/date-components@3.4.2 version = '3.4.2'\n@gravity-ui/date-components@3.4.2 peerDependencies.@gravity-ui/uikit = '^7.21.0'\n@gravity-ui/date-components@3.4.2 peerDependencies.@gravity-ui/date-utils = '^2.6.0'\n@gravity-ui/date-components@4.0.0 peerDependencies.@gravity-ui/date-utils = '^2.6.0'\n@gravity-ui/date-components@4.1.0 version = '4.1.0'\n@gravity-ui/date-components@4.1.0 peerDependencies.@gravity-ui/uikit = '^7.21.0'\n@gravity-ui/date-components@4.1.0 peerDependencies.@gravity-ui/date-utils = '^2.6.0'",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01JwZLmUupUGxjmjvj7MePUt",
+        "type": "tool_result",
+        "content": "@gravity-ui/date-components@3.4.1 peerDependencies.@gravity-ui/date-utils = '^2.6.0'\n@gravity-ui/date-components@3.4.2 version = '3.4.2'\n@gravity-ui/date-components@3.4.2 peerDependencies.@gravity-ui/uikit = '^7.21.0'\n@gravity-ui/date-components@3.4.2 peerDependencies.@gravity-ui/date-utils = '^2.6.0'\n@gravity-ui/date-components@4.0.0 peerDependencies.@gravity-ui/date-utils = '^2.6.0'\n@gravity-ui/date-components@4.1.0 version = '4.1.0'\n@gravity-ui/date-components@4.1.0 peerDependencies.@gravity-ui/uikit = '^7.21.0'\n@gravity-ui/date-components@4.1.0 peerDependencies.@gravity-ui/date-utils = '^2.6.0'",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:01.588Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "Версия 4.x совместима с uikit 7 (5.x требует uikit 8). Устанавливаю.",
+      "raw": {
+        "parentUuid": "4a408e78-168e-4b10-851f-a347fcd11cb9",
+        "isSidechain": false,
+        "message": {
+          "model": "claude-opus-5-5",
+          "id": "msg_011CghbBrt7dv2sr5jRYg3X1",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Версия 4.x совместима с uikit 7 (5.x требует uikit 8). Устанавливаю."
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 511,
+            "cache_read_input_tokens": 27929,
+            "output_tokens": 244,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 511,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 244,
+                "cache_read_input_tokens": 27929,
+                "cache_creation_input_tokens": 511,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 511
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "input_transformations": [],
+          "diagnostics": null,
+          "context_management": null
+        },
+        "apiBlockIndex": 0,
+        "requestId": "req_011CghbBrczG3Gebk2PfsU9N",
+        "requestRef": "db49a2a1-3f44-4481-b507-371b5fcec12f",
+        "requestedModel": "claude-opus-5-5",
+        "promptCacheRequested": "1h",
+        "type": "assistant",
+        "uuid": "e8238e27-2c0a-470a-a3f5-0075caef07e9",
+        "timestamp": "2026-11-04T08:42:01.588Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "81c43d70-fefd-4a67-bcb8-5dbfa6319ea2",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:02.823Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "npm install @gravity-ui/date-components@^4.1.0 @gravity-ui/date-utils@^2.6.0 2>&1 | tail -5 && .agents/skills/gravity-ui/scripts/inspect-package.sh date-components Calendar DatePicker",
+          "description": "Install date-components and inspect it",
+          "timeout": 300000,
+          "_extractedCommand": "npm install @gravity-ui/date-components@^4.1.0 @gravity-ui/date-utils@^2.6.0 2>&1 | tail -5 && .agents/skills/gravity-ui/scripts/inspect-package.sh date-components Calendar DatePicker"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "npm install @gravity-ui/date-components@^4.1.0 @gravity-ui/date-utils@^2.6.0 2>&1 | tail -5 && .agents/skills/gravity-ui/scripts/inspect-package.sh date-components Calendar DatePicker",
+          "description": "Install date-components and inspect it",
+          "timeout": 300000
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:13.998Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01LyG9z4diU4LWzJoCwQnh18",
+        "result": "Exit code 126\nRun `npm audit` for details.\nnpm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:\nnpm warn allow-scripts   esbuild@0.21.5 (postinstall: node install.js)\nnpm warn allow-scripts\nnpm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.\n/bin/bash: line 1: .agents/skills/gravity-ui/scripts/inspect-package.sh: Permission denied",
+        "success": false
+      },
+      "raw": {
+        "type": "tool_result",
+        "content": "Exit code 126\nRun `npm audit` for details.\nnpm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:\nnpm warn allow-scripts   esbuild@0.21.5 (postinstall: node install.js)\nnpm warn allow-scripts\nnpm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.\n/bin/bash: line 1: .agents/skills/gravity-ui/scripts/inspect-package.sh: Permission denied",
+        "is_error": true,
+        "tool_use_id": "toolu_01LyG9z4diU4LWzJoCwQnh18"
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:17.202Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "bash .agents/skills/gravity-ui/scripts/inspect-package.sh date-components Calendar DatePicker; grep version node_modules/@gravity-ui/date-components/package.json node_modules/@gravity-ui/date-utils/package.json | head",
+          "description": "Inspect installed date-components package",
+          "_extractedCommand": "bash .agents/skills/gravity-ui/scripts/inspect-package.sh date-components Calendar DatePicker; grep version node_modules/@gravity-ui/date-components/package.json node_modules/@gravity-ui/date-utils/package.json | head"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "bash .agents/skills/gravity-ui/scripts/inspect-package.sh date-components Calendar DatePicker; grep version node_modules/@gravity-ui/date-components/package.json node_modules/@gravity-ui/date-utils/package.json | head",
+          "description": "Inspect installed date-components package"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:17.246Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_011pZC5Rg3RRUjkNFL1wAN5k",
+        "result": "package=@gravity-ui/date-components version=4.1.0\ndoc=node_modules/@gravity-ui/date-components/dist/docs/INDEX.md\ndoc=node_modules/@gravity-ui/date-components/README.md\nsymbol=Calendar\nsymbol=DatePicker\nnode_modules/@gravity-ui/date-utils/package.json:  \"version\": \"2.7.3\",\nnode_modules/@gravity-ui/date-components/package.json:  \"version\": \"4.1.0\",",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_011pZC5Rg3RRUjkNFL1wAN5k",
+        "type": "tool_result",
+        "content": "package=@gravity-ui/date-components version=4.1.0\ndoc=node_modules/@gravity-ui/date-components/dist/docs/INDEX.md\ndoc=node_modules/@gravity-ui/date-components/README.md\nsymbol=Calendar\nsymbol=DatePicker\nnode_modules/@gravity-ui/date-utils/package.json:  \"version\": \"2.7.3\",\nnode_modules/@gravity-ui/date-components/package.json:  \"version\": \"4.1.0\",",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:22.140Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/date-components && cat dist/docs/INDEX.md | head -60; rg -n -i -C 4 'setup|styles|import' README.md | head -60; ls dist/docs",
+          "description": "Read date-components docs index and setup",
+          "_extractedCommand": "cd /home/sandbox/workspace/node_modules/@gravity-ui/date-components && cat dist/docs/INDEX.md | head -60; rg -n -i -C 4 'setup|styles|import' README.md | head -60; ls dist/docs"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/date-components && cat dist/docs/INDEX.md | head -60; rg -n -i -C 4 'setup|styles|import' README.md | head -60; ls dist/docs",
+          "description": "Read date-components docs index and setup"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:22.157Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01JpTPgArucXhCWgZRUdmAAw",
+        "result": "# @gravity-ui/date-components documentation\n\nDocumentation for the **installed** version of `@gravity-ui/date-components`.\nYour training data may be outdated — these files are the source of truth.\n\nPaths are relative to this file (`node_modules/@gravity-ui/date-components/dist/docs/`).\n\n## For AI agents\n\nReact date and time controls for Gravity UI apps — date/time pickers, calendars, and absolute/relative range selectors built on `@gravity-ui/date-utils`.\n\n### When to use\n\n- A single date or date-time input: `DatePicker`, `DateField`.\n- Calendars for month/day selection: `Calendar`, `CalendarView`.\n- Date ranges: `RangeDatePicker`, `RangeCalendar`, `RangeDateField`.\n- Relative and mixed absolute/relative ranges (e.g. \"last 7 days\"): `RelativeDatePicker`, `RelativeRangeDatePicker`, `RelativeDateField`.\n\n### When not to use\n\n- Plain text or number inputs, buttons, or other generic controls — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit).\n- Low-level date math, parsing, formatting, or timezone handling without UI — use [`@gravity-ui/date-utils`](https://github.com/gravity-ui/date-utils) directly.\n\n### Common pitfalls\n\n- **Values are `DateTime` objects, not JS `Date`.** Components work with `dateTime()` from [`@gravity-ui/date-utils`](https://github.com/gravity-ui/date-utils); pass and read `DateTime`, not native `Date` or ISO strings.\n- **Requires uikit setup.** Render inside `ThemeProvider` and import `@gravity-ui/uikit/styles/styles.css`; `@gravity-ui/uikit` and `@gravity-ui/date-utils` are required peer dependencies.\n- **Locale is loaded, not just set.** Set language via `ThemeProvider` `lang`, but load the locale data first with `settings.loadLocale('ru')` from `@gravity-ui/date-utils`, or dates render in the default locale.\n- **Component-specific translations use `addLanguageKeysets`.** For languages beyond `en`/`ru`, register keysets via `addLanguageKeysets` from `@gravity-ui/uikit/i18n` using the `Keysets`/`PartialKeysets` types exported here.\n\n## Install\n\n```shell\nnpm install react react-dom @gravity-ui/uikit @gravity-ui/date-components @gravity-ui/date-utils\n```\n\n## Usage\n\n```jsx\nimport {createRoot} from 'react-dom/client';\nimport {DatePicker} from '@gravity-ui/date-components';\nimport {ThemeProvider} from '@gravity-ui/uikit';\n\nimport '@gravity-ui/uikit/styles/styles.css';\n\nfunction App() {\n  return (\n    <ThemeProvider>\n      <h1>DatePicker</h1>\n      <form>\n        <label htmlFor=\"date-picker\">Date: </label>\n        <DatePicker id=\"date-picker\" name=\"date\" />\n      </form>\n    </ThemeProvider>\n  );\n}\n\nconst root = createRoot(document.getElementById('root'));\nroot.render(<App />);\n```\n8-\n9-## Usage\n10-\n11-```jsx\n12:import {createRoot} from 'react-dom/client';\n13:import {DatePicker} from '@gravity-ui/date-components';\n14:import {ThemeProvider} from '@gravity-ui/uikit';\n15-\n16:import '@gravity-ui/uikit/styles/styles.css';\n17-\n18-function App() {\n19-  return (\n20-    <ThemeProvider>\n--\n33-\n34-### Localization\n35-\n36-```jsx\n37:import {settings} from '@gravity-ui/date-utils';\n38-\n39-// Load date locales that will be used in an application.\n40-await settings.loadLocale('ru');\n41-\n--\n79-\n80-The components have translations into English and Russian. To add translations into other languages, use `addLanguageKeysets` from `@gravity-ui/uikit`:\n81-\n82-```ts\n83:import {addLanguageKeysets} from '@gravity-ui/uikit/i18n';\n84:import type {Keysets, PartialKeysets} from '@gravity-ui/date-components';\n85-\n86-// Use the Keyset type to specify translations for all available components\n87-addLanguageKeysets<Keysets>(lang, {...});\n88-\n--\n123-\n124-### Common pitfalls\n125-\n126-- **Values are `DateTime` objects, not JS `Date`.** Components work with `dateTime()` from [`@gravity-ui/date-utils`](https://github.com/gravity-ui/date-utils); pass and read `DateTime`, not native `Date` or ISO strings.\n127:- **Requires uikit setup.** Render inside `ThemeProvider` and import `@gravity-ui/uikit/styles/styles.css`; `@gravity-ui/uikit` and `@gravity-ui/date-utils` are required peer dependencies.\n128-- **Locale is loaded, not just set.** Set language via `ThemeProvider` `lang`, but load the locale data first with `settings.loadLocale('ru')` from `@gravity-ui/date-utils`, or dates render in the default locale.\n129-- **Component-specific translations use `addLanguageKeysets`.** For languages beyond `en`/`ru`, register keysets via `addLanguageKeysets` from `@gravity-ui/uikit/i18n` using the `Keysets`/`PartialKeysets` types exported here.\n130-\n131-## Documentation for AI agents\nINDEX.md\ncomponents",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01JpTPgArucXhCWgZRUdmAAw",
+        "type": "tool_result",
+        "content": "# @gravity-ui/date-components documentation\n\nDocumentation for the **installed** version of `@gravity-ui/date-components`.\nYour training data may be outdated — these files are the source of truth.\n\nPaths are relative to this file (`node_modules/@gravity-ui/date-components/dist/docs/`).\n\n## For AI agents\n\nReact date and time controls for Gravity UI apps — date/time pickers, calendars, and absolute/relative range selectors built on `@gravity-ui/date-utils`.\n\n### When to use\n\n- A single date or date-time input: `DatePicker`, `DateField`.\n- Calendars for month/day selection: `Calendar`, `CalendarView`.\n- Date ranges: `RangeDatePicker`, `RangeCalendar`, `RangeDateField`.\n- Relative and mixed absolute/relative ranges (e.g. \"last 7 days\"): `RelativeDatePicker`, `RelativeRangeDatePicker`, `RelativeDateField`.\n\n### When not to use\n\n- Plain text or number inputs, buttons, or other generic controls — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit).\n- Low-level date math, parsing, formatting, or timezone handling without UI — use [`@gravity-ui/date-utils`](https://github.com/gravity-ui/date-utils) directly.\n\n### Common pitfalls\n\n- **Values are `DateTime` objects, not JS `Date`.** Components work with `dateTime()` from [`@gravity-ui/date-utils`](https://github.com/gravity-ui/date-utils); pass and read `DateTime`, not native `Date` or ISO strings.\n- **Requires uikit setup.** Render inside `ThemeProvider` and import `@gravity-ui/uikit/styles/styles.css`; `@gravity-ui/uikit` and `@gravity-ui/date-utils` are required peer dependencies.\n- **Locale is loaded, not just set.** Set language via `ThemeProvider` `lang`, but load the locale data first with `settings.loadLocale('ru')` from `@gravity-ui/date-utils`, or dates render in the default locale.\n- **Component-specific translations use `addLanguageKeysets`.** For languages beyond `en`/`ru`, register keysets via `addLanguageKeysets` from `@gravity-ui/uikit/i18n` using the `Keysets`/`PartialKeysets` types exported here.\n\n## Install\n\n```shell\nnpm install react react-dom @gravity-ui/uikit @gravity-ui/date-components @gravity-ui/date-utils\n```\n\n## Usage\n\n```jsx\nimport {createRoot} from 'react-dom/client';\nimport {DatePicker} from '@gravity-ui/date-components';\nimport {ThemeProvider} from '@gravity-ui/uikit';\n\nimport '@gravity-ui/uikit/styles/styles.css';\n\nfunction App() {\n  return (\n    <ThemeProvider>\n      <h1>DatePicker</h1>\n      <form>\n        <label htmlFor=\"date-picker\">Date: </label>\n        <DatePicker id=\"date-picker\" name=\"date\" />\n      </form>\n    </ThemeProvider>\n  );\n}\n\nconst root = createRoot(document.getElementById('root'));\nroot.render(<App />);\n```\n8-\n9-## Usage\n10-\n11-```jsx\n12:import {createRoot} from 'react-dom/client';\n13:import {DatePicker} from '@gravity-ui/date-components';\n14:import {ThemeProvider} from '@gravity-ui/uikit';\n15-\n16:import '@gravity-ui/uikit/styles/styles.css';\n17-\n18-function App() {\n19-  return (\n20-    <ThemeProvider>\n--\n33-\n34-### Localization\n35-\n36-```jsx\n37:import {settings} from '@gravity-ui/date-utils';\n38-\n39-// Load date locales that will be used in an application.\n40-await settings.loadLocale('ru');\n41-\n--\n79-\n80-The components have translations into English and Russian. To add translations into other languages, use `addLanguageKeysets` from `@gravity-ui/uikit`:\n81-\n82-```ts\n83:import {addLanguageKeysets} from '@gravity-ui/uikit/i18n';\n84:import type {Keysets, PartialKeysets} from '@gravity-ui/date-components';\n85-\n86-// Use the Keyset type to specify translations for all available components\n87-addLanguageKeysets<Keysets>(lang, {...});\n88-\n--\n123-\n124-### Common pitfalls\n125-\n126-- **Values are `DateTime` objects, not JS `Date`.** Components work with `dateTime()` from [`@gravity-ui/date-utils`](https://github.com/gravity-ui/date-utils); pass and read `DateTime`, not native `Date` or ISO strings.\n127:- **Requires uikit setup.** Render inside `ThemeProvider` and import `@gravity-ui/uikit/styles/styles.css`; `@gravity-ui/uikit` and `@gravity-ui/date-utils` are required peer dependencies.\n128-- **Locale is loaded, not just set.** Set language via `ThemeProvider` `lang`, but load the locale data first with `settings.loadLocale('ru')` from `@gravity-ui/date-utils`, or dates render in the default locale.\n129-- **Component-specific translations use `addLanguageKeysets`.** For languages beyond `en`/`ru`, register keysets via `addLanguageKeysets` from `@gravity-ui/uikit/i18n` using the `Keysets`/`PartialKeysets` types exported here.\n130-\n131-## Documentation for AI agents\nINDEX.md\ncomponents",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:30.527Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "ls -R dist/docs/components | head -30; f=$(find dist/docs/components -iname '*.md' -path '*Calendar*' | grep -v -i range | head -3); echo $f; for x in $f; do wc -l $x; done",
+          "description": "List component docs",
+          "_extractedCommand": "ls -R dist/docs/components | head -30; f=$(find dist/docs/components -iname '*.md' -path '*Calendar*' | grep -v -i range | head -3); echo $f; for x in $f; do wc -l $x; done"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "ls -R dist/docs/components | head -30; f=$(find dist/docs/components -iname '*.md' -path '*Calendar*' | grep -v -i range | head -3); echo $f; for x in $f; do wc -l $x; done",
+          "description": "List component docs"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:30.544Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01RjRqgtA4ZSuy7eN4VVwNXx",
+        "result": "dist/docs/components:\nCalendar.md\nDateField.md\nDatePicker.md\nRangeCalendar.md\nRelativeDateField.md\nRelativeDatePicker.md\ndist/docs/components/Calendar.md\n125 dist/docs/components/Calendar.md",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01RjRqgtA4ZSuy7eN4VVwNXx",
+        "type": "tool_result",
+        "content": "dist/docs/components:\nCalendar.md\nDateField.md\nDatePicker.md\nRangeCalendar.md\nRelativeDateField.md\nRelativeDatePicker.md\ndist/docs/components/Calendar.md\n125 dist/docs/components/Calendar.md",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:34.290Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "cd /home/sandbox/workspace && cat node_modules/@gravity-ui/date-components/dist/docs/components/Calendar.md; rg -n -C 3 -i 'Text|Flex|variant' .agents/skills/gravity-ui/rules/hallucination-traps.md | head -80",
+          "description": "Read Calendar doc and hallucination traps",
+          "_extractedCommand": "cd /home/sandbox/workspace && cat node_modules/@gravity-ui/date-components/dist/docs/components/Calendar.md; rg -n -C 3 -i 'Text|Flex|variant' .agents/skills/gravity-ui/rules/hallucination-traps.md | head -80"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "cd /home/sandbox/workspace && cat node_modules/@gravity-ui/date-components/dist/docs/components/Calendar.md; rg -n -C 3 -i 'Text|Flex|variant' .agents/skills/gravity-ui/rules/hallucination-traps.md | head -80",
+          "description": "Read Calendar doc and hallucination traps"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:34.306Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01CErjrTCxLwdZUBxezswtXo",
+        "result": "# Calendar\n\n`Calendar` is a flexible, user-friendly calendar component for React applications. It allows users to view, select, and manage dates with ease. Ideal for event scheduling, booking systems, and any application where date selection is essential. It can be controlled if you set `value` property. Or it can be uncontrolled if you don't set any value, but in this case you can manage the initial state with optional property `defaultValue`. Component is uncontrolled by default.\n\n```tsx\nimport {Calendar} from '@gravity-ui/date-components';\n```\n\n## Useful addition\n\nTo set dates in the right format you may need to include additional helpers from [Date Utils library](https://gravity-ui.com/libraries/date-utils)\n\n```tsx\nimport {dateTimeParse} from '@gravity-ui/date-utils';\n```\n\n## Size\n\nTo control the size of the `Calendar` use the `size` property. Default size is `m`.\n\n```tsx\n<Calendar size=\"m\" />\n<Calendar size=\"l\" />\n<Calendar size=\"xl\" />\n```\n\n## Value\n\n### Min and max value\n\nThe `minValue` property allows you to specify the earliest date and time that can be entered by the user. Conversely, the `maxValue` property specifies the latest date and time that can be entered. All other values will be disabled for user.\n\n```tsx\n<Calendar minValue={dateTimeParse('01.01.2024')} maxValue={dateTimeParse('01.01.2025')} />\n```\n\n## Mode\n\nDefines the time interval that `Calendar` should display. With `mode` you can choose it in controlled way. For uncontrolled way you don't need to specify any value. Also you can set the initial mode in uncontrolled way with `defaultMode` prop.\n\n`days` - default mode for `Calendar`. It shows days in month.\n\n`months` - shows months in year\n\n`quarters` - shows quarters by years (not available as value in `defaultMode`)\n\n`years` - shows several years for select\n\nYou can limit enabled modes by using prop `modes`.\n\n```tsx\n<Calendar defaultMode=\"months\" />\n```\n\n## States\n\n### Disabled\n\nThe state of the `Calendar` where you don't want the user to be able to interact with the component.\n\n```tsx\n<Calendar disabled={true} />\n```\n\n### Readonly\n\n`readOnly` is a boolean attribute that, when set to true, makes the `Calendar` component immutable to the user. This means that while the input will display its current value, users will not be able to change it.\n\n```tsx\n<Calendar readOnly={true} />\n```\n\n## Focused value\n\nAllows to select the date that `Calendar` view is focused on. If you need it to be controlled you should use `focusedValue` prop. You can set the initial focused value for uncontrolled component with optional prop `defaultFocusedValue`.\n\n```tsx\n<Calendar defaultFocusedValue={dateTimeParse('01.01.2020')} />\n```\n\n## Multiple selection\n\nSet the `selectionMode=\"multiple\"` prop to enable the user to select multiple dates. When multiple selection is enabled, the value prop should be an array of dates instead of a single date, and onChange will be called with an array.\n\n```tsx\n<Calendar selectionMode=\"multiple\" />\n```\n\n## Time zone\n\n`timeZone` is the property to set the time zone of the value in the input. [Learn more about time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)\n\n## Properties\n\n| Name                                  | Description                                                                                                          |                               Type                               |                           Default                           |\n| :------------------------------------ | :------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------: | :---------------------------------------------------------: |\n| aria-describedby                      | The control's `aria-describedby` attribute                                                                           |                             `string`                             |                                                             |\n| aria-details                          | The control's `aria-details` attribute                                                                               |                             `string`                             |                                                             |\n| aria-label                            | The control's `aria-label` attribute                                                                                 |                             `string`                             |                                                             |\n| aria-labelledby                       | The control's `aria-labelledby` attribute                                                                            |                             `string`                             |                                                             |\n| autoFocus                             | The control's `autofocus` attribute                                                                                  |                            `boolean`                             |                                                             |\n| className                             | The control's wrapper class name                                                                                     |                             `string`                             |                                                             |\n| [defaultFocusedValue](#focused-value) | The date that is focused when the calendar first mounts (uncontrolled)                                               |                            `DateTime`                            |                                                             |\n| [defaultMode](#mode)                  | Initial mode to show in calendar                                                                                     |                `days` `months` `quarters` `years`                |                                                             |\n| [defaultValue](#value)                | Sets the initial value for uncontrolled component.                                                                   |                            `DateTime`                            |                                                             |\n| [disabled](#disabled)                 | Indicates that the user cannot interact with the control                                                             |                            `boolean`                             |                           `false`                           |\n| [focusedValue](#focused-value)        | Set the default view of uncontrolled component which includes this value                                             |                        `DateTime` `null`                         |                                                             |\n| id                                    | The control's `id` attribute                                                                                         |                             `string`                             |                                                             |\n| isDateUnavailable                     | Callback that is called for each date of the calendar. If it returns true, then the date is unavailable.             |                 `((date: DateTime) => boolean)`                  |                                                             |\n| isWeekend                             | Callback that is called for each date of the calendar. If it returns true, then the date is weekend.                 |                 `((date: DateTime) => boolean)`                  |                                                             |\n| [maxValue](#min-and-max-value)        | The maximum allowed date that a user may select.                                                                     |                            `DateTime`                            |                                                             |\n| [minValue](#min-and-max-value)        | The minimum allowed date that a user may select.                                                                     |                            `DateTime`                            |                                                             |\n| [mode](#mode)                         | Defines the time interval that `Calendar` should display in controlled way.                                          |                `days` `months` `quarters` `years`                |                                                             |\n| modes                                 | Modes available to user                                                                                              |            `Partial<Record<CalendarLayout, boolean>>`            | `{days: true, months: true, quarters: false, years: true }` |\n| onBlur                                | Fires when the control lost focus. Provides focus event as a callback's argument                                     |          `((e: FocusEvent<Element, Element>) => void)`           |                                                             |\n| onFocus                               | Fires when the control gets focus. Provides focus event as a callback's argument                                     |          `((e: FocusEvent<Element, Element>) => void)`           |                                                             |\n| onFocusUpdate                         | Fires when the control's focused date changes.                                                                       |                   `((date: DateTime) => void)`                   |                                                             |\n| onUpdate                              | Fires when the value is changed.                                                                                     |                   `((value: DateTime) => void`                   |                                                             |\n| onUpdateMode                          | Fires when the mode is changed.                                                                                      | `((value: 'days' \\| 'months' \\| 'quarters' \\| 'years' ) => void` |                                                             |\n| [readOnly](#readonly)                 | Whether the calendar value is immutable.                                                                             |                            `boolean`                             |                           `false`                           |\n| [size](#size)                         | The size of the control                                                                                              |                        `\"m\"` `\"l\"` `\"xl\"`                        |                            `\"m\"`                            |\n| selectionMode                         | Whether single or multiple selection is enabled.                                                                     |                     `'single' \\| 'multiple'`                     |                         `'single'`                          |\n| style                                 | Sets inline style for the element.                                                                                   |                         `CSSProperties`                          |                                                             |\n| [timeZone](#time-zone)                | Sets the time zone. [Learn more about time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List) |                             `string`                             |                                                             |\n| [value](#calendar)                    | The value of the control                                                                                             |                        `DateTime` `null`                         |                                                             |\n19-❌ **Incorrect** — invented scale:\n20-\n21-```tsx\n22:<Text variant=\"header-3\">Section title</Text>\n23:<Text variant=\"header-4\">Subsection</Text>\n24-<Heading size=\"lg\">Page title</Heading>   // also: there is no `Heading` component\n25-```\n26-\n27:✓ **Correct** — the real `Text` variants:\n28-\n29-```tsx\n30:<Text variant=\"header-1\">Page title</Text>\n31:<Text variant=\"header-2\">Section title</Text>\n32:<Text variant=\"subheader-1\">Subsection</Text>   {/* or subheader-2/3 */}\n33:<Text variant=\"display-1\">Hero</Text>           {/* display-1…4 are larger than headers */}\n34-```\n35-\n36-**Why:** only `header-1` and `header-2` exist. Above them sit `display-1…4`,\n37:below them `subheader-1…3`. Body variants are `body-1`/`body-2`/`body-3`\n38:(plus `body-short`), and small text is `caption-1`/`caption-2`. There is no\n39:standalone `Heading` component — headings are `<Text variant=\"…\">`. Setting a\n40:size via inline `fontSize` is also wrong; pick the variant.\n41-\n42:### Page title is a `Text`, not an `<h1>`\n43-\n44-❌ `<h1>Dashboard</h1>`\n45:✓ `<Text variant=\"header-1\">Dashboard</Text>`\n46-\n47-**Why:** the design system's metrics (font-family, weight, line-height, tracking)\n48:come from `--g-text-header-1-*` tokens. A raw `<h1>` bypasses them and renders\n49-with the browser default.\n50-\n51----\n52-\n53:## Layout — the flex contract\n54-\n55:### `Flex`/`Box` have no `padding` / `margin` props\n56-\n57-❌ **Incorrect** — MUI-style props (do not exist):\n58-\n59-```tsx\n60:<Flex p={4} mb={3}>…</Flex>\n61-<Box padding=\"16px\" marginTop={2}>…</Box>\n62-```\n63-\n--\n65-`Box`, `spacing()` / `sp()` for any other element:\n66-\n67-```tsx\n68:import {Box, Flex, sp} from '@gravity-ui/uikit';\n69-\n70:<Flex gap={4}>                       {/* 16px between children */}\n71-  <Button />\n72-  <Button />\n73:</Flex>\n74-\n75-<Box spacing={{p: 4, mb: 3}}>…</Box>          {/* padding + margin-bottom */}\n76-<div className={sp({p: 4, mb: 3})}>…</div>   {/* same, for a non-Box element */}\n77-```\n78-\n79:**Why:** `Flex`/`Box` take `gap` (a spacing-scale step `0…10`; the only\n80-half-step is `0.5`), and `Box` additionally takes `spacing={{…}}` with the\n81-same `m*`/`p*` shortcuts. For everything else use the `spacing()` (or `sp()`)\n82-utility, which returns a className, or the raw `--g-spacing-*` variables in\n83-CSS. Never hard-code pixel values.\n84-\n85:### In a row, explicitly assign who flexes and who holds\n86-\n87:❌ **Incorrect** — relying on flex defaults:\n88-\n89-```tsx\n90:<Flex alignItems=\"center\">\n91:  <Avatar />                {/* gets crushed when text is long */}\n92-  <span>{veryLongName}</span>\n93-  <Button>Edit</Button>     {/* also gets crushed */}\n94:</Flex>\n95-```\n96-\n97:✓ **Correct** — fix-elements get `flex-shrink: 0`, the flexible middle gets\n98:`flex: 1; min-width: 0`:",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01CErjrTCxLwdZUBxezswtXo",
+        "type": "tool_result",
+        "content": "# Calendar\n\n`Calendar` is a flexible, user-friendly calendar component for React applications. It allows users to view, select, and manage dates with ease. Ideal for event scheduling, booking systems, and any application where date selection is essential. It can be controlled if you set `value` property. Or it can be uncontrolled if you don't set any value, but in this case you can manage the initial state with optional property `defaultValue`. Component is uncontrolled by default.\n\n```tsx\nimport {Calendar} from '@gravity-ui/date-components';\n```\n\n## Useful addition\n\nTo set dates in the right format you may need to include additional helpers from [Date Utils library](https://gravity-ui.com/libraries/date-utils)\n\n```tsx\nimport {dateTimeParse} from '@gravity-ui/date-utils';\n```\n\n## Size\n\nTo control the size of the `Calendar` use the `size` property. Default size is `m`.\n\n```tsx\n<Calendar size=\"m\" />\n<Calendar size=\"l\" />\n<Calendar size=\"xl\" />\n```\n\n## Value\n\n### Min and max value\n\nThe `minValue` property allows you to specify the earliest date and time that can be entered by the user. Conversely, the `maxValue` property specifies the latest date and time that can be entered. All other values will be disabled for user.\n\n```tsx\n<Calendar minValue={dateTimeParse('01.01.2024')} maxValue={dateTimeParse('01.01.2025')} />\n```\n\n## Mode\n\nDefines the time interval that `Calendar` should display. With `mode` you can choose it in controlled way. For uncontrolled way you don't need to specify any value. Also you can set the initial mode in uncontrolled way with `defaultMode` prop.\n\n`days` - default mode for `Calendar`. It shows days in month.\n\n`months` - shows months in year\n\n`quarters` - shows quarters by years (not available as value in `defaultMode`)\n\n`years` - shows several years for select\n\nYou can limit enabled modes by using prop `modes`.\n\n```tsx\n<Calendar defaultMode=\"months\" />\n```\n\n## States\n\n### Disabled\n\nThe state of the `Calendar` where you don't want the user to be able to interact with the component.\n\n```tsx\n<Calendar disabled={true} />\n```\n\n### Readonly\n\n`readOnly` is a boolean attribute that, when set to true, makes the `Calendar` component immutable to the user. This means that while the input will display its current value, users will not be able to change it.\n\n```tsx\n<Calendar readOnly={true} />\n```\n\n## Focused value\n\nAllows to select the date that `Calendar` view is focused on. If you need it to be controlled you should use `focusedValue` prop. You can set the initial focused value for uncontrolled component with optional prop `defaultFocusedValue`.\n\n```tsx\n<Calendar defaultFocusedValue={dateTimeParse('01.01.2020')} />\n```\n\n## Multiple selection\n\nSet the `selectionMode=\"multiple\"` prop to enable the user to select multiple dates. When multiple selection is enabled, the value prop should be an array of dates instead of a single date, and onChange will be called with an array.\n\n```tsx\n<Calendar selectionMode=\"multiple\" />\n```\n\n## Time zone\n\n`timeZone` is the property to set the time zone of the value in the input. [Learn more about time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List)\n\n## Properties\n\n| Name                                  | Description                                                                                                          |                               Type                               |                           Default                           |\n| :------------------------------------ | :------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------: | :---------------------------------------------------------: |\n| aria-describedby                      | The control's `aria-describedby` attribute                                                                           |                             `string`                             |                                                             |\n| aria-details                          | The control's `aria-details` attribute                                                                               |                             `string`                             |                                                             |\n| aria-label                            | The control's `aria-label` attribute                                                                                 |                             `string`                             |                                                             |\n| aria-labelledby                       | The control's `aria-labelledby` attribute                                                                            |                             `string`                             |                                                             |\n| autoFocus                             | The control's `autofocus` attribute                                                                                  |                            `boolean`                             |                                                             |\n| className                             | The control's wrapper class name                                                                                     |                             `string`                             |                                                             |\n| [defaultFocusedValue](#focused-value) | The date that is focused when the calendar first mounts (uncontrolled)                                               |                            `DateTime`                            |                                                             |\n| [defaultMode](#mode)                  | Initial mode to show in calendar                                                                                     |                `days` `months` `quarters` `years`                |                                                             |\n| [defaultValue](#value)                | Sets the initial value for uncontrolled component.                                                                   |                            `DateTime`                            |                                                             |\n| [disabled](#disabled)                 | Indicates that the user cannot interact with the control                                                             |                            `boolean`                             |                           `false`                           |\n| [focusedValue](#focused-value)        | Set the default view of uncontrolled component which includes this value                                             |                        `DateTime` `null`                         |                                                             |\n| id                                    | The control's `id` attribute                                                                                         |                             `string`                             |                                                             |\n| isDateUnavailable                     | Callback that is called for each date of the calendar. If it returns true, then the date is unavailable.             |                 `((date: DateTime) => boolean)`                  |                                                             |\n| isWeekend                             | Callback that is called for each date of the calendar. If it returns true, then the date is weekend.                 |                 `((date: DateTime) => boolean)`                  |                                                             |\n| [maxValue](#min-and-max-value)        | The maximum allowed date that a user may select.                                                                     |                            `DateTime`                            |                                                             |\n| [minValue](#min-and-max-value)        | The minimum allowed date that a user may select.                                                                     |                            `DateTime`                            |                                                             |\n| [mode](#mode)                         | Defines the time interval that `Calendar` should display in controlled way.                                          |                `days` `months` `quarters` `years`                |                                                             |\n| modes                                 | Modes available to user                                                                                              |            `Partial<Record<CalendarLayout, boolean>>`            | `{days: true, months: true, quarters: false, years: true }` |\n| onBlur                                | Fires when the control lost focus. Provides focus event as a callback's argument                                     |          `((e: FocusEvent<Element, Element>) => void)`           |                                                             |\n| onFocus                               | Fires when the control gets focus. Provides focus event as a callback's argument                                     |          `((e: FocusEvent<Element, Element>) => void)`           |                                                             |\n| onFocusUpdate                         | Fires when the control's focused date changes.                                                                       |                   `((date: DateTime) => void)`                   |                                                             |\n| onUpdate                              | Fires when the value is changed.                                                                                     |                   `((value: DateTime) => void`                   |                                                             |\n| onUpdateMode                          | Fires when the mode is changed.                                                                                      | `((value: 'days' \\| 'months' \\| 'quarters' \\| 'years' ) => void` |                                                             |\n| [readOnly](#readonly)                 | Whether the calendar value is immutable.                                                                             |                            `boolean`                             |                           `false`                           |\n| [size](#size)                         | The size of the control                                                                                              |                        `\"m\"` `\"l\"` `\"xl\"`                        |                            `\"m\"`                            |\n| selectionMode                         | Whether single or multiple selection is enabled.                                                                     |                     `'single' \\| 'multiple'`                     |                         `'single'`                          |\n| style                                 | Sets inline style for the element.                                                                                   |                         `CSSProperties`                          |                                                             |\n| [timeZone](#time-zone)                | Sets the time zone. [Learn more about time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List) |                             `string`                             |                                                             |\n| [value](#calendar)                    | The value of the control                                                                                             |                        `DateTime` `null`                         |                                                             |\n19-❌ **Incorrect** — invented scale:\n20-\n21-```tsx\n22:<Text variant=\"header-3\">Section title</Text>\n23:<Text variant=\"header-4\">Subsection</Text>\n24-<Heading size=\"lg\">Page title</Heading>   // also: there is no `Heading` component\n25-```\n26-\n27:✓ **Correct** — the real `Text` variants:\n28-\n29-```tsx\n30:<Text variant=\"header-1\">Page title</Text>\n31:<Text variant=\"header-2\">Section title</Text>\n32:<Text variant=\"subheader-1\">Subsection</Text>   {/* or subheader-2/3 */}\n33:<Text variant=\"display-1\">Hero</Text>           {/* display-1…4 are larger than headers */}\n34-```\n35-\n36-**Why:** only `header-1` and `header-2` exist. Above them sit `display-1…4`,\n37:below them `subheader-1…3`. Body variants are `body-1`/`body-2`/`body-3`\n38:(plus `body-short`), and small text is `caption-1`/`caption-2`. There is no\n39:standalone `Heading` component — headings are `<Text variant=\"…\">`. Setting a\n40:size via inline `fontSize` is also wrong; pick the variant.\n41-\n42:### Page title is a `Text`, not an `<h1>`\n43-\n44-❌ `<h1>Dashboard</h1>`\n45:✓ `<Text variant=\"header-1\">Dashboard</Text>`\n46-\n47-**Why:** the design system's metrics (font-family, weight, line-height, tracking)\n48:come from `--g-text-header-1-*` tokens. A raw `<h1>` bypasses them and renders\n49-with the browser default.\n50-\n51----\n52-\n53:## Layout — the flex contract\n54-\n55:### `Flex`/`Box` have no `padding` / `margin` props\n56-\n57-❌ **Incorrect** — MUI-style props (do not exist):\n58-\n59-```tsx\n60:<Flex p={4} mb={3}>…</Flex>\n61-<Box padding=\"16px\" marginTop={2}>…</Box>\n62-```\n63-\n--\n65-`Box`, `spacing()` / `sp()` for any other element:\n66-\n67-```tsx\n68:import {Box, Flex, sp} from '@gravity-ui/uikit';\n69-\n70:<Flex gap={4}>                       {/* 16px between children */}\n71-  <Button />\n72-  <Button />\n73:</Flex>\n74-\n75-<Box spacing={{p: 4, mb: 3}}>…</Box>          {/* padding + margin-bottom */}\n76-<div className={sp({p: 4, mb: 3})}>…</div>   {/* same, for a non-Box element */}\n77-```\n78-\n79:**Why:** `Flex`/`Box` take `gap` (a spacing-scale step `0…10`; the only\n80-half-step is `0.5`), and `Box` additionally takes `spacing={{…}}` with the\n81-same `m*`/`p*` shortcuts. For everything else use the `spacing()` (or `sp()`)\n82-utility, which returns a className, or the raw `--g-spacing-*` variables in\n83-CSS. Never hard-code pixel values.\n84-\n85:### In a row, explicitly assign who flexes and who holds\n86-\n87:❌ **Incorrect** — relying on flex defaults:\n88-\n89-```tsx\n90:<Flex alignItems=\"center\">\n91:  <Avatar />                {/* gets crushed when text is long */}\n92-  <span>{veryLongName}</span>\n93-  <Button>Edit</Button>     {/* also gets crushed */}\n94:</Flex>\n95-```\n96-\n97:✓ **Correct** — fix-elements get `flex-shrink: 0`, the flexible middle gets\n98:`flex: 1; min-width: 0`:",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:45.282Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "Проверю типы `Calendar` и uikit-компонентов, которые собираюсь использовать.",
+      "raw": {
+        "parentUuid": "c938b2a7-401e-43df-b03e-13c9baaff4d2",
+        "isSidechain": false,
+        "message": {
+          "model": "claude-opus-5-5",
+          "id": "msg_011CghbEaZBWrepnEnV33bKg",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Проверю типы `Calendar` и uikit-компонентов, которые собираюсь использовать."
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 4354,
+            "cache_read_input_tokens": 31671,
+            "output_tokens": 1121,
+            "output_tokens_details": {
+              "thinking_tokens": 720
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 4354,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 1121,
+                "cache_read_input_tokens": 31671,
+                "cache_creation_input_tokens": 4354,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 4354
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "input_transformations": [],
+          "diagnostics": null,
+          "context_management": null
+        },
+        "apiBlockIndex": 1,
+        "requestId": "req_011CghbEZq1uwvZnyc2SKnW4",
+        "requestRef": "4404ed81-7c4c-4df8-98a1-253bb85aa4ea",
+        "requestedModel": "claude-opus-5-5",
+        "promptCacheRequested": "1h",
+        "type": "assistant",
+        "uuid": "b4e57751-152e-4697-adff-c857cae16714",
+        "timestamp": "2026-11-04T08:42:45.282Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "81c43d70-fefd-4a67-bcb8-5dbfa6319ea2",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:47.866Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "f=$(find node_modules/@gravity-ui/date-components/dist -name 'Calendar.d.ts' | head -2); echo $f; cat $f | head -40; rg -n 'onUpdate|selectionMode' $(find node_modules/@gravity-ui/date-components/dist -path '*Calendar*' -name '*.d.ts' | grep -v Range) | head; bash .agents/skills/gravity-ui/scripts/inspect-package.sh uikit Card Text Flex | head; rg -n 'format\\(' node_modules/@gravity-ui/date-utils/dist/*/typings/dateTime.d.ts 2>/dev/null | head -3 || rg -rn 'format\\(' node_modules/@gravity-ui/date-utils/dist --include '*.d.ts' | head -3",
+          "description": "Inspect Calendar and uikit typings",
+          "_extractedCommand": "f=$(find node_modules/@gravity-ui/date-components/dist -name 'Calendar.d.ts' | head -2); echo $f; cat $f | head -40; rg -n 'onUpdate|selectionMode' $(find node_modules/@gravity-ui/date-components/dist -path '*Calendar*' -name '*.d.ts' | grep -v Range) | head; bash .agents/skills/gravity-ui/scripts/inspect-package.sh uikit Card Text Flex | head; rg -n 'format\\(' node_modules/@gravity-ui/date-utils/dist/*/typings/dateTime.d.ts 2>/dev/null | head -3 || rg -rn 'format\\(' node_modules/@gravity-ui/date-utils/dist --include '*.d.ts' | head -3"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "f=$(find node_modules/@gravity-ui/date-components/dist -name 'Calendar.d.ts' | head -2); echo $f; cat $f | head -40; rg -n 'onUpdate|selectionMode' $(find node_modules/@gravity-ui/date-components/dist -path '*Calendar*' -name '*.d.ts' | grep -v Range) | head; bash .agents/skills/gravity-ui/scripts/inspect-package.sh uikit Card Text Flex | head; rg -n 'format\\(' node_modules/@gravity-ui/date-utils/dist/*/typings/dateTime.d.ts 2>/dev/null | head -3 || rg -rn 'format\\(' node_modules/@gravity-ui/date-utils/dist --include '*.d.ts' | head -3",
+          "description": "Inspect Calendar and uikit typings"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:47.915Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_016nBBqs3q7bQd4wAgxwnXPu",
+        "result": "node_modules/@gravity-ui/date-components/dist/cjs/components/Calendar/Calendar.d.ts node_modules/@gravity-ui/date-components/dist/esm/components/Calendar/Calendar.d.ts\nimport React from 'react';\nimport type { DateTime } from '@gravity-ui/date-utils';\nimport type { CalendarInstance, CalendarSize } from \"../CalendarView/CalendarView.js\";\nimport type { CalendarValueType, SelectionMode } from \"../CalendarView/hooks/types.js\";\nimport type { CalendarStateOptions } from \"../CalendarView/hooks/useCalendarState.js\";\nimport type { AccessibilityProps, DomProps, FocusEvents, StyleProps } from \"../types/index.js\";\nimport \"../CalendarView/Calendar.css\";\nexport interface CalendarCommonProps<T = DateTime> extends CalendarStateOptions<T>, DomProps, StyleProps, FocusEvents, AccessibilityProps {\n    /**\n     * The size of the element.\n     * @default m\n     */\n    size?: CalendarSize;\n}\nexport interface CalendarProps<M extends SelectionMode = 'single'> extends CalendarCommonProps<CalendarValueType<M>> {\n    selectionMode?: M;\n}\nexport declare const Calendar: <M extends SelectionMode = \"single\">(props: CalendarProps<M> & React.RefAttributes<CalendarInstance>) => React.ReactNode;\nimport React from 'react';\nimport type { DateTime } from '@gravity-ui/date-utils';\nimport type { CalendarInstance, CalendarSize } from \"../CalendarView/CalendarView.js\";\nimport type { CalendarValueType, SelectionMode } from \"../CalendarView/hooks/types.js\";\nimport type { CalendarStateOptions } from \"../CalendarView/hooks/useCalendarState.js\";\nimport type { AccessibilityProps, DomProps, FocusEvents, StyleProps } from \"../types/index.js\";\nimport \"../CalendarView/Calendar.css\";\nexport interface CalendarCommonProps<T = DateTime> extends CalendarStateOptions<T>, DomProps, StyleProps, FocusEvents, AccessibilityProps {\n    /**\n     * The size of the element.\n     * @default m\n     */\n    size?: CalendarSize;\n}\nexport interface CalendarProps<M extends SelectionMode = 'single'> extends CalendarCommonProps<CalendarValueType<M>> {\n    selectionMode?: M;\n}\nexport declare const Calendar: <M extends SelectionMode = \"single\">(props: CalendarProps<M> & React.RefAttributes<CalendarInstance>) => React.ReactNode;\nnode_modules/@gravity-ui/date-components/dist/cjs/components/Calendar/Calendar.d.ts:16:    selectionMode?: M;\nnode_modules/@gravity-ui/date-components/dist/cjs/components/CalendarView/hooks/useCalendarState.d.ts:8:    selectionMode?: M;\nnode_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/types.d.ts:34:    onUpdateMode?: (mode: CalendarLayout) => void;\nnode_modules/@gravity-ui/date-components/dist/esm/components/Calendar/Calendar.d.ts:16:    selectionMode?: M;\nnode_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/useCalendarState.d.ts:8:    selectionMode?: M;\nnode_modules/@gravity-ui/date-components/dist/cjs/components/CalendarView/hooks/types.d.ts:34:    onUpdateMode?: (mode: CalendarLayout) => void;\npackage=@gravity-ui/uikit version=7.43.0\ndoc=node_modules/@gravity-ui/uikit/README.md\nsymbol=Card\nsymbol=Text\nsymbol=Flex",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_016nBBqs3q7bQd4wAgxwnXPu",
+        "type": "tool_result",
+        "content": "node_modules/@gravity-ui/date-components/dist/cjs/components/Calendar/Calendar.d.ts node_modules/@gravity-ui/date-components/dist/esm/components/Calendar/Calendar.d.ts\nimport React from 'react';\nimport type { DateTime } from '@gravity-ui/date-utils';\nimport type { CalendarInstance, CalendarSize } from \"../CalendarView/CalendarView.js\";\nimport type { CalendarValueType, SelectionMode } from \"../CalendarView/hooks/types.js\";\nimport type { CalendarStateOptions } from \"../CalendarView/hooks/useCalendarState.js\";\nimport type { AccessibilityProps, DomProps, FocusEvents, StyleProps } from \"../types/index.js\";\nimport \"../CalendarView/Calendar.css\";\nexport interface CalendarCommonProps<T = DateTime> extends CalendarStateOptions<T>, DomProps, StyleProps, FocusEvents, AccessibilityProps {\n    /**\n     * The size of the element.\n     * @default m\n     */\n    size?: CalendarSize;\n}\nexport interface CalendarProps<M extends SelectionMode = 'single'> extends CalendarCommonProps<CalendarValueType<M>> {\n    selectionMode?: M;\n}\nexport declare const Calendar: <M extends SelectionMode = \"single\">(props: CalendarProps<M> & React.RefAttributes<CalendarInstance>) => React.ReactNode;\nimport React from 'react';\nimport type { DateTime } from '@gravity-ui/date-utils';\nimport type { CalendarInstance, CalendarSize } from \"../CalendarView/CalendarView.js\";\nimport type { CalendarValueType, SelectionMode } from \"../CalendarView/hooks/types.js\";\nimport type { CalendarStateOptions } from \"../CalendarView/hooks/useCalendarState.js\";\nimport type { AccessibilityProps, DomProps, FocusEvents, StyleProps } from \"../types/index.js\";\nimport \"../CalendarView/Calendar.css\";\nexport interface CalendarCommonProps<T = DateTime> extends CalendarStateOptions<T>, DomProps, StyleProps, FocusEvents, AccessibilityProps {\n    /**\n     * The size of the element.\n     * @default m\n     */\n    size?: CalendarSize;\n}\nexport interface CalendarProps<M extends SelectionMode = 'single'> extends CalendarCommonProps<CalendarValueType<M>> {\n    selectionMode?: M;\n}\nexport declare const Calendar: <M extends SelectionMode = \"single\">(props: CalendarProps<M> & React.RefAttributes<CalendarInstance>) => React.ReactNode;\nnode_modules/@gravity-ui/date-components/dist/cjs/components/Calendar/Calendar.d.ts:16:    selectionMode?: M;\nnode_modules/@gravity-ui/date-components/dist/cjs/components/CalendarView/hooks/useCalendarState.d.ts:8:    selectionMode?: M;\nnode_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/types.d.ts:34:    onUpdateMode?: (mode: CalendarLayout) => void;\nnode_modules/@gravity-ui/date-components/dist/esm/components/Calendar/Calendar.d.ts:16:    selectionMode?: M;\nnode_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/useCalendarState.d.ts:8:    selectionMode?: M;\nnode_modules/@gravity-ui/date-components/dist/cjs/components/CalendarView/hooks/types.d.ts:34:    onUpdateMode?: (mode: CalendarLayout) => void;\npackage=@gravity-ui/uikit version=7.43.0\ndoc=node_modules/@gravity-ui/uikit/README.md\nsymbol=Card\nsymbol=Text\nsymbol=Flex",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:55.685Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "sed -n 1,40p node_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/types.d.ts; rg -n 'format' $(find node_modules/@gravity-ui/date-utils/dist -name '*.d.ts' | grep -i typ | head -5) | head -5; rg -n 'spacing|gap' node_modules/@gravity-ui/uikit/build/esm/components/layout/Flex/Flex.d.ts | head -5; rg -n 'view\\?|type CardView|theme\\?' node_modules/@gravity-ui/uikit/build/esm/components/Card/Card.d.ts | head",
+          "description": "Check value types, format, Flex and Card props",
+          "_extractedCommand": "sed -n 1,40p node_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/types.d.ts; rg -n 'format' $(find node_modules/@gravity-ui/date-utils/dist -name '*.d.ts' | grep -i typ | head -5) | head -5; rg -n 'spacing|gap' node_modules/@gravity-ui/uikit/build/esm/components/layout/Flex/Flex.d.ts | head -5; rg -n 'view\\?|type CardView|theme\\?' node_modules/@gravity-ui/uikit/build/esm/components/Card/Card.d.ts | head"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "sed -n 1,40p node_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/types.d.ts; rg -n 'format' $(find node_modules/@gravity-ui/date-utils/dist -name '*.d.ts' | grep -i typ | head -5) | head -5; rg -n 'spacing|gap' node_modules/@gravity-ui/uikit/build/esm/components/layout/Flex/Flex.d.ts | head -5; rg -n 'view\\?|type CardView|theme\\?' node_modules/@gravity-ui/uikit/build/esm/components/Card/Card.d.ts | head",
+          "description": "Check value types, format, Flex and Card props"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:42:55.716Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01XaVKKDQ3t8kfr7iQLYH4ZT",
+        "result": "import type { DateTime } from '@gravity-ui/date-utils';\nimport type { InputBase, RangeValue } from \"../../types/index.js\";\nexport type CalendarLayout = 'days' | 'months' | 'quarters' | 'years';\nexport interface CalendarStateOptionsBase extends InputBase {\n    /** The minimum allowed date that a user may select. */\n    minValue?: DateTime;\n    /** The maximum allowed date that a user may select. */\n    maxValue?: DateTime;\n    /** Callback that is called for each date of the calendar. If it returns true, then the date is unavailable. */\n    isDateUnavailable?: (date: DateTime) => boolean;\n    /** Callback that is called for each date of the calendar. If it returns true, then the date is weekend. */\n    isWeekend?: (date: DateTime) => boolean;\n    /**\n     * Which timezone use to show values. Example: 'default', 'system', 'Europe/Amsterdam'.\n     * @default The timezone of the `value` or `defaultValue` or `focusedValue` or `defaultFocusedValue`, 'default' otherwise.\n     */\n    timeZone?: string;\n    /**\n     * Whether to automatically focus the calendar when it mounts.\n     * @default false\n     */\n    autoFocus?: boolean;\n    /** Controls the currently focused date within the calendar. */\n    focusedValue?: DateTime | null;\n    /** The date that is focused when the calendar first mounts (uncontrolled). */\n    defaultFocusedValue?: DateTime;\n    /** Handler that is called when the focused date changes. */\n    onFocusUpdate?: (date: DateTime) => void;\n    /** Controls what to show in calendar (days, months or years) */\n    mode?: CalendarLayout;\n    /** Initial mode to show in calendar (days, months or years) */\n    defaultMode?: CalendarLayout;\n    /** Handler that is called when the mode changes */\n    onUpdateMode?: (mode: CalendarLayout) => void;\n    /** Controls which modes to use */\n    modes?: Partial<Record<CalendarLayout, boolean>>;\n}\ninterface CalendarStateBase {\n    /** Whether the calendar is disabled. */\n    readonly disabled?: boolean;\nbfs: error: node_modules/@gravity-ui/date-utils/dist: No such file or directory.\npackage-lock.json:2300:    \"node_modules/@vitest/pretty-format\": {\npackage-lock.json:2302:      \"resolved\": \"https://registry.npmjs.org/@vitest/pretty-format/-/pretty-format-3.2.7.tgz\",\npackage-lock.json:2335:        \"@vitest/pretty-format\": \"3.2.7\",\npackage-lock.json:2363:        \"@vitest/pretty-format\": \"3.2.7\",\npackage-lock.json:3485:        \"@vitest/pretty-format\": \"^3.2.7\",\n53:    gap?: Space | MediaPartial<Space>;\n54:    gapRow?: Space | MediaPartial<Space>;\n56:     * @deprecated - use native gap property\n57:     * Space between children. Works like gap but supports in old browsers. Under the hoods uses negative margins. Vertical and horizontal directions are also supported\n60:     * instead of ~imperfection of the world~ browser compatibility for margins between layout components used negative margins there is passible issues with `background-color` css property and others that depends of current block position. Use in this situations wrappers. In future version this issues will be avoided during flex `gap` properties\n8:export type CardView = SelectionCardView | ContainerCardView;\n21:    view?: CardView;\n23:    theme?: CardTheme;",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01XaVKKDQ3t8kfr7iQLYH4ZT",
+        "type": "tool_result",
+        "content": "import type { DateTime } from '@gravity-ui/date-utils';\nimport type { InputBase, RangeValue } from \"../../types/index.js\";\nexport type CalendarLayout = 'days' | 'months' | 'quarters' | 'years';\nexport interface CalendarStateOptionsBase extends InputBase {\n    /** The minimum allowed date that a user may select. */\n    minValue?: DateTime;\n    /** The maximum allowed date that a user may select. */\n    maxValue?: DateTime;\n    /** Callback that is called for each date of the calendar. If it returns true, then the date is unavailable. */\n    isDateUnavailable?: (date: DateTime) => boolean;\n    /** Callback that is called for each date of the calendar. If it returns true, then the date is weekend. */\n    isWeekend?: (date: DateTime) => boolean;\n    /**\n     * Which timezone use to show values. Example: 'default', 'system', 'Europe/Amsterdam'.\n     * @default The timezone of the `value` or `defaultValue` or `focusedValue` or `defaultFocusedValue`, 'default' otherwise.\n     */\n    timeZone?: string;\n    /**\n     * Whether to automatically focus the calendar when it mounts.\n     * @default false\n     */\n    autoFocus?: boolean;\n    /** Controls the currently focused date within the calendar. */\n    focusedValue?: DateTime | null;\n    /** The date that is focused when the calendar first mounts (uncontrolled). */\n    defaultFocusedValue?: DateTime;\n    /** Handler that is called when the focused date changes. */\n    onFocusUpdate?: (date: DateTime) => void;\n    /** Controls what to show in calendar (days, months or years) */\n    mode?: CalendarLayout;\n    /** Initial mode to show in calendar (days, months or years) */\n    defaultMode?: CalendarLayout;\n    /** Handler that is called when the mode changes */\n    onUpdateMode?: (mode: CalendarLayout) => void;\n    /** Controls which modes to use */\n    modes?: Partial<Record<CalendarLayout, boolean>>;\n}\ninterface CalendarStateBase {\n    /** Whether the calendar is disabled. */\n    readonly disabled?: boolean;\nbfs: error: node_modules/@gravity-ui/date-utils/dist: No such file or directory.\npackage-lock.json:2300:    \"node_modules/@vitest/pretty-format\": {\npackage-lock.json:2302:      \"resolved\": \"https://registry.npmjs.org/@vitest/pretty-format/-/pretty-format-3.2.7.tgz\",\npackage-lock.json:2335:        \"@vitest/pretty-format\": \"3.2.7\",\npackage-lock.json:2363:        \"@vitest/pretty-format\": \"3.2.7\",\npackage-lock.json:3485:        \"@vitest/pretty-format\": \"^3.2.7\",\n53:    gap?: Space | MediaPartial<Space>;\n54:    gapRow?: Space | MediaPartial<Space>;\n56:     * @deprecated - use native gap property\n57:     * Space between children. Works like gap but supports in old browsers. Under the hoods uses negative margins. Vertical and horizontal directions are also supported\n60:     * instead of ~imperfection of the world~ browser compatibility for margins between layout components used negative margins there is passible issues with `background-color` css property and others that depends of current block position. Use in this situations wrappers. In future version this issues will be avoided during flex `gap` properties\n8:export type CardView = SelectionCardView | ContainerCardView;\n21:    view?: CardView;\n23:    theme?: CardTheme;",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:43:03.300Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "sed -n 40,70p node_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/types.d.ts; ls node_modules/@gravity-ui/date-utils; rg -n '    format\\(|export declare function dateTime\\b|export declare const dateTime\\b' -g '*.d.ts' node_modules/@gravity-ui/date-utils | head -5; rg -n 'ContainerCardView =' -g '*.d.ts' node_modules/@gravity-ui/uikit/build/esm/components/Card",
+          "description": "Check onUpdate type and DateTime.format",
+          "_extractedCommand": "sed -n 40,70p node_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/types.d.ts; ls node_modules/@gravity-ui/date-utils; rg -n '    format\\(|export declare function dateTime\\b|export declare const dateTime\\b' -g '*.d.ts' node_modules/@gravity-ui/date-utils | head -5; rg -n 'ContainerCardView =' -g '*.d.ts' node_modules/@gravity-ui/uikit/build/esm/components/Card"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "sed -n 40,70p node_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/types.d.ts; ls node_modules/@gravity-ui/date-utils; rg -n '    format\\(|export declare function dateTime\\b|export declare const dateTime\\b' -g '*.d.ts' node_modules/@gravity-ui/date-utils | head -5; rg -n 'ContainerCardView =' -g '*.d.ts' node_modules/@gravity-ui/uikit/build/esm/components/Card",
+          "description": "Check onUpdate type and DateTime.format"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:43:03.345Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01FYBywuS2CxvbN5Z9GsHEW3",
+        "result": "    readonly disabled?: boolean;\n    /** Whether the calendar is in a read only state. */\n    readonly readOnly?: boolean;\n    /** Which timezone use to show values. */\n    readonly timeZone: string;\n    /** The minimum allowed date that a user may select. */\n    readonly minValue?: DateTime;\n    /** The maximum allowed date that a user may select. */\n    readonly maxValue?: DateTime;\n    /** The currently focused date. */\n    readonly focusedDate: DateTime;\n    /** Sets the focused date. */\n    setFocusedDate: (date: DateTime) => void;\n    /** Selects the currently focused date. */\n    selectFocusedDate: () => void;\n    /** Selects the given date. */\n    selectDate: (date: DateTime, force?: boolean) => void;\n    /** Moves focus to the next calendar date. */\n    focusNextCell: () => void;\n    /** Moves focus to the previous calendar date. */\n    focusPreviousCell: () => void;\n    /** Moves focus to the next row of dates, e.g. the next week. */\n    focusNextRow: () => void;\n    /** Moves focus to the previous row of dates, e.g. the previous work. */\n    focusPreviousRow: () => void;\n    /**\n     * Moves focus to the next page of dates, e.g. the next month.\n     * If the `larger` option is `true`, the focus is moved by the next larger unit.\n     * For example, if days are displayed, then focus moves to the next year.\n     */\n    focusNextPage: (larger?: boolean) => void;\nLICENSE\nREADME.md\nbuild\npackage.json\nnode_modules/@gravity-ui/date-utils/build/dateTime/dateTime.d.ts:15:export declare function dateTime(opt?: {\nnode_modules/@gravity-ui/date-utils/build/duration/duration.d.ts:70:    format(formatInput: string, options?: FormatOptions & {\nnode_modules/@gravity-ui/date-utils/build/typings/duration.d.ts:78:    format(formatInput: string, options?: FormatOptions): string;\nnode_modules/@gravity-ui/date-utils/build/typings/dateTime.d.ts:19:    format(formatInput?: FormatInput): string;\nnode_modules/@gravity-ui/uikit/build/esm/components/Card/Card.d.ts:5:type ContainerCardView = 'outlined' | 'filled' | 'raised';",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01FYBywuS2CxvbN5Z9GsHEW3",
+        "type": "tool_result",
+        "content": "    readonly disabled?: boolean;\n    /** Whether the calendar is in a read only state. */\n    readonly readOnly?: boolean;\n    /** Which timezone use to show values. */\n    readonly timeZone: string;\n    /** The minimum allowed date that a user may select. */\n    readonly minValue?: DateTime;\n    /** The maximum allowed date that a user may select. */\n    readonly maxValue?: DateTime;\n    /** The currently focused date. */\n    readonly focusedDate: DateTime;\n    /** Sets the focused date. */\n    setFocusedDate: (date: DateTime) => void;\n    /** Selects the currently focused date. */\n    selectFocusedDate: () => void;\n    /** Selects the given date. */\n    selectDate: (date: DateTime, force?: boolean) => void;\n    /** Moves focus to the next calendar date. */\n    focusNextCell: () => void;\n    /** Moves focus to the previous calendar date. */\n    focusPreviousCell: () => void;\n    /** Moves focus to the next row of dates, e.g. the next week. */\n    focusNextRow: () => void;\n    /** Moves focus to the previous row of dates, e.g. the previous work. */\n    focusPreviousRow: () => void;\n    /**\n     * Moves focus to the next page of dates, e.g. the next month.\n     * If the `larger` option is `true`, the focus is moved by the next larger unit.\n     * For example, if days are displayed, then focus moves to the next year.\n     */\n    focusNextPage: (larger?: boolean) => void;\nLICENSE\nREADME.md\nbuild\npackage.json\nnode_modules/@gravity-ui/date-utils/build/dateTime/dateTime.d.ts:15:export declare function dateTime(opt?: {\nnode_modules/@gravity-ui/date-utils/build/duration/duration.d.ts:70:    format(formatInput: string, options?: FormatOptions & {\nnode_modules/@gravity-ui/date-utils/build/typings/duration.d.ts:78:    format(formatInput: string, options?: FormatOptions): string;\nnode_modules/@gravity-ui/date-utils/build/typings/dateTime.d.ts:19:    format(formatInput?: FormatInput): string;\nnode_modules/@gravity-ui/uikit/build/esm/components/Card/Card.d.ts:5:type ContainerCardView = 'outlined' | 'filled' | 'raised';",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:43:10.457Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "Пишу компонент.",
+      "raw": {
+        "parentUuid": "d0444c8a-e4e1-4550-89f4-6875b861b7f7",
+        "isSidechain": false,
+        "message": {
+          "model": "claude-opus-5-5",
+          "id": "msg_011CghbGg8bRJi4CrGyhan4w",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Пишу компонент."
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 1158,
+            "cache_read_input_tokens": 40072,
+            "output_tokens": 687,
+            "output_tokens_details": {
+              "thinking_tokens": 48
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 1158,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 687,
+                "cache_read_input_tokens": 40072,
+                "cache_creation_input_tokens": 1158,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 1158
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "input_transformations": [],
+          "diagnostics": null,
+          "context_management": null
+        },
+        "apiBlockIndex": 1,
+        "requestId": "req_011CghbGfqjFPwciSYCoxt8s",
+        "requestRef": "a19dd640-0d9c-40cf-8d7a-03fee7277c6f",
+        "requestedModel": "claude-opus-5-5",
+        "promptCacheRequested": "1h",
+        "type": "assistant",
+        "uuid": "0eeb8516-31fe-4133-9c1e-b4ac6244300c",
+        "timestamp": "2026-11-04T08:43:10.457Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "81c43d70-fefd-4a67-bcb8-5dbfa6319ea2",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:43:13.612Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "file_write",
+        "originalName": "Write",
+        "args": {
+          "file_path": "/home/sandbox/workspace/src/App.tsx",
+          "content": "import { useState } from 'react';\nimport { Calendar } from '@gravity-ui/date-components';\nimport { dateTime, type DateTime } from '@gravity-ui/date-utils';\nimport { Button, Card, Flex, Text } from '@gravity-ui/uikit';\n\nexport function App() {\n  const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);\n\n  return (\n    <Flex direction=\"column\" gap={4} style={{ padding: 'var(--g-spacing-6)' }}>\n      <Text variant=\"header-1\">Выбор даты</Text>\n\n      <Card view=\"outlined\" style={{ alignSelf: 'flex-start', padding: 'var(--g-spacing-4)' }}>\n        <Flex direction=\"column\" gap={3}>\n          <Calendar\n            aria-label=\"Календарь для выбора даты\"\n            value={selectedDate}\n            onUpdate={setSelectedDate}\n            defaultFocusedValue={dateTime()}\n          />\n\n          <Flex alignItems=\"center\" justifyContent=\"space-between\" gap={2}>\n            <Text variant=\"body-1\" color={selectedDate ? 'primary' : 'secondary'}>\n              {selectedDate\n                ? `Выбрано: ${selectedDate.format('DD.MM.YYYY')}`\n                : 'Дата не выбрана'}\n            </Text>\n            <Button view=\"flat\" disabled={!selectedDate} onClick={() => setSelectedDate(null)}>\n              Сбросить\n            </Button>\n          </Flex>\n        </Flex>\n      </Card>\n    </Flex>\n  );\n}\n",
+          "_extractedPath": "/home/sandbox/workspace/src/App.tsx"
+        }
+      },
+      "raw": {
+        "name": "Write",
+        "input": {
+          "file_path": "/home/sandbox/workspace/src/App.tsx",
+          "content": "import { useState } from 'react';\nimport { Calendar } from '@gravity-ui/date-components';\nimport { dateTime, type DateTime } from '@gravity-ui/date-utils';\nimport { Button, Card, Flex, Text } from '@gravity-ui/uikit';\n\nexport function App() {\n  const [selectedDate, setSelectedDate] = useState<DateTime | null>(null);\n\n  return (\n    <Flex direction=\"column\" gap={4} style={{ padding: 'var(--g-spacing-6)' }}>\n      <Text variant=\"header-1\">Выбор даты</Text>\n\n      <Card view=\"outlined\" style={{ alignSelf: 'flex-start', padding: 'var(--g-spacing-4)' }}>\n        <Flex direction=\"column\" gap={3}>\n          <Calendar\n            aria-label=\"Календарь для выбора даты\"\n            value={selectedDate}\n            onUpdate={setSelectedDate}\n            defaultFocusedValue={dateTime()}\n          />\n\n          <Flex alignItems=\"center\" justifyContent=\"space-between\" gap={2}>\n            <Text variant=\"body-1\" color={selectedDate ? 'primary' : 'secondary'}>\n              {selectedDate\n                ? `Выбрано: ${selectedDate.format('DD.MM.YYYY')}`\n                : 'Дата не выбрана'}\n            </Text>\n            <Button view=\"flat\" disabled={!selectedDate} onClick={() => setSelectedDate(null)}>\n              Сбросить\n            </Button>\n          </Flex>\n        </Flex>\n      </Card>\n    </Flex>\n  );\n}\n"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:43:13.652Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01Rutx79bd1WqTesM4eH5LnK",
+        "result": "The file /home/sandbox/workspace/src/App.tsx has been updated successfully. (file state is current in your context — no need to Read it back)",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01Rutx79bd1WqTesM4eH5LnK",
+        "type": "tool_result",
+        "content": "The file /home/sandbox/workspace/src/App.tsx has been updated successfully. (file state is current in your context — no need to Read it back)"
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:43:16.649Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "npm run build 2>&1 | tail -20",
+          "description": "Run typecheck and build",
+          "timeout": 300000,
+          "_extractedCommand": "npm run build 2>&1 | tail -20"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "npm run build 2>&1 | tail -20",
+          "description": "Run typecheck and build",
+          "timeout": 300000
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:43:18.558Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_016wDXjYh8Lo3KPYAAMALCiv",
+        "result": "dist/assets/bn-D4Nfm4JJ.js          1.75 kB │ gzip:  1.12 kB\ndist/assets/br-DsuX5Og5.js          1.77 kB │ gzip:  0.99 kB\ndist/assets/et-AwGrzQff.js          1.78 kB │ gzip:  0.96 kB\ndist/assets/he-C_R7bIVK.js          1.83 kB │ gzip:  1.00 kB\ndist/assets/ku-CumBbzsl.js          1.89 kB │ gzip:  1.19 kB\ndist/assets/hu-Dffa3d-T.js          1.89 kB │ gzip:  0.90 kB\ndist/assets/is-TMR10v5_.js          1.92 kB │ gzip:  1.05 kB\ndist/assets/pl-CRfarErN.js          1.93 kB │ gzip:  1.08 kB\ndist/assets/cs-B-t9WVp8.js          1.95 kB │ gzip:  1.02 kB\ndist/assets/sk-DHfkH3h5.js          1.96 kB │ gzip:  1.01 kB\ndist/assets/bn-bd-aan8DFY0.js       2.00 kB │ gzip:  1.29 kB\ndist/assets/uk-DL_0ll4M.js          2.01 kB │ gzip:  1.28 kB\ndist/assets/ru-Cz4UomGe.js          2.12 kB │ gzip:  1.32 kB\ndist/assets/fi-DDcQ_Uxp.js          2.13 kB │ gzip:  1.06 kB\ndist/assets/lt-ClbyF5E7.js          2.20 kB │ gzip:  1.03 kB\ndist/assets/sl-DEis_g5i.js          2.21 kB │ gzip:  1.05 kB\ndist/assets/sr-DPCtLjaD.js          2.25 kB │ gzip:  1.08 kB\ndist/assets/sr-cyrl-DdJjYMoa.js     2.26 kB │ gzip:  1.24 kB\ndist/assets/index-B3Q1LM6D.js     273.18 kB │ gzip: 89.44 kB\n✓ built in 1.50s",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_016wDXjYh8Lo3KPYAAMALCiv",
+        "type": "tool_result",
+        "content": "dist/assets/bn-D4Nfm4JJ.js          1.75 kB │ gzip:  1.12 kB\ndist/assets/br-DsuX5Og5.js          1.77 kB │ gzip:  0.99 kB\ndist/assets/et-AwGrzQff.js          1.78 kB │ gzip:  0.96 kB\ndist/assets/he-C_R7bIVK.js          1.83 kB │ gzip:  1.00 kB\ndist/assets/ku-CumBbzsl.js          1.89 kB │ gzip:  1.19 kB\ndist/assets/hu-Dffa3d-T.js          1.89 kB │ gzip:  0.90 kB\ndist/assets/is-TMR10v5_.js          1.92 kB │ gzip:  1.05 kB\ndist/assets/pl-CRfarErN.js          1.93 kB │ gzip:  1.08 kB\ndist/assets/cs-B-t9WVp8.js          1.95 kB │ gzip:  1.02 kB\ndist/assets/sk-DHfkH3h5.js          1.96 kB │ gzip:  1.01 kB\ndist/assets/bn-bd-aan8DFY0.js       2.00 kB │ gzip:  1.29 kB\ndist/assets/uk-DL_0ll4M.js          2.01 kB │ gzip:  1.28 kB\ndist/assets/ru-Cz4UomGe.js          2.12 kB │ gzip:  1.32 kB\ndist/assets/fi-DDcQ_Uxp.js          2.13 kB │ gzip:  1.06 kB\ndist/assets/lt-ClbyF5E7.js          2.20 kB │ gzip:  1.03 kB\ndist/assets/sl-DEis_g5i.js          2.21 kB │ gzip:  1.05 kB\ndist/assets/sr-DPCtLjaD.js          2.25 kB │ gzip:  1.08 kB\ndist/assets/sr-cyrl-DdJjYMoa.js     2.26 kB │ gzip:  1.24 kB\ndist/assets/index-B3Q1LM6D.js     273.18 kB │ gzip: 89.44 kB\n✓ built in 1.50s",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-04T08:43:26.309Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "Я добавил на страницу календарь для выбора даты. `tsc --noEmit` и `vite build` прошли без ошибок. В браузере страницу не открывал.\n\n**Что изменилось:**\n- **Пакеты.** Для календаря в Gravity UI есть отдельный пакет `@gravity-ui/date-components`, в `uikit` календаря нет. Я установил его вместе с обязательной зависимостью `@gravity-ui/date-utils`. Последняя версия пакета (5.x) требует `uikit` 8, а в проекте стоит `uikit` 7.43.0, поэтому я взял совместимую версию 4.1.0.\n- **`src/App.tsx`.** На странице появились заголовок «Выбор даты» и карточка с календарём, который сразу открывается на текущем месяце. Под календарём показывается выбранная дата (`Выбрано: ДД.ММ.ГГГГ` или «Дата не выбрана») и кнопка «Сбросить». Выбранную дату компонент хранит у себя.\n\n**Что стоит учесть:**\n- **Язык календаря.** Тексты страницы на русском, но названия месяцев и дней недели в календаре пока на английском: язык календаря задаётся в настройках всего приложения, а файл `main.tsx` я не трогал. Чтобы календарь стал русским, нужно в `main.tsx` до первой отрисовки вызвать `await settings.loadLocale('ru')` из `@gravity-ui/date-utils` и передать `lang=\"ru\"` в `ThemeProvider`. Могу сделать это, если нужно.\n- **Что проверить вручную.** Успешная сборка значит только, что все компоненты и их параметры существуют, а внешний вид она не проверяет. Стоит посмотреть страницу в светлой и тёмной теме и на узком (~375px) и широком экране.",
+      "raw": {
+        "parentUuid": "2a0a8e01-6781-4c5c-84e7-ff011f53d2b3",
+        "isSidechain": false,
+        "message": {
+          "model": "claude-opus-5-5",
+          "id": "msg_011CghbHoB37ZEXhjiXZTS49",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Я добавил на страницу календарь для выбора даты. `tsc --noEmit` и `vite build` прошли без ошибок. В браузере страницу не открывал.\n\n**Что изменилось:**\n- **Пакеты.** Для календаря в Gravity UI есть отдельный пакет `@gravity-ui/date-components`, в `uikit` календаря нет. Я установил его вместе с обязательной зависимостью `@gravity-ui/date-utils`. Последняя версия пакета (5.x) требует `uikit` 8, а в проекте стоит `uikit` 7.43.0, поэтому я взял совместимую версию 4.1.0.\n- **`src/App.tsx`.** На странице появились заголовок «Выбор даты» и карточка с календарём, который сразу открывается на текущем месяце. Под календарём показывается выбранная дата (`Выбрано: ДД.ММ.ГГГГ` или «Дата не выбрана») и кнопка «Сбросить». Выбранную дату компонент хранит у себя.\n\n**Что стоит учесть:**\n- **Язык календаря.** Тексты страницы на русском, но названия месяцев и дней недели в календаре пока на английском: язык календаря задаётся в настройках всего приложения, а файл `main.tsx` я не трогал. Чтобы календарь стал русским, нужно в `main.tsx` до первой отрисовки вызвать `await settings.loadLocale('ru')` из `@gravity-ui/date-utils` и передать `lang=\"ru\"` в `ThemeProvider`. Могу сделать это, если нужно.\n- **Что проверить вручную.** Успешная сборка значит только, что все компоненты и их параметры существуют, а внешний вид она не проверяет. Стоит посмотреть страницу в светлой и тёмной теме и на узком (~375px) и широком экране."
+            }
+          ],
+          "container": null,
+          "stop_reason": "end_turn",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 903,
+            "cache_read_input_tokens": 41968,
+            "output_tokens": 668,
+            "output_tokens_details": {
+              "thinking_tokens": 32
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 903,
+              "ephemeral_5m_input_tokens": 0
+            },
+            "inference_geo": "global",
+            "iterations": [
+              {
+                "input_tokens": 2,
+                "output_tokens": 668,
+                "cache_read_input_tokens": 41968,
+                "cache_creation_input_tokens": 903,
+                "cache_creation": {
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 903
+                },
+                "type": "message"
+              }
+            ],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "input_transformations": [],
+          "diagnostics": null,
+          "context_management": null
+        },
+        "apiBlockIndex": 1,
+        "requestId": "req_011CghbHnvQUBmQBtPmbspPd",
+        "requestRef": "af3d3e87-c886-449c-9e6a-acd7e4080fe6",
+        "requestedModel": "claude-opus-5-5",
+        "promptCacheRequested": "1h",
+        "type": "assistant",
+        "uuid": "355af34c-dd1f-4cde-aa8d-57a790772709",
+        "timestamp": "2026-11-04T08:43:26.309Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "81c43d70-fefd-4a67-bcb8-5dbfa6319ea2",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    }
+  ],
+  "summary": {
+    "totalTurns": 5,
+    "toolCalls": {
+      "file_read": 0,
+      "file_write": 1,
+      "file_edit": 0,
+      "shell": 13,
+      "web_fetch": 0,
+      "web_search": 0,
+      "glob": 0,
+      "grep": 0,
+      "list_dir": 0,
+      "agent_task": 0,
+      "unknown": 0
+    },
+    "totalToolCalls": 14,
+    "webFetches": [],
+    "filesRead": [],
+    "filesModified": [
+      "/home/sandbox/workspace/src/App.tsx"
+    ],
+    "shellCommands": [
+      {
+        "command": "cat .agents/skills/gravity-ui/SKILL.md && ls -R .agents | head -50 && git ls-files && cat AGENTS.md",
+        "success": true
+      },
+      {
+        "command": "head -60 .agents/skills/gravity-ui/references/package-routing.md; rg -n -C 3 -i 'date-components|date-utils|calendar' .agents/skills/gravity-ui/references/package-routing.md | head -80; cat package.json src/App.tsx src/main.tsx; ls node_modules/@gravity-ui",
+        "success": true
+      },
+      {
+        "command": "cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; npm view @gravity-ui/date-components version peerDependencies 2>&1 | head -20; npm view @gravity-ui/date-components@3 version 2>&1 | tail -3",
+        "success": true
+      },
+      {
+        "command": "for v in 3 4; do npm view @gravity-ui/date-components@$v version peerDependencies.@gravity-ui/uikit peerDependencies.@gravity-ui/date-utils 2>&1 | tail -4; done",
+        "success": true
+      },
+      {
+        "command": "npm install @gravity-ui/date-components@^4.1.0 @gravity-ui/date-utils@^2.6.0 2>&1 | tail -5 && .agents/skills/gravity-ui/scripts/inspect-package.sh date-components Calendar DatePicker",
+        "success": false
+      },
+      {
+        "command": "bash .agents/skills/gravity-ui/scripts/inspect-package.sh date-components Calendar DatePicker; grep version node_modules/@gravity-ui/date-components/package.json node_modules/@gravity-ui/date-utils/package.json | head",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/node_modules/@gravity-ui/date-components && cat dist/docs/INDEX.md | head -60; rg -n -i -C 4 'setup|styles|import' README.md | head -60; ls dist/docs",
+        "success": true
+      },
+      {
+        "command": "ls -R dist/docs/components | head -30; f=$(find dist/docs/components -iname '*.md' -path '*Calendar*' | grep -v -i range | head -3); echo $f; for x in $f; do wc -l $x; done",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace && cat node_modules/@gravity-ui/date-components/dist/docs/components/Calendar.md; rg -n -C 3 -i 'Text|Flex|variant' .agents/skills/gravity-ui/rules/hallucination-traps.md | head -80",
+        "success": true
+      },
+      {
+        "command": "f=$(find node_modules/@gravity-ui/date-components/dist -name 'Calendar.d.ts' | head -2); echo $f; cat $f | head -40; rg -n 'onUpdate|selectionMode' $(find node_modules/@gravity-ui/date-components/dist -path '*Calendar*' -name '*.d.ts' | grep -v Range) | head; bash .agents/skills/gravity-ui/scripts/inspect-package.sh uikit Card Text Flex | head; rg -n 'format\\(' node_modules/@gravity-ui/date-utils/dist/*/typings/dateTime.d.ts 2>/dev/null | head -3 || rg -rn 'format\\(' node_modules/@gravity-ui/date-utils/dist --include '*.d.ts' | head -3",
+        "success": true
+      },
+      {
+        "command": "sed -n 1,40p node_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/types.d.ts; rg -n 'format' $(find node_modules/@gravity-ui/date-utils/dist -name '*.d.ts' | grep -i typ | head -5) | head -5; rg -n 'spacing|gap' node_modules/@gravity-ui/uikit/build/esm/components/layout/Flex/Flex.d.ts | head -5; rg -n 'view\\?|type CardView|theme\\?' node_modules/@gravity-ui/uikit/build/esm/components/Card/Card.d.ts | head",
+        "success": true
+      },
+      {
+        "command": "sed -n 40,70p node_modules/@gravity-ui/date-components/dist/esm/components/CalendarView/hooks/types.d.ts; ls node_modules/@gravity-ui/date-utils; rg -n '    format\\(|export declare function dateTime\\b|export declare const dateTime\\b' -g '*.d.ts' node_modules/@gravity-ui/date-utils | head -5; rg -n 'ContainerCardView =' -g '*.d.ts' node_modules/@gravity-ui/uikit/build/esm/components/Card",
+        "success": true
+      },
+      {
+        "command": "npm run build 2>&1 | tail -20",
+        "success": true
+      }
+    ],
+    "errors": [],
+    "thinkingBlocks": 0,
+    "usage": {
+      "inputTokens": 30,
+      "outputTokens": 5013,
+      "cacheReadTokens": 456024,
+      "cacheWriteTokens": 29879,
+      "totalTokens": 490946
+    }
+  },
+  "parseSuccess": true
+}

@@ -1,0 +1,766 @@
+{
+  "agent": "claude-code",
+  "model": "claude-haiku-5-5",
+  "events": [
+    {
+      "timestamp": "2026-11-06T11:43:32.834Z",
+      "type": "message",
+      "role": "user",
+      "content": "Сделай так, чтобы по клику на кнопку в углу экрана показывалось всплывающее\nуведомление, которое затем само исчезает.\n\n\nBefore implementing, read and follow the gravity-ui skill at .agents/skills/gravity-ui/SKILL.md. Read its referenced files as required by the skill.",
+      "raw": {
+        "parentUuid": null,
+        "isSidechain": false,
+        "promptId": "f241d194-1ec5-40ff-aaa6-b461b2316865",
+        "type": "user",
+        "message": {
+          "role": "user",
+          "content": "Сделай так, чтобы по клику на кнопку в углу экрана показывалось всплывающее\nуведомление, которое затем само исчезает.\n\n\nBefore implementing, read and follow the gravity-ui skill at .agents/skills/gravity-ui/SKILL.md. Read its referenced files as required by the skill."
+        },
+        "uuid": "3b75312d-17d9-4b8b-ae36-503655d04d3e",
+        "timestamp": "2026-11-06T11:43:32.834Z",
+        "permissionMode": "bypassPermissions",
+        "promptSource": "sdk",
+        "turnOrigin": "sdk",
+        "turnPosition": {
+          "promptIndex": 0,
+          "turnIndex": 1
+        },
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "5b5f29e0-0b83-4185-b0fe-0ed3c56dd8fc",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:34.020Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "file_read",
+        "originalName": "Read",
+        "args": {
+          "file_path": "/home/sandbox/workspace/.agents/skills/gravity-ui/SKILL.md",
+          "_extractedPath": "/home/sandbox/workspace/.agents/skills/gravity-ui/SKILL.md"
+        }
+      },
+      "raw": {
+        "name": "Read",
+        "input": {
+          "file_path": "/home/sandbox/workspace/.agents/skills/gravity-ui/SKILL.md"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:34.034Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_014ZuSGNNXTaP3CXHnaHo6en",
+        "result": "1\t---\n2\tname: gravity-ui\n3\tdescription: Builds, fixes, styles, and composes UI with the Gravity UI design system — the React ecosystem of @gravity-ui/* packages (uikit, charts, table, navigation, date-components, icons, and more). Routes to the correct package when look-alikes exist, applies theming and required setup, and prevents invented component APIs. Applies when working with @gravity-ui imports, uikit, ThemeProvider, --g- CSS tokens, or any prompt (EN or RU) mentioning gravity-ui, гравити, дизайн-система, компоненты, дашборд, таблица, график, or форма. Also installs required specialized Gravity UI packages when they are absent.\n4\t---\n5\t\n6\t# Building UI with Gravity UI\n7\t\n8\tBuild UI on **real** Gravity UI components, not from memory. Gravity UI is a\n9\tmulti-package React design system (`@gravity-ui/*`), so the two things that go\n10\twrong are picking the wrong package and using an API from the wrong version.\n11\tThis skill routes you to the right package, grounds you in the installed\n12\tversion, and stops you from inventing APIs — match the installed versions and\n13\tfollow the ecosystem catalog instead of guessing.\n14\t\n15\t## Efficiency guardrails\n16\t\n17\t- Do not read the same file twice. Reuse evidence already present in the session.\n18\t- Do not dump a reference file wholesale. Use targeted `rg -n -C 4` searches and keep each result below\n19\t  200 lines unless the whole file is necessary to resolve the task.\n20\t- Batch package, component, and symbol lookups into as few commands as possible.\n21\t- Stop documentation research as soon as package choice, import path, required setup, and uncertain props\n22\t  are confirmed. Documentation is evidence for decisions, not a checklist to read in full.\n23\t- Do not query unpkg, package source repositories, or alternative documentation mirrors.\n24\t- Do not install browsers or screenshot tooling, and do not start a dev server for routine verification,\n25\t  unless the user explicitly requests visual or browser verification.\n26\t- Run typecheck/build after implementation. If it fails, inspect only the failing API, fix it, and rerun\n27\t  the check. Do not repeatedly rebuild unchanged code.\n28\t\n29\t## Step 0 — pick the right package first (ecosystem routing)\n30\t\n31\tBefore doing anything else, work out which `@gravity-ui/*` library the task\n32\tneeds. Do not guess from training data — the ecosystem has look-alike packages\n33\t(`charts` vs `chartkit`, uikit `Table` vs `@gravity-ui/table`, `date-components`\n34\tvs `date-utils`, …) and picking the wrong one is the #1 failure.\n35\tChoose from the task's functionality, not only from dependencies already present in the project.\n36\tOpen [`references/package-routing.md`](references/package-routing.md) and read\n37\tits top **first**: it opens with a task → package decision table that settles the\n38\tcommon cases (landing page, dashboard, data grid, calendar, charts, editor, app\n39\tshell, i18n), followed by the ecosystem catalog with a one-line \"what it's for /\n40\twhat to use instead\" per package for everything else. Use it to choose the\n41\tpackage, then come back here for Step 1.\n42\t\n43\tSearch the catalog for the task's relevant terms and read the matching package entries. Do not read the\n44\tentire catalog when its top and those entries are sufficient.\n45\t\n46\tOnly after the package is chosen, run Step 1 to ground in that package's\n47\tinstalled version and API.\n48\t\n49\t## Step 1 — ground in the installed version of the chosen package\n50\t\n51\t1. **Read `package.json`.** Note each installed `@gravity-ui/*` package and its\n52\t   version. The installed version is the source of truth, not your memory.\n53\t   Resolve ranges from `node_modules` (`<pkg>/package.json` `version` field), not\n54\t   the range string in the root `package.json`.\n55\t\n56\t   If the chosen specialized package other than `@gravity-ui/uikit` is absent, add it with the project's\n57\t   existing package manager before importing it. Install its documented peer dependencies too, then\n58\t   resolve the installed version and continue with the local evidence below. Do not fall back to uikit,\n59\t   raw HTML, or a foreign library merely because the specialized package was initially absent. If\n60\t   installation is blocked, report the exact failure.\n61\t\n62\t2. **Fetch the docs for the package you are about to use, in this order,\n63\t   stopping at the first source that answers your question:**\n64\t\n65\t   (a) **LOCAL** — start with `node_modules/@gravity-ui/<pkg>/dist/docs/INDEX.md` or `node_modules/@gravity-ui/<pkg>/build/docs/INDEX.md`.\n66\t      If `INDEX.md` is absent for this package, fall back to the package's root `node_modules/@gravity-ui/<pkg>/README.md`.\n67\t      This is the *exact* installed version — always preferred for version-sensitive questions.\n68\t      Note: bundled docs are a recent addition — `uikit` ships `build/docs` only from **7.45.0**;\n69\t      older installs have no local docs at all, and that is expected, not an error. Go to (b).\n70\t      If an import, component, hook, or prop remains uncertain, inspect only its exact installed `.d.ts`\n71\t      before moving online. Batch all uncertain symbol lookups for that package.\n72\t   (b) **ONLINE** — per-package llms.txt at the **major line**:\n73\t      `https://gravity-ui.com/llms/<pkg>/<major>/llms.txt`\n74\t      (e.g. `/llms/uikit/7/llms.txt` for `^7.2.1`). The major-line URL serves the\n75\t      latest minor of that major — it tracks the major but not the exact patch.\n76\t      Use it when LOCAL has no docs for the package.\n77\t\n78\t3. **Fallback rule — never silently proceed on a failed or empty source:**\n79\t\n80\t   - If LOCAL has no README / `dist/docs` / `build/docs` for the package, or they are empty\n81\t     → fetch the ONLINE major-line llms.txt (b).\n82\t   - If the ONLINE request fails — network timeout, DNS, connection refused\n83\t     (air-gapped / corporate proxy), HTTP 404 (major not hosted), or an empty /\n84\t     non-markdown body → fall back to LOCAL README + dist/docs or build/docs (a).\n85\t   - **Do NOT use the `/llms/<pkg>/llms.txt` \"latest\" alias** as a fallback — it\n86\t     serves the newest major, which may differ from the installed one and have a\n87\t     different API. The major-line URL is the versioned fallback; below it, go\n88\t     LOCAL, not \"latest\".\n89\t   - If BOTH are unreachable for a package → STOP and tell the user the\n90\t     package's docs are unreachable. Do not guess its API from training data.\n91\t\n92\tFor a bounded local inspection, run:\n93\t\n94\t```sh\n95\t.agents/skills/gravity-ui/scripts/inspect-package.sh uikit Button Card Switch ThemeProvider\n96\t```\n97\t\n98\tThe script reports the resolved version, available local documentation, and declaration files matching\n99\tthe requested symbols. Read only the returned files needed to confirm an uncertain API.\n100\t\n101\t## Step 2 — implement on the chosen packages, then typecheck\n102\t\n103\t1. **Implement using only the `@gravity-ui/*` packages chosen in Step 0 and\n104\t   confirmed installed in Step 1.** Import from those packages exactly — do\n105\t   not substitute look-alike libraries (MUI, Ant, plain `<input>`) and do not\n106\t   reach for a `@gravity-ui/*` package that Step 1 did not confirm installed.\n107\t   Follow the prop APIs from the docs you just read, not memory; if a prop\n108\t   you want is not documented, it does not exist — use the documented one, or\n109\t   ask the user.\n110\t\n111\t2. **Apply the cross-cutting rules** in `rules/hallucination-traps.md` while\n112\t   writing: typography variants, the flex contract, theming/ladders,\n113\t   `Button view`, `Icon data`. Per-component traps live in the package's own\n114\t   `dist/docs`.\n115\t\n116\t3. **Typecheck before declaring done.** Run the project's typecheck command\n117\t   (typically `tsc --noEmit`; for monorepos, the workspace's typecheck script).\n118\t   Fix every error before reporting completion — a type error almost always\n119\t   means a wrong/invented prop, a wrong import path, or a version mismatch,\n120\t   which is precisely what Steps 0–1 were meant to prevent.\n121\t\n122\t   - If the typecheck surfaces a prop/path that contradicts the docs you read\n123\t     in Step 1, trust the **installed version** (the typechecker), not the\n124\t     docs snapshot — the docs may be from a different minor. Re-ground: read\n125\t     the package's `dist/docs/INDEX.md` in `node_modules` for the exact\n126\t     installed types.\n127\t   - If the typecheck is unavailable (no TS in the project), say so\n128\t     explicitly and ask the user how they want to verify; do not silently\n129\t     skip verification.\n130\t   - **Escape hatch.** If the user explicitly waived verification (\"just\n131\t     sketch it\", \"quick prototype\", \"no need to check\"), you may skip the\n132\t     typecheck — but state this plainly in your reply: *\"typecheck skipped by\n133\t     user request — code is not verified\"*. Do not skip silently.\n134\t   - **Know what typecheck does not cover.** A green `tsc` proves the API is\n135\t     real; it says nothing about layout or contrast. Before reporting done,\n136\t     say so, and either check or list for the user to check by hand: the\n137\t     screen in both `light` and `dark` themes (text and controls on colored\n138\t     fills especially), narrow (~375px) and wide (~1400px) viewports for\n139\t     horizontal overflow, and empty / loading / error states.\n140\t\n141\t## Hard rules\n142\t\n143\t- **`@gravity-ui/uikit` MUST be installed in every Gravity UI project.** It is\n144\t  the base component + design-token library every other `@gravity-ui/*` package\n145\t  builds on; without it components render unstyled. If `package.json` lacks it,\n146\t  stop and have the user install and configure it first (setup:\n147\t  `https://gravity-ui.com/llms/uikit/llms.txt`).\n148\t- **Read `package.json` before importing any `@gravity-ui/*` package.** Never\n149\t  assume a package is installed; never assume its major version.\n150\t- **Do not invent props or components.** Before using a component API you are\n151\t  not 100% sure of, check `rules/hallucination-traps.md` (ecosystem patterns)\n152\t  and the component's README in `dist/docs`. If still unsure, ask the user\n153\t  rather than guessing.\n154\t- **Never guess icon names** — they are hallucinated more often than not. To\n155\t  match an icon from a screenshot/photo/mock, run `scripts/icon-image-search.sh`\n156\t  (reverse image search). With only a description, look the name up on\n157\t  `gravity-ui.com/icons` or ask the user — do not invent one. Then pass it as an\n158\t  object (`<Icon data={CheckIcon} />`), never a string key. See\n159\t  `references/icons.md`.\n160\t- **Theming uses semantic `--g-*` tokens.** Never hardcode colors (`#fff`,\n161\t  `blue-500`); never hand-write `dark:` overrides. Full token tables live in\n162\t  `references/theming.md`; the cross-cutting traps (partial brand overrides,\n163\t  a `ThemeProvider` that themes the whole page, controls on a brand background) live in\n164\t  `rules/hallucination-traps.md`.\n165\t- **Required setup is package-specific** (style imports, `ThemeProvider`,\n166\t  peer-deps). It lives in each package's root README under \"Required setup\" —\n167\t  read it once per package, do not rely on memory.\n168\t\n169\t## What NOT to do\n170\t\n171\tThese are the five most common ways agents break Gravity UI code. They are\n172\talready implied by the rules above; this section exists as an explicit\n173\tstop-sign. If you are about to do any of these, stop and re-ground.\n174\t\n175\t- **Do not substitute non-Gravity libraries.** No MUI, Ant Design, plain\n176\t  `<input>`/`<button>`, or look-alike component libs. Use the `@gravity-ui/*`\n177\t  package the task needs.\n178\t- **Do not invent component APIs or props.** If a prop is not in the docs you\n179\t  read in Step 1, it does not exist — do not write `variant=`, `color=`,\n180\t  `name=` (on `Icon`), or a `header-3` variant. Use the documented prop or\n181\t  ask the user. See `rules/hallucination-traps.md`.\n182\t- **Do not use the `/llms/<pkg>/llms.txt` \"latest\" alias as a fallback.** It\n183\t  serves the newest major, which may differ from the installed one and have a\n184\t  different API. The versioned online fallback is the major-line URL\n185\t  (`/llms/<pkg>/<major>/llms.txt`); below that, go LOCAL.\n186\t- **Do not partial-brand.** Setting only `--g-color-base-brand` leaves\n187\t  selection, focus, links and contrast on the default accent — a mismatched\n188\t  UI. Override the full brand token set, on each theme you support.\n189\t- **Do not override internal markup with `[class*='…']` / ID selectors.**\n190\t  That's written against one DOM structure and breaks silently when the\n191\t  component changes. Climb the customization ladder\n192\t  (global token → component CSS API → narrow flagged hack) before ever\n193\t  touching structure.\n194\t\n195\t## Deeper material — read on demand\n196\t\n197\tThese files live alongside this SKILL.md and load only when relevant:\n198\t\n199\t- `references/package-routing.md` — offline snapshot of the ecosystem catalog\n200\t  (`gravity-ui.com/llms.txt`), refreshed each skill release. Used as the\n201\t  offline fallback in Step 0.\n202\t- `references/theming.md` — verbatim copy of uikit's `docs/theming.md`:\n203\t  `--g-*` token layers, `ThemeProvider`, branding, custom themes, scoped\n204\t  themes, `uikit-themer`. The bundled copy may lag — read\n205\t  `node_modules/@gravity-ui/uikit/build/docs/guides/theming.md` for the\n206\t  version-matched file.\n207\t- `references/layout.md` — verbatim copy of uikit's `docs/layout.md`:\n208\t  spacing scale (`--g-spacing-*`), `Flex`/`Box`, `Row`/`Col`/`Container`\n209\t  grid, breakpoints, `useLayoutContext`.\n210\t- `references/icons.md` — finding an icon by image\n211\t  (`scripts/icon-image-search.sh`) or on gravity-ui.com/icons; the\n212\t  object-vs-string rendering rule.\n213\t- `rules/hallucination-traps.md` — Incorrect/Correct pairs for the most\n214\t  commonly invented APIs: typography variants (`header-3..6` don't exist, no\n215\t  `Heading`), the flex contract (`min-width:0`, who shrinks), theming traps\n216\t  (partial brand overrides, a `ThemeProvider` that themes the whole page, customization\n217\t  ladder), `Button view` not `variant`, `Icon data` not `name`. Per-component\n218\t  traps live in each package's `dist/docs`, not here.\n219\t",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_014ZuSGNNXTaP3CXHnaHo6en",
+        "type": "tool_result",
+        "content": "1\t---\n2\tname: gravity-ui\n3\tdescription: Builds, fixes, styles, and composes UI with the Gravity UI design system — the React ecosystem of @gravity-ui/* packages (uikit, charts, table, navigation, date-components, icons, and more). Routes to the correct package when look-alikes exist, applies theming and required setup, and prevents invented component APIs. Applies when working with @gravity-ui imports, uikit, ThemeProvider, --g- CSS tokens, or any prompt (EN or RU) mentioning gravity-ui, гравити, дизайн-система, компоненты, дашборд, таблица, график, or форма. Also installs required specialized Gravity UI packages when they are absent.\n4\t---\n5\t\n6\t# Building UI with Gravity UI\n7\t\n8\tBuild UI on **real** Gravity UI components, not from memory. Gravity UI is a\n9\tmulti-package React design system (`@gravity-ui/*`), so the two things that go\n10\twrong are picking the wrong package and using an API from the wrong version.\n11\tThis skill routes you to the right package, grounds you in the installed\n12\tversion, and stops you from inventing APIs — match the installed versions and\n13\tfollow the ecosystem catalog instead of guessing.\n14\t\n15\t## Efficiency guardrails\n16\t\n17\t- Do not read the same file twice. Reuse evidence already present in the session.\n18\t- Do not dump a reference file wholesale. Use targeted `rg -n -C 4` searches and keep each result below\n19\t  200 lines unless the whole file is necessary to resolve the task.\n20\t- Batch package, component, and symbol lookups into as few commands as possible.\n21\t- Stop documentation research as soon as package choice, import path, required setup, and uncertain props\n22\t  are confirmed. Documentation is evidence for decisions, not a checklist to read in full.\n23\t- Do not query unpkg, package source repositories, or alternative documentation mirrors.\n24\t- Do not install browsers or screenshot tooling, and do not start a dev server for routine verification,\n25\t  unless the user explicitly requests visual or browser verification.\n26\t- Run typecheck/build after implementation. If it fails, inspect only the failing API, fix it, and rerun\n27\t  the check. Do not repeatedly rebuild unchanged code.\n28\t\n29\t## Step 0 — pick the right package first (ecosystem routing)\n30\t\n31\tBefore doing anything else, work out which `@gravity-ui/*` library the task\n32\tneeds. Do not guess from training data — the ecosystem has look-alike packages\n33\t(`charts` vs `chartkit`, uikit `Table` vs `@gravity-ui/table`, `date-components`\n34\tvs `date-utils`, …) and picking the wrong one is the #1 failure.\n35\tChoose from the task's functionality, not only from dependencies already present in the project.\n36\tOpen [`references/package-routing.md`](references/package-routing.md) and read\n37\tits top **first**: it opens with a task → package decision table that settles the\n38\tcommon cases (landing page, dashboard, data grid, calendar, charts, editor, app\n39\tshell, i18n), followed by the ecosystem catalog with a one-line \"what it's for /\n40\twhat to use instead\" per package for everything else. Use it to choose the\n41\tpackage, then come back here for Step 1.\n42\t\n43\tSearch the catalog for the task's relevant terms and read the matching package entries. Do not read the\n44\tentire catalog when its top and those entries are sufficient.\n45\t\n46\tOnly after the package is chosen, run Step 1 to ground in that package's\n47\tinstalled version and API.\n48\t\n49\t## Step 1 — ground in the installed version of the chosen package\n50\t\n51\t1. **Read `package.json`.** Note each installed `@gravity-ui/*` package and its\n52\t   version. The installed version is the source of truth, not your memory.\n53\t   Resolve ranges from `node_modules` (`<pkg>/package.json` `version` field), not\n54\t   the range string in the root `package.json`.\n55\t\n56\t   If the chosen specialized package other than `@gravity-ui/uikit` is absent, add it with the project's\n57\t   existing package manager before importing it. Install its documented peer dependencies too, then\n58\t   resolve the installed version and continue with the local evidence below. Do not fall back to uikit,\n59\t   raw HTML, or a foreign library merely because the specialized package was initially absent. If\n60\t   installation is blocked, report the exact failure.\n61\t\n62\t2. **Fetch the docs for the package you are about to use, in this order,\n63\t   stopping at the first source that answers your question:**\n64\t\n65\t   (a) **LOCAL** — start with `node_modules/@gravity-ui/<pkg>/dist/docs/INDEX.md` or `node_modules/@gravity-ui/<pkg>/build/docs/INDEX.md`.\n66\t      If `INDEX.md` is absent for this package, fall back to the package's root `node_modules/@gravity-ui/<pkg>/README.md`.\n67\t      This is the *exact* installed version — always preferred for version-sensitive questions.\n68\t      Note: bundled docs are a recent addition — `uikit` ships `build/docs` only from **7.45.0**;\n69\t      older installs have no local docs at all, and that is expected, not an error. Go to (b).\n70\t      If an import, component, hook, or prop remains uncertain, inspect only its exact installed `.d.ts`\n71\t      before moving online. Batch all uncertain symbol lookups for that package.\n72\t   (b) **ONLINE** — per-package llms.txt at the **major line**:\n73\t      `https://gravity-ui.com/llms/<pkg>/<major>/llms.txt`\n74\t      (e.g. `/llms/uikit/7/llms.txt` for `^7.2.1`). The major-line URL serves the\n75\t      latest minor of that major — it tracks the major but not the exact patch.\n76\t      Use it when LOCAL has no docs for the package.\n77\t\n78\t3. **Fallback rule — never silently proceed on a failed or empty source:**\n79\t\n80\t   - If LOCAL has no README / `dist/docs` / `build/docs` for the package, or they are empty\n81\t     → fetch the ONLINE major-line llms.txt (b).\n82\t   - If the ONLINE request fails — network timeout, DNS, connection refused\n83\t     (air-gapped / corporate proxy), HTTP 404 (major not hosted), or an empty /\n84\t     non-markdown body → fall back to LOCAL README + dist/docs or build/docs (a).\n85\t   - **Do NOT use the `/llms/<pkg>/llms.txt` \"latest\" alias** as a fallback — it\n86\t     serves the newest major, which may differ from the installed one and have a\n87\t     different API. The major-line URL is the versioned fallback; below it, go\n88\t     LOCAL, not \"latest\".\n89\t   - If BOTH are unreachable for a package → STOP and tell the user the\n90\t     package's docs are unreachable. Do not guess its API from training data.\n91\t\n92\tFor a bounded local inspection, run:\n93\t\n94\t```sh\n95\t.agents/skills/gravity-ui/scripts/inspect-package.sh uikit Button Card Switch ThemeProvider\n96\t```\n97\t\n98\tThe script reports the resolved version, available local documentation, and declaration files matching\n99\tthe requested symbols. Read only the returned files needed to confirm an uncertain API.\n100\t\n101\t## Step 2 — implement on the chosen packages, then typecheck\n102\t\n103\t1. **Implement using only the `@gravity-ui/*` packages chosen in Step 0 and\n104\t   confirmed installed in Step 1.** Import from those packages exactly — do\n105\t   not substitute look-alike libraries (MUI, Ant, plain `<input>`) and do not\n106\t   reach for a `@gravity-ui/*` package that Step 1 did not confirm installed.\n107\t   Follow the prop APIs from the docs you just read, not memory; if a prop\n108\t   you want is not documented, it does not exist — use the documented one, or\n109\t   ask the user.\n110\t\n111\t2. **Apply the cross-cutting rules** in `rules/hallucination-traps.md` while\n112\t   writing: typography variants, the flex contract, theming/ladders,\n113\t   `Button view`, `Icon data`. Per-component traps live in the package's own\n114\t   `dist/docs`.\n115\t\n116\t3. **Typecheck before declaring done.** Run the project's typecheck command\n117\t   (typically `tsc --noEmit`; for monorepos, the workspace's typecheck script).\n118\t   Fix every error before reporting completion — a type error almost always\n119\t   means a wrong/invented prop, a wrong import path, or a version mismatch,\n120\t   which is precisely what Steps 0–1 were meant to prevent.\n121\t\n122\t   - If the typecheck surfaces a prop/path that contradicts the docs you read\n123\t     in Step 1, trust the **installed version** (the typechecker), not the\n124\t     docs snapshot — the docs may be from a different minor. Re-ground: read\n125\t     the package's `dist/docs/INDEX.md` in `node_modules` for the exact\n126\t     installed types.\n127\t   - If the typecheck is unavailable (no TS in the project), say so\n128\t     explicitly and ask the user how they want to verify; do not silently\n129\t     skip verification.\n130\t   - **Escape hatch.** If the user explicitly waived verification (\"just\n131\t     sketch it\", \"quick prototype\", \"no need to check\"), you may skip the\n132\t     typecheck — but state this plainly in your reply: *\"typecheck skipped by\n133\t     user request — code is not verified\"*. Do not skip silently.\n134\t   - **Know what typecheck does not cover.** A green `tsc` proves the API is\n135\t     real; it says nothing about layout or contrast. Before reporting done,\n136\t     say so, and either check or list for the user to check by hand: the\n137\t     screen in both `light` and `dark` themes (text and controls on colored\n138\t     fills especially), narrow (~375px) and wide (~1400px) viewports for\n139\t     horizontal overflow, and empty / loading / error states.\n140\t\n141\t## Hard rules\n142\t\n143\t- **`@gravity-ui/uikit` MUST be installed in every Gravity UI project.** It is\n144\t  the base component + design-token library every other `@gravity-ui/*` package\n145\t  builds on; without it components render unstyled. If `package.json` lacks it,\n146\t  stop and have the user install and configure it first (setup:\n147\t  `https://gravity-ui.com/llms/uikit/llms.txt`).\n148\t- **Read `package.json` before importing any `@gravity-ui/*` package.** Never\n149\t  assume a package is installed; never assume its major version.\n150\t- **Do not invent props or components.** Before using a component API you are\n151\t  not 100% sure of, check `rules/hallucination-traps.md` (ecosystem patterns)\n152\t  and the component's README in `dist/docs`. If still unsure, ask the user\n153\t  rather than guessing.\n154\t- **Never guess icon names** — they are hallucinated more often than not. To\n155\t  match an icon from a screenshot/photo/mock, run `scripts/icon-image-search.sh`\n156\t  (reverse image search). With only a description, look the name up on\n157\t  `gravity-ui.com/icons` or ask the user — do not invent one. Then pass it as an\n158\t  object (`<Icon data={CheckIcon} />`), never a string key. See\n159\t  `references/icons.md`.\n160\t- **Theming uses semantic `--g-*` tokens.** Never hardcode colors (`#fff`,\n161\t  `blue-500`); never hand-write `dark:` overrides. Full token tables live in\n162\t  `references/theming.md`; the cross-cutting traps (partial brand overrides,\n163\t  a `ThemeProvider` that themes the whole page, controls on a brand background) live in\n164\t  `rules/hallucination-traps.md`.\n165\t- **Required setup is package-specific** (style imports, `ThemeProvider`,\n166\t  peer-deps). It lives in each package's root README under \"Required setup\" —\n167\t  read it once per package, do not rely on memory.\n168\t\n169\t## What NOT to do\n170\t\n171\tThese are the five most common ways agents break Gravity UI code. They are\n172\talready implied by the rules above; this section exists as an explicit\n173\tstop-sign. If you are about to do any of these, stop and re-ground.\n174\t\n175\t- **Do not substitute non-Gravity libraries.** No MUI, Ant Design, plain\n176\t  `<input>`/`<button>`, or look-alike component libs. Use the `@gravity-ui/*`\n177\t  package the task needs.\n178\t- **Do not invent component APIs or props.** If a prop is not in the docs you\n179\t  read in Step 1, it does not exist — do not write `variant=`, `color=`,\n180\t  `name=` (on `Icon`), or a `header-3` variant. Use the documented prop or\n181\t  ask the user. See `rules/hallucination-traps.md`.\n182\t- **Do not use the `/llms/<pkg>/llms.txt` \"latest\" alias as a fallback.** It\n183\t  serves the newest major, which may differ from the installed one and have a\n184\t  different API. The versioned online fallback is the major-line URL\n185\t  (`/llms/<pkg>/<major>/llms.txt`); below that, go LOCAL.\n186\t- **Do not partial-brand.** Setting only `--g-color-base-brand` leaves\n187\t  selection, focus, links and contrast on the default accent — a mismatched\n188\t  UI. Override the full brand token set, on each theme you support.\n189\t- **Do not override internal markup with `[class*='…']` / ID selectors.**\n190\t  That's written against one DOM structure and breaks silently when the\n191\t  component changes. Climb the customization ladder\n192\t  (global token → component CSS API → narrow flagged hack) before ever\n193\t  touching structure.\n194\t\n195\t## Deeper material — read on demand\n196\t\n197\tThese files live alongside this SKILL.md and load only when relevant:\n198\t\n199\t- `references/package-routing.md` — offline snapshot of the ecosystem catalog\n200\t  (`gravity-ui.com/llms.txt`), refreshed each skill release. Used as the\n201\t  offline fallback in Step 0.\n202\t- `references/theming.md` — verbatim copy of uikit's `docs/theming.md`:\n203\t  `--g-*` token layers, `ThemeProvider`, branding, custom themes, scoped\n204\t  themes, `uikit-themer`. The bundled copy may lag — read\n205\t  `node_modules/@gravity-ui/uikit/build/docs/guides/theming.md` for the\n206\t  version-matched file.\n207\t- `references/layout.md` — verbatim copy of uikit's `docs/layout.md`:\n208\t  spacing scale (`--g-spacing-*`), `Flex`/`Box`, `Row`/`Col`/`Container`\n209\t  grid, breakpoints, `useLayoutContext`.\n210\t- `references/icons.md` — finding an icon by image\n211\t  (`scripts/icon-image-search.sh`) or on gravity-ui.com/icons; the\n212\t  object-vs-string rendering rule.\n213\t- `rules/hallucination-traps.md` — Incorrect/Correct pairs for the most\n214\t  commonly invented APIs: typography variants (`header-3..6` don't exist, no\n215\t  `Heading`), the flex contract (`min-width:0`, who shrinks), theming traps\n216\t  (partial brand overrides, a `ThemeProvider` that themes the whole page, customization\n217\t  ladder), `Button view` not `variant`, `Icon data` not `name`. Per-component\n218\t  traps live in each package's `dist/docs`, not here.\n219\t"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:34.496Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "git status --short && ls -la && cat package.json 2>/dev/null; find . -path ./node_modules -prune -o -type f -print | grep -v '^./.git/' | grep -v '.agents/' | head -100",
+          "description": "Show repo status, root files and source file list",
+          "_extractedCommand": "git status --short && ls -la && cat package.json 2>/dev/null; find . -path ./node_modules -prune -o -type f -print | grep -v '^./.git/' | grep -v '.agents/' | head -100"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "git status --short && ls -la && cat package.json 2>/dev/null; find . -path ./node_modules -prune -o -type f -print | grep -v '^./.git/' | grep -v '.agents/' | head -100",
+          "description": "Show repo status, root files and source file list"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:34.548Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_018VtVGJbu3zoHFDHFdTr6jL",
+        "result": "?? .agents/\n?? AGENTS.md\n?? CLAUDE.md\n?? package-lock.json\ntotal 148\ndrwxr-xr-x 1 node node    268 Nov  6 11:43 .\ndrwxr-xr-x 1 root root     18 Nov  6 11:39 ..\ndrwxr-xr-x 1 node node     12 Nov  6 11:39 .agents\ndrwxr-xr-x 1 node node    136 Nov  6 11:43 .git\n-rw-r--r-- 1 node node     30 Nov  6 11:39 .gitignore\n-rw-r--r-- 1 node node    278 Nov  6 11:39 AGENTS.md\n-rw-r--r-- 1 node node    278 Nov  6 11:39 CLAUDE.md\ndrwxr-xr-x 1 node node     14 Nov  6 11:43 __agent_eval__\n-rw-r--r-- 1 node node    302 Nov  6 11:39 index.html\ndrwxr-xr-x 1 node node   1946 Nov  6 11:41 node_modules\n-rw-r--r-- 1 node node 122580 Nov  6 11:43 package-lock.json\n-rw-r--r-- 1 node node    465 Nov  6 11:39 package.json\ndrwxr-xr-x 1 node node     56 Nov  6 11:39 src\n-rw-r--r-- 1 node node    494 Nov  6 11:39 tsconfig.json\n-rw-r--r-- 1 node node    136 Nov  6 11:39 vite.config.ts\n{\n  \"name\": \"comp-toast\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"build\": \"tsc --noEmit && vite build\",\n    \"dev\": \"vite\"\n  },\n  \"dependencies\": {\n    \"@gravity-ui/uikit\": \"7.43.0\",\n    \"react\": \"^18.3.1\",\n    \"react-dom\": \"^18.3.1\"\n  },\n  \"devDependencies\": {\n    \"@types/react\": \"^18.3.12\",\n    \"@types/react-dom\": \"^18.3.1\",\n    \"@vitejs/plugin-react\": \"^4.3.4\",\n    \"typescript\": \"^7.0.2\",\n    \"vite\": \"^5.4.11\",\n    \"vitest\": \"^3.1.3\"\n  }\n}\n./index.html\n./package.json\n./tsconfig.json\n./vite.config.ts\n./.gitignore\n./AGENTS.md\n./CLAUDE.md\n./package-lock.json\n./src/App.tsx\n./src/main.tsx\n./src/vite-env.d.ts\n./__agent_eval__/run.mjs",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_018VtVGJbu3zoHFDHFdTr6jL",
+        "type": "tool_result",
+        "content": "?? .agents/\n?? AGENTS.md\n?? CLAUDE.md\n?? package-lock.json\ntotal 148\ndrwxr-xr-x 1 node node    268 Nov  6 11:43 .\ndrwxr-xr-x 1 root root     18 Nov  6 11:39 ..\ndrwxr-xr-x 1 node node     12 Nov  6 11:39 .agents\ndrwxr-xr-x 1 node node    136 Nov  6 11:43 .git\n-rw-r--r-- 1 node node     30 Nov  6 11:39 .gitignore\n-rw-r--r-- 1 node node    278 Nov  6 11:39 AGENTS.md\n-rw-r--r-- 1 node node    278 Nov  6 11:39 CLAUDE.md\ndrwxr-xr-x 1 node node     14 Nov  6 11:43 __agent_eval__\n-rw-r--r-- 1 node node    302 Nov  6 11:39 index.html\ndrwxr-xr-x 1 node node   1946 Nov  6 11:41 node_modules\n-rw-r--r-- 1 node node 122580 Nov  6 11:43 package-lock.json\n-rw-r--r-- 1 node node    465 Nov  6 11:39 package.json\ndrwxr-xr-x 1 node node     56 Nov  6 11:39 src\n-rw-r--r-- 1 node node    494 Nov  6 11:39 tsconfig.json\n-rw-r--r-- 1 node node    136 Nov  6 11:39 vite.config.ts\n{\n  \"name\": \"comp-toast\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"build\": \"tsc --noEmit && vite build\",\n    \"dev\": \"vite\"\n  },\n  \"dependencies\": {\n    \"@gravity-ui/uikit\": \"7.43.0\",\n    \"react\": \"^18.3.1\",\n    \"react-dom\": \"^18.3.1\"\n  },\n  \"devDependencies\": {\n    \"@types/react\": \"^18.3.12\",\n    \"@types/react-dom\": \"^18.3.1\",\n    \"@vitejs/plugin-react\": \"^4.3.4\",\n    \"typescript\": \"^7.0.2\",\n    \"vite\": \"^5.4.11\",\n    \"vitest\": \"^3.1.3\"\n  }\n}\n./index.html\n./package.json\n./tsconfig.json\n./vite.config.ts\n./.gitignore\n./AGENTS.md\n./CLAUDE.md\n./package-lock.json\n./src/App.tsx\n./src/main.tsx\n./src/vite-env.d.ts\n./__agent_eval__/run.mjs",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:36.755Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "cat src/App.tsx; echo ----; cat src/main.tsx; echo ----; cat src/vite-env.d.ts; echo ----; cat index.html; echo ----; cat tsconfig.json; echo ----; cat AGENTS.md; echo ----; cat .gitignore; echo ----; ls .agents -R | head -50; echo ----; cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; ls node_modules/@gravity-ui/uikit/build/docs 2>/dev/null | head; ls node_modules/@gravity-ui/uikit/build | head -50",
+          "description": "Read source files, configs and installed uikit version",
+          "_extractedCommand": "cat src/App.tsx; echo ----; cat src/main.tsx; echo ----; cat src/vite-env.d.ts; echo ----; cat index.html; echo ----; cat tsconfig.json; echo ----; cat AGENTS.md; echo ----; cat .gitignore; echo ----; ls .agents -R | head -50; echo ----; cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; ls node_modules/@gravity-ui/uikit/build/docs 2>/dev/null | head; ls node_modules/@gravity-ui/uikit/build | head -50"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "cat src/App.tsx; echo ----; cat src/main.tsx; echo ----; cat src/vite-env.d.ts; echo ----; cat index.html; echo ----; cat tsconfig.json; echo ----; cat AGENTS.md; echo ----; cat .gitignore; echo ----; ls .agents -R | head -50; echo ----; cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; ls node_modules/@gravity-ui/uikit/build/docs 2>/dev/null | head; ls node_modules/@gravity-ui/uikit/build | head -50",
+          "description": "Read source files, configs and installed uikit version"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:36.784Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_016trd5QwdCizcieu8UF1DUr",
+        "result": "// Implement the requested feature here (and may add sibling files).\nexport function App() {\n  return <div style={{ padding: 24 }}>{/* TODO: implement the requested component */}</div>;\n}\n----\n// Preconfigured Gravity UI setup is ALREADY wired here (both CSS imports + ThemeProvider).\n// Implement the requested feature in App.tsx (you may add sibling files).\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport { ThemeProvider } from '@gravity-ui/uikit';\n\nimport { App } from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <ThemeProvider theme=\"light\">\n      <App />\n    </ThemeProvider>\n  </React.StrictMode>,\n);\n----\n/// <reference types=\"vite/client\" />\n----\n<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>Gravity UI eval</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/src/main.tsx\"></script>\n  </body>\n</html>\n----\n{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"useDefineForClassFields\": true,\n    \"lib\": [\n      \"ES2022\",\n      \"DOM\",\n      \"DOM.Iterable\"\n    ],\n    \"module\": \"ESNext\",\n    \"skipLibCheck\": true,\n    \"moduleResolution\": \"bundler\",\n    \"resolveJsonModule\": true,\n    \"isolatedModules\": true,\n    \"moduleDetection\": \"force\",\n    \"noEmit\": true,\n    \"jsx\": \"react-jsx\",\n    \"strict\": true,\n    \"noUnusedLocals\": false,\n    \"noUnusedParameters\": false\n  },\n  \"include\": [\n    \"src\"\n  ]\n}\n----\n# Gravity UI\n\nThis project uses the Gravity UI design system (`@gravity-ui/*`). Before writing or modifying Gravity UI component code, you MUST read and follow the `gravity-ui` skill at `.agents/skills/gravity-ui/SKILL.md`, including every referenced file relevant to the task.\n----\nnode_modules/\n__agent_eval__/\n----\n.agents:\nskills\n\n.agents/skills:\ngravity-ui\n\n.agents/skills/gravity-ui:\nSKILL.md\nreferences\nrules\nscripts\n\n.agents/skills/gravity-ui/references:\nicons.md\nlayout.md\npackage-routing.md\ntheming.md\n\n.agents/skills/gravity-ui/rules:\nhallucination-traps.md\n\n.agents/skills/gravity-ui/scripts:\nicon-image-search.sh\ninspect-package.sh\n----\n  \"version\": \"7.43.0\",\ncjs\nesm",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_016trd5QwdCizcieu8UF1DUr",
+        "type": "tool_result",
+        "content": "// Implement the requested feature here (and may add sibling files).\nexport function App() {\n  return <div style={{ padding: 24 }}>{/* TODO: implement the requested component */}</div>;\n}\n----\n// Preconfigured Gravity UI setup is ALREADY wired here (both CSS imports + ThemeProvider).\n// Implement the requested feature in App.tsx (you may add sibling files).\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport { ThemeProvider } from '@gravity-ui/uikit';\n\nimport { App } from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <ThemeProvider theme=\"light\">\n      <App />\n    </ThemeProvider>\n  </React.StrictMode>,\n);\n----\n/// <reference types=\"vite/client\" />\n----\n<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>Gravity UI eval</title>\n  </head>\n  <body>\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/src/main.tsx\"></script>\n  </body>\n</html>\n----\n{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"useDefineForClassFields\": true,\n    \"lib\": [\n      \"ES2022\",\n      \"DOM\",\n      \"DOM.Iterable\"\n    ],\n    \"module\": \"ESNext\",\n    \"skipLibCheck\": true,\n    \"moduleResolution\": \"bundler\",\n    \"resolveJsonModule\": true,\n    \"isolatedModules\": true,\n    \"moduleDetection\": \"force\",\n    \"noEmit\": true,\n    \"jsx\": \"react-jsx\",\n    \"strict\": true,\n    \"noUnusedLocals\": false,\n    \"noUnusedParameters\": false\n  },\n  \"include\": [\n    \"src\"\n  ]\n}\n----\n# Gravity UI\n\nThis project uses the Gravity UI design system (`@gravity-ui/*`). Before writing or modifying Gravity UI component code, you MUST read and follow the `gravity-ui` skill at `.agents/skills/gravity-ui/SKILL.md`, including every referenced file relevant to the task.\n----\nnode_modules/\n__agent_eval__/\n----\n.agents:\nskills\n\n.agents/skills:\ngravity-ui\n\n.agents/skills/gravity-ui:\nSKILL.md\nreferences\nrules\nscripts\n\n.agents/skills/gravity-ui/references:\nicons.md\nlayout.md\npackage-routing.md\ntheming.md\n\n.agents/skills/gravity-ui/rules:\nhallucination-traps.md\n\n.agents/skills/gravity-ui/scripts:\nicon-image-search.sh\ninspect-package.sh\n----\n  \"version\": \"7.43.0\",\ncjs\nesm",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:39.664Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "cd /home/sandbox/workspace/.agents/skills/gravity-ui && rg -n -i 'toast|notif' references/package-routing.md | head -20; echo ----; sed -n 1,60p references/package-routing.md; echo ----; cat rules/hallucination-traps.md | head -150",
+          "description": "Search routing for toast and read traps rules",
+          "_extractedCommand": "cd /home/sandbox/workspace/.agents/skills/gravity-ui && rg -n -i 'toast|notif' references/package-routing.md | head -20; echo ----; sed -n 1,60p references/package-routing.md; echo ----; cat rules/hallucination-traps.md | head -150"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "cd /home/sandbox/workspace/.agents/skills/gravity-ui && rg -n -i 'toast|notif' references/package-routing.md | head -20; echo ----; sed -n 1,60p references/package-routing.md; echo ----; cat rules/hallucination-traps.md | head -150",
+          "description": "Search routing for toast and read traps rules"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:39.686Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01BbKiaRztrj7NmUtkYh7yEw",
+        "result": "31:Everything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\n172:The composite-component layer of Gravity UI — ready-made form rows, confirmation dialogs, notifications, stories, galleries and similar product-level widgets assembled from `@gravity-ui/uikit` primitives, so you do not rebuild them by hand.\n178:- Product widgets: `Notifications`, `Stories` / `StoriesGroup`, `ChangelogDialog`, `OnboardingMenu`, `PromoSheet`, `CookieConsent`, `Reactions`, `SharePopover`, `StoreBadge`.\n----\n# Package routing — offline snapshot\n\nThis is an offline snapshot of **https://gravity-ui.com/llms.txt**, the Gravity UI\necosystem catalog. It exists so Step 0 of the skill works when the online catalog\nis unreachable (air-gapped, corporate proxy, timeout).\n\n**Online is primary.** This snapshot may lag the site by one release — if you can\nfetch `https://gravity-ui.com/llms.txt`, prefer it. Refresh this file at each\nskill release by re-copying the catalog verbatim (generator = fetch the URL →\nkeep everything above the `---` line → write the file). Do not hand-edit the\ncatalog body below the line; edit the source `llms.txt` instead. The decision\ntable above the line is hand-maintained and survives the sync.\n\n## Decision table — read this before the catalog\n\nSettle the common tasks here; the catalog below is the reference for everything else (and it is long:\nits decisive entries sit near the end, so do not skim its top and default to `uikit`).\n\n| The task is… | Use | Not |\n|---|---|---|\n| A marketing / landing / promo page assembled from blocks (hero, features, CTA) | `@gravity-ui/page-constructor` (`PageConstructor` + `PageConstructorProvider`, block config) | hand-written sections from uikit primitives |\n| A dashboard of freely arrangeable widgets | `@gravity-ui/dashkit` | a hand-rolled CSS grid, `react-grid-layout` |\n| A table with sorting, checkbox selection, pagination | uikit `Table` + `withTableSorting` / `withTableSelection` + `Pagination` | `@gravity-ui/table` |\n| A data grid that needs virtualization, column resizing / reordering, grouping, tree rows | `@gravity-ui/table` (TanStack-based) | uikit `Table` |\n| A calendar, date / time / range picker | `@gravity-ui/date-components` (peer: `date-utils`) | a `Calendar` from uikit (does not exist), `react-datepicker` |\n| Charts and data visualization | `@gravity-ui/charts` (`<Chart>`); `@gravity-ui/yagr` only for dense realtime series | `chartkit` (legacy wrapper), `recharts`, raw canvas |\n| A Markdown / WYSIWYG editor | `@gravity-ui/markdown-editor` | `<textarea>` + custom preview |\n| The app shell: aside navigation, header, footer | `@gravity-ui/navigation` (`AsideHeader`) | a hand-rolled `<aside>` |\n| Interface language switching | uikit `configure({lang})` + `@gravity-ui/i18n` for app strings | `i18next`, `react-intl` |\n\nEverything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\nIf the package from the table is not installed yet, **install it** with the project's package manager (and\nits documented peer deps) — a project that only has `uikit` is not a reason to build the thing by hand.\n\n---\n\n# Gravity UI\n\nGravity UI is a open-source design system and ecosystem of React libraries for building web applications. This file is a compact catalog: pick a package, then fetch its per-package llms.txt for the full agent-facing docs. Read the user's `package.json` first and match the installed `@gravity-ui/*` versions — peer-version mismatches across the ecosystem are the most common failure.\n\n> **`@gravity-ui/uikit` MUST be installed in every Gravity UI project.** It is the base component and design-token library that every other `@gravity-ui/*` package builds on — without it, components render unstyled. Check the user's `package.json` first.\n>\n> **If it is not installed, stop and have the user install and configure it before doing anything else.** Setup and theming instructions: https://gravity-ui.com/llms/uikit/llms.txt\n\n> **Per-package docs are versioned.** Each package lives at `/llms/<package>/<version>/llms.txt` (exact version), `/llms/<package>/<major>/llms.txt` (latest of a major line), and `/llms/<package>/llms.txt` (latest). The links below point at `latest` — read the user's `package.json` and switch the URL to the installed version (or major) when it differs.\n\n> **Agent skill recommended.** A `gravity-ui` skill is available that helps route to the correct package and avoid common API mistakes. Consider installing it when working with Gravity UI:\n>\n> ```bash\nnpx skills add gravity-ui/skills\n> ```\n>\n> It can help with tasks involving `@gravity-ui/*` imports, `ThemeProvider`, or `--g-` CSS tokens. Details: https://github.com/gravity-ui/skills\n\n## UIKit (primary) — `@gravity-ui/uikit`\n\n> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/uikit/llms.txt)\n> GitHub: [gravity-ui/uikit](https://github.com/gravity-ui/uikit)\n\nThe base React component and design-token library for Gravity UI apps — controls, inputs, overlays, layout, and theming that every other @gravity-ui package builds on.\n----\n# Hallucination traps — Incorrect / Correct pairs\n\nRead this before using any Gravity UI component API you are not 100% sure of.\nThese are the APIs agents invent most often — each pair shows the wrong guess,\nthe correct form, and *why*. The references under `references/` cover the\nground truth (full token tables, prop lists); this file is the shortcut to not\nfalling into the common holes.\n\nPer-component traps (a specific `Table`, `Button`, `Chart` prop) live in each\npackage's own `dist/docs/INDEX.md` — read that for component detail. This file\ncovers the **cross-cutting** traps that affect every `@gravity-ui/*` package.\n\n---\n\n## Typography\n\n### `header-3`…`header-6` do not exist\n\n❌ **Incorrect** — invented scale:\n\n```tsx\n<Text variant=\"header-3\">Section title</Text>\n<Text variant=\"header-4\">Subsection</Text>\n<Heading size=\"lg\">Page title</Heading>   // also: there is no `Heading` component\n```\n\n✓ **Correct** — the real `Text` variants:\n\n```tsx\n<Text variant=\"header-1\">Page title</Text>\n<Text variant=\"header-2\">Section title</Text>\n<Text variant=\"subheader-1\">Subsection</Text>   {/* or subheader-2/3 */}\n<Text variant=\"display-1\">Hero</Text>           {/* display-1…4 are larger than headers */}\n```\n\n**Why:** only `header-1` and `header-2` exist. Above them sit `display-1…4`,\nbelow them `subheader-1…3`. Body variants are `body-1`/`body-2`/`body-3`\n(plus `body-short`), and small text is `caption-1`/`caption-2`. There is no\nstandalone `Heading` component — headings are `<Text variant=\"…\">`. Setting a\nsize via inline `fontSize` is also wrong; pick the variant.\n\n### Page title is a `Text`, not an `<h1>`\n\n❌ `<h1>Dashboard</h1>`\n✓ `<Text variant=\"header-1\">Dashboard</Text>`\n\n**Why:** the design system's metrics (font-family, weight, line-height, tracking)\ncome from `--g-text-header-1-*` tokens. A raw `<h1>` bypasses them and renders\nwith the browser default.\n\n---\n\n## Layout — the flex contract\n\n### `Flex`/`Box` have no `padding` / `margin` props\n\n❌ **Incorrect** — MUI-style props (do not exist):\n\n```tsx\n<Flex p={4} mb={3}>…</Flex>\n<Box padding=\"16px\" marginTop={2}>…</Box>\n```\n\n✓ **Correct** — use `gap` between children, `Box spacing` for offsets on a\n`Box`, `spacing()` / `sp()` for any other element:\n\n```tsx\nimport {Box, Flex, sp} from '@gravity-ui/uikit';\n\n<Flex gap={4}>                       {/* 16px between children */}\n  <Button />\n  <Button />\n</Flex>\n\n<Box spacing={{p: 4, mb: 3}}>…</Box>          {/* padding + margin-bottom */}\n<div className={sp({p: 4, mb: 3})}>…</div>   {/* same, for a non-Box element */}\n```\n\n**Why:** `Flex`/`Box` take `gap` (a spacing-scale step `0…10`; the only\nhalf-step is `0.5`), and `Box` additionally takes `spacing={{…}}` with the\nsame `m*`/`p*` shortcuts. For everything else use the `spacing()` (or `sp()`)\nutility, which returns a className, or the raw `--g-spacing-*` variables in\nCSS. Never hard-code pixel values.\n\n### In a row, explicitly assign who flexes and who holds\n\n❌ **Incorrect** — relying on flex defaults:\n\n```tsx\n<Flex alignItems=\"center\">\n  <Avatar />                {/* gets crushed when text is long */}\n  <span>{veryLongName}</span>\n  <Button>Edit</Button>     {/* also gets crushed */}\n</Flex>\n```\n\n✓ **Correct** — fix-elements get `flex-shrink: 0`, the flexible middle gets\n`flex: 1; min-width: 0`:\n\n```tsx\n<Flex alignItems=\"center\" gap={2}>\n  <Avatar style={{flexShrink: 0}} />\n  <span style={{flex: 1, minWidth: 0}}>{veryLongName}</span>\n  <Button style={{flexShrink: 0}}>Edit</Button>\n</Flex>\n```\n\n**Why:** flex defaults are `flex-shrink: 1` and `min-width: auto` on every\nchild — both work against you. Without `flex-shrink: 0`, fix-sized elements\n(avatars, icons, badges, the right-aligned action button) get squashed when a\nsibling is long. Without `min-width: 0` on the flexible child, the flex\n`min-width: auto` prevents it from shrinking and the text overflows the\ncontainer / overlaps its siblings — and this is invisible to layout tests\nbecause the element's bounding box stays clean. The fix-elements are what\nshould hold their size; compression goes into the flexible element (text gets\ntruncated, breadcrumbs collapse to `…`, a list scrolls).\n\nThe same contract applies vertically: panels `flex: 1; min-height: 0`;\nterminal zones (header / footer / composer) `flex-shrink: 0`.\n\n### Horizontal scroll lives inside the widget, not the page\n\n❌ **Incorrect** — wrap the whole workspace:\n\n```tsx\n<div style={{overflowX: 'auto'}}>      {/* breaks sticky headers, sidebars */}\n  <Workspace />\n</div>\n```\n\n✓ **Correct** — wrap only the wide widget, give the content its honest\n`min-width`:\n\n```tsx\n<div style={{overflowX: 'auto', maxWidth: '100%'}}>\n  <WideTable style={{minWidth: 1200}} />\n</div>\n```\n\n**Why:** wrapping the whole workspace makes sticky columns/headers and the\nsidebar scroll horizontally too. Compression should go into scroll on the\ncontainer of the wide thing only.\n\nFor a full-height app frame: root `height: 100vh` (+ a sane `min-height`),\npanels `flex: 1; min-height: 0; overflow-y: auto` — the panel scrolls, not the\ndocument.\n\n---\n\n## Theming",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01BbKiaRztrj7NmUtkYh7yEw",
+        "type": "tool_result",
+        "content": "31:Everything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\n172:The composite-component layer of Gravity UI — ready-made form rows, confirmation dialogs, notifications, stories, galleries and similar product-level widgets assembled from `@gravity-ui/uikit` primitives, so you do not rebuild them by hand.\n178:- Product widgets: `Notifications`, `Stories` / `StoriesGroup`, `ChangelogDialog`, `OnboardingMenu`, `PromoSheet`, `CookieConsent`, `Reactions`, `SharePopover`, `StoreBadge`.\n----\n# Package routing — offline snapshot\n\nThis is an offline snapshot of **https://gravity-ui.com/llms.txt**, the Gravity UI\necosystem catalog. It exists so Step 0 of the skill works when the online catalog\nis unreachable (air-gapped, corporate proxy, timeout).\n\n**Online is primary.** This snapshot may lag the site by one release — if you can\nfetch `https://gravity-ui.com/llms.txt`, prefer it. Refresh this file at each\nskill release by re-copying the catalog verbatim (generator = fetch the URL →\nkeep everything above the `---` line → write the file). Do not hand-edit the\ncatalog body below the line; edit the source `llms.txt` instead. The decision\ntable above the line is hand-maintained and survives the sync.\n\n## Decision table — read this before the catalog\n\nSettle the common tasks here; the catalog below is the reference for everything else (and it is long:\nits decisive entries sit near the end, so do not skim its top and default to `uikit`).\n\n| The task is… | Use | Not |\n|---|---|---|\n| A marketing / landing / promo page assembled from blocks (hero, features, CTA) | `@gravity-ui/page-constructor` (`PageConstructor` + `PageConstructorProvider`, block config) | hand-written sections from uikit primitives |\n| A dashboard of freely arrangeable widgets | `@gravity-ui/dashkit` | a hand-rolled CSS grid, `react-grid-layout` |\n| A table with sorting, checkbox selection, pagination | uikit `Table` + `withTableSorting` / `withTableSelection` + `Pagination` | `@gravity-ui/table` |\n| A data grid that needs virtualization, column resizing / reordering, grouping, tree rows | `@gravity-ui/table` (TanStack-based) | uikit `Table` |\n| A calendar, date / time / range picker | `@gravity-ui/date-components` (peer: `date-utils`) | a `Calendar` from uikit (does not exist), `react-datepicker` |\n| Charts and data visualization | `@gravity-ui/charts` (`<Chart>`); `@gravity-ui/yagr` only for dense realtime series | `chartkit` (legacy wrapper), `recharts`, raw canvas |\n| A Markdown / WYSIWYG editor | `@gravity-ui/markdown-editor` | `<textarea>` + custom preview |\n| The app shell: aside navigation, header, footer | `@gravity-ui/navigation` (`AsideHeader`) | a hand-rolled `<aside>` |\n| Interface language switching | uikit `configure({lang})` + `@gravity-ui/i18n` for app strings | `i18next`, `react-intl` |\n\nEverything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\nIf the package from the table is not installed yet, **install it** with the project's package manager (and\nits documented peer deps) — a project that only has `uikit` is not a reason to build the thing by hand.\n\n---\n\n# Gravity UI\n\nGravity UI is a open-source design system and ecosystem of React libraries for building web applications. This file is a compact catalog: pick a package, then fetch its per-package llms.txt for the full agent-facing docs. Read the user's `package.json` first and match the installed `@gravity-ui/*` versions — peer-version mismatches across the ecosystem are the most common failure.\n\n> **`@gravity-ui/uikit` MUST be installed in every Gravity UI project.** It is the base component and design-token library that every other `@gravity-ui/*` package builds on — without it, components render unstyled. Check the user's `package.json` first.\n>\n> **If it is not installed, stop and have the user install and configure it before doing anything else.** Setup and theming instructions: https://gravity-ui.com/llms/uikit/llms.txt\n\n> **Per-package docs are versioned.** Each package lives at `/llms/<package>/<version>/llms.txt` (exact version), `/llms/<package>/<major>/llms.txt` (latest of a major line), and `/llms/<package>/llms.txt` (latest). The links below point at `latest` — read the user's `package.json` and switch the URL to the installed version (or major) when it differs.\n\n> **Agent skill recommended.** A `gravity-ui` skill is available that helps route to the correct package and avoid common API mistakes. Consider installing it when working with Gravity UI:\n>\n> ```bash\nnpx skills add gravity-ui/skills\n> ```\n>\n> It can help with tasks involving `@gravity-ui/*` imports, `ThemeProvider`, or `--g-` CSS tokens. Details: https://github.com/gravity-ui/skills\n\n## UIKit (primary) — `@gravity-ui/uikit`\n\n> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/uikit/llms.txt)\n> GitHub: [gravity-ui/uikit](https://github.com/gravity-ui/uikit)\n\nThe base React component and design-token library for Gravity UI apps — controls, inputs, overlays, layout, and theming that every other @gravity-ui package builds on.\n----\n# Hallucination traps — Incorrect / Correct pairs\n\nRead this before using any Gravity UI component API you are not 100% sure of.\nThese are the APIs agents invent most often — each pair shows the wrong guess,\nthe correct form, and *why*. The references under `references/` cover the\nground truth (full token tables, prop lists); this file is the shortcut to not\nfalling into the common holes.\n\nPer-component traps (a specific `Table`, `Button`, `Chart` prop) live in each\npackage's own `dist/docs/INDEX.md` — read that for component detail. This file\ncovers the **cross-cutting** traps that affect every `@gravity-ui/*` package.\n\n---\n\n## Typography\n\n### `header-3`…`header-6` do not exist\n\n❌ **Incorrect** — invented scale:\n\n```tsx\n<Text variant=\"header-3\">Section title</Text>\n<Text variant=\"header-4\">Subsection</Text>\n<Heading size=\"lg\">Page title</Heading>   // also: there is no `Heading` component\n```\n\n✓ **Correct** — the real `Text` variants:\n\n```tsx\n<Text variant=\"header-1\">Page title</Text>\n<Text variant=\"header-2\">Section title</Text>\n<Text variant=\"subheader-1\">Subsection</Text>   {/* or subheader-2/3 */}\n<Text variant=\"display-1\">Hero</Text>           {/* display-1…4 are larger than headers */}\n```\n\n**Why:** only `header-1` and `header-2` exist. Above them sit `display-1…4`,\nbelow them `subheader-1…3`. Body variants are `body-1`/`body-2`/`body-3`\n(plus `body-short`), and small text is `caption-1`/`caption-2`. There is no\nstandalone `Heading` component — headings are `<Text variant=\"…\">`. Setting a\nsize via inline `fontSize` is also wrong; pick the variant.\n\n### Page title is a `Text`, not an `<h1>`\n\n❌ `<h1>Dashboard</h1>`\n✓ `<Text variant=\"header-1\">Dashboard</Text>`\n\n**Why:** the design system's metrics (font-family, weight, line-height, tracking)\ncome from `--g-text-header-1-*` tokens. A raw `<h1>` bypasses them and renders\nwith the browser default.\n\n---\n\n## Layout — the flex contract\n\n### `Flex`/`Box` have no `padding` / `margin` props\n\n❌ **Incorrect** — MUI-style props (do not exist):\n\n```tsx\n<Flex p={4} mb={3}>…</Flex>\n<Box padding=\"16px\" marginTop={2}>…</Box>\n```\n\n✓ **Correct** — use `gap` between children, `Box spacing` for offsets on a\n`Box`, `spacing()` / `sp()` for any other element:\n\n```tsx\nimport {Box, Flex, sp} from '@gravity-ui/uikit';\n\n<Flex gap={4}>                       {/* 16px between children */}\n  <Button />\n  <Button />\n</Flex>\n\n<Box spacing={{p: 4, mb: 3}}>…</Box>          {/* padding + margin-bottom */}\n<div className={sp({p: 4, mb: 3})}>…</div>   {/* same, for a non-Box element */}\n```\n\n**Why:** `Flex`/`Box` take `gap` (a spacing-scale step `0…10`; the only\nhalf-step is `0.5`), and `Box` additionally takes `spacing={{…}}` with the\nsame `m*`/`p*` shortcuts. For everything else use the `spacing()` (or `sp()`)\nutility, which returns a className, or the raw `--g-spacing-*` variables in\nCSS. Never hard-code pixel values.\n\n### In a row, explicitly assign who flexes and who holds\n\n❌ **Incorrect** — relying on flex defaults:\n\n```tsx\n<Flex alignItems=\"center\">\n  <Avatar />                {/* gets crushed when text is long */}\n  <span>{veryLongName}</span>\n  <Button>Edit</Button>     {/* also gets crushed */}\n</Flex>\n```\n\n✓ **Correct** — fix-elements get `flex-shrink: 0`, the flexible middle gets\n`flex: 1; min-width: 0`:\n\n```tsx\n<Flex alignItems=\"center\" gap={2}>\n  <Avatar style={{flexShrink: 0}} />\n  <span style={{flex: 1, minWidth: 0}}>{veryLongName}</span>\n  <Button style={{flexShrink: 0}}>Edit</Button>\n</Flex>\n```\n\n**Why:** flex defaults are `flex-shrink: 1` and `min-width: auto` on every\nchild — both work against you. Without `flex-shrink: 0`, fix-sized elements\n(avatars, icons, badges, the right-aligned action button) get squashed when a\nsibling is long. Without `min-width: 0` on the flexible child, the flex\n`min-width: auto` prevents it from shrinking and the text overflows the\ncontainer / overlaps its siblings — and this is invisible to layout tests\nbecause the element's bounding box stays clean. The fix-elements are what\nshould hold their size; compression goes into the flexible element (text gets\ntruncated, breadcrumbs collapse to `…`, a list scrolls).\n\nThe same contract applies vertically: panels `flex: 1; min-height: 0`;\nterminal zones (header / footer / composer) `flex-shrink: 0`.\n\n### Horizontal scroll lives inside the widget, not the page\n\n❌ **Incorrect** — wrap the whole workspace:\n\n```tsx\n<div style={{overflowX: 'auto'}}>      {/* breaks sticky headers, sidebars */}\n  <Workspace />\n</div>\n```\n\n✓ **Correct** — wrap only the wide widget, give the content its honest\n`min-width`:\n\n```tsx\n<div style={{overflowX: 'auto', maxWidth: '100%'}}>\n  <WideTable style={{minWidth: 1200}} />\n</div>\n```\n\n**Why:** wrapping the whole workspace makes sticky columns/headers and the\nsidebar scroll horizontally too. Compression should go into scroll on the\ncontainer of the wide thing only.\n\nFor a full-height app frame: root `height: 100vh` (+ a sane `min-height`),\npanels `flex: 1; min-height: 0; overflow-y: auto` — the panel scrolls, not the\ndocument.\n\n---\n\n## Theming",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:40.734Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "cd /home/sandbox/workspace && ls node_modules/@gravity-ui/uikit/build/esm/components/Toast* -d 2>/dev/null; find node_modules/@gravity-ui/uikit/build/esm -ipath '*toast*' | head -30; echo ----; rg -n 'Toaster|useToaster|ToasterProvider|ToasterComponent' node_modules/@gravity-ui/uikit/build/esm/index.d.ts node_modules/@gravity-ui/uikit/build/esm/components/index.d.ts 2>/dev/null | head; echo ----; cat node_modules/@gravity-ui/uikit/README.md | rg -n -i -C 3 'toast|Required setup' | head -120",
+          "description": "Locate toaster declarations and uikit README toast docs",
+          "_extractedCommand": "cd /home/sandbox/workspace && ls node_modules/@gravity-ui/uikit/build/esm/components/Toast* -d 2>/dev/null; find node_modules/@gravity-ui/uikit/build/esm -ipath '*toast*' | head -30; echo ----; rg -n 'Toaster|useToaster|ToasterProvider|ToasterComponent' node_modules/@gravity-ui/uikit/build/esm/index.d.ts node_modules/@gravity-ui/uikit/build/esm/components/index.d.ts 2>/dev/null | head; echo ----; cat node_modules/@gravity-ui/uikit/README.md | rg -n -i -C 3 'toast|Required setup' | head -120"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "cd /home/sandbox/workspace && ls node_modules/@gravity-ui/uikit/build/esm/components/Toast* -d 2>/dev/null; find node_modules/@gravity-ui/uikit/build/esm -ipath '*toast*' | head -30; echo ----; rg -n 'Toaster|useToaster|ToasterProvider|ToasterComponent' node_modules/@gravity-ui/uikit/build/esm/index.d.ts node_modules/@gravity-ui/uikit/build/esm/components/index.d.ts 2>/dev/null | head; echo ----; cat node_modules/@gravity-ui/uikit/README.md | rg -n -i -C 3 'toast|Required setup' | head -120",
+          "description": "Locate toaster declarations and uikit README toast docs"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:40.767Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_015b1nRBEkJZX82Ruq7Y8LVy",
+        "result": "node_modules/@gravity-ui/uikit/build/esm/components/Toaster\nnode_modules/@gravity-ui/uikit/build/esm/toaster-singleton.js\nnode_modules/@gravity-ui/uikit/build/esm/toaster-singleton.js.map\nnode_modules/@gravity-ui/uikit/build/esm/toaster-singleton.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/constants.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/utilities\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/i18n\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/hooks\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/withToaster.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/constants.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/withToaster.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/constants.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/withToaster.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.css\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.d.ts\n----\nnode_modules/@gravity-ui/uikit/build/esm/components/index.d.ts:58:export * from \"./Toaster/index.js\";\n----",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_015b1nRBEkJZX82Ruq7Y8LVy",
+        "type": "tool_result",
+        "content": "node_modules/@gravity-ui/uikit/build/esm/components/Toaster\nnode_modules/@gravity-ui/uikit/build/esm/toaster-singleton.js\nnode_modules/@gravity-ui/uikit/build/esm/toaster-singleton.js.map\nnode_modules/@gravity-ui/uikit/build/esm/toaster-singleton.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/constants.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/utilities\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/i18n\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToasterComponent\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/hooks\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/withToaster.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/constants.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/withToaster.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/constants.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/index.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toaster.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/types.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/withToaster.d.ts\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.css\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.js\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.d.ts\n----\nnode_modules/@gravity-ui/uikit/build/esm/components/index.d.ts:58:export * from \"./Toaster/index.js\";\n----",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:43.796Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Toaster/index.d.ts; echo ----; cat $D/components/Toaster/Toaster.d.ts; echo ----; cat $D/components/Toaster/types.d.ts; echo ----; cat $D/toaster-singleton.d.ts; echo ----; ls $D/components/Toaster/Provider $D/components/Toaster/hooks; cat $D/components/Toaster/Provider/*.d.ts $D/components/Toaster/hooks/*.d.ts 2>/dev/null | head -150",
+          "description": "Read Toaster type declarations in installed uikit",
+          "_extractedCommand": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Toaster/index.d.ts; echo ----; cat $D/components/Toaster/Toaster.d.ts; echo ----; cat $D/components/Toaster/types.d.ts; echo ----; cat $D/toaster-singleton.d.ts; echo ----; ls $D/components/Toaster/Provider $D/components/Toaster/hooks; cat $D/components/Toaster/Provider/*.d.ts $D/components/Toaster/hooks/*.d.ts 2>/dev/null | head -150"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Toaster/index.d.ts; echo ----; cat $D/components/Toaster/Toaster.d.ts; echo ----; cat $D/components/Toaster/types.d.ts; echo ----; cat $D/toaster-singleton.d.ts; echo ----; ls $D/components/Toaster/Provider $D/components/Toaster/hooks; cat $D/components/Toaster/Provider/*.d.ts $D/components/Toaster/hooks/*.d.ts 2>/dev/null | head -150",
+          "description": "Read Toaster type declarations in installed uikit"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:43.826Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_011zGbZ9Qejyj518mQxK2P3B",
+        "result": "export { Toaster } from \"./Toaster.js\";\nexport { Toast } from \"./Toast/Toast.js\";\nexport * from \"./types.js\";\nexport { useToaster } from \"./hooks/useToaster.js\";\nexport { withToaster } from \"./withToaster.js\";\nexport { ToasterComponent } from \"./ToasterComponent/ToasterComponent.js\";\nexport { ToasterProvider } from \"./Provider/ToasterProvider.js\";\n----\nimport type { InternalToastProps, ToastProps, ToasterImplementation } from \"./types.js\";\nexport declare class Toaster implements ToasterImplementation {\n    /** We were tried to notify about toaster changes, but no one were listened */\n    private hasUndelivered;\n    private toasts;\n    private eventEmitter;\n    destroy(): void;\n    add(toast: ToastProps): void;\n    remove(name: string): void;\n    removeAll(): void;\n    update(name: string, overrideOptions: Partial<ToastProps>): void;\n    has(name: string): boolean;\n    subscribe(listener: (toasts: InternalToastProps[]) => void): () => void;\n    private notify;\n}\n----\nimport type { ButtonView } from \"../Button/index.js\";\nimport type { TOAST_THEMES } from \"./constants.js\";\nexport type ToasterArgs = {\n    className?: string;\n    mobile?: boolean;\n};\nexport type ToastTheme = (typeof TOAST_THEMES)[number];\nexport type ToastAction = {\n    onClick: VoidFunction;\n    label: string;\n    view?: ButtonView;\n    removeAfterClick?: boolean;\n};\nexport type ToastProps = {\n    name: string;\n    title?: string;\n    className?: string;\n    autoHiding?: number | false;\n    content?: React.ReactNode;\n    theme?: ToastTheme;\n    isClosable?: boolean;\n    actions?: (() => React.ReactElement) | ToastAction[];\n    onClose?: () => void;\n    /** Function. Use for toast icon customization. By default type-based behavior is used */\n    renderIcon?: (toastProps: ToastProps) => React.ReactNode;\n};\nexport type InternalToastProps = ToastProps & {\n    addedAt?: number;\n    ref?: React.RefObject<HTMLDivElement | null>;\n};\nexport interface ToasterContextMethods {\n    add(toast: ToastProps): void;\n    remove(toastName: ToastProps['name']): void;\n    removeAll(): void;\n    update(toastName: ToastProps['name'], override: Partial<ToastProps>): void;\n    has(toastName: ToastProps['name']): boolean;\n}\nexport interface ToasterPublicMethods extends ToasterContextMethods {\n}\n/**\n * Toaster implementation for usage in `<Toaster.Provider/>`\n */\nexport interface ToasterImplementation extends ToasterContextMethods {\n    subscribe(callback: (toasts: InternalToastProps[]) => void): VoidFunction;\n}\n----\nimport { Toaster } from \"./components/Toaster/Toaster.js\";\nexport declare const toaster: Toaster;\n----\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider:\nToasterContext.d.ts\nToasterContext.js\nToasterContext.js.map\nToasterProvider.d.ts\nToasterProvider.js\nToasterProvider.js.map\nToastsContext.d.ts\nToastsContext.js\nToastsContext.js.map\n\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/hooks:\nuseInToasterContext.d.ts\nuseInToasterContext.js\nuseInToasterContext.js.map\nuseToaster.d.ts\nuseToaster.js\nuseToaster.js.map\nimport * as React from 'react';\nimport type { ToasterContextMethods } from \"../types.js\";\nexport declare const ToasterContext: React.Context<ToasterContextMethods | null>;\nimport * as React from 'react';\nimport type { ToasterImplementation } from \"../types.js\";\ntype Props = React.PropsWithChildren<{\n    toaster: ToasterImplementation;\n}>;\nexport declare const ToasterProvider: {\n    ({ toaster, children }: Props): import(\"react/jsx-runtime\").JSX.Element;\n    displayName: string;\n};\nexport {};\nimport * as React from 'react';\nimport type { InternalToastProps } from \"../types.js\";\nexport declare const ToastsContext: React.Context<InternalToastProps[]>;\nexport declare function useInToasterContext(): boolean;\nimport type { ToasterPublicMethods } from \"../types.js\";\nexport declare function useToaster(): ToasterPublicMethods;",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_011zGbZ9Qejyj518mQxK2P3B",
+        "type": "tool_result",
+        "content": "export { Toaster } from \"./Toaster.js\";\nexport { Toast } from \"./Toast/Toast.js\";\nexport * from \"./types.js\";\nexport { useToaster } from \"./hooks/useToaster.js\";\nexport { withToaster } from \"./withToaster.js\";\nexport { ToasterComponent } from \"./ToasterComponent/ToasterComponent.js\";\nexport { ToasterProvider } from \"./Provider/ToasterProvider.js\";\n----\nimport type { InternalToastProps, ToastProps, ToasterImplementation } from \"./types.js\";\nexport declare class Toaster implements ToasterImplementation {\n    /** We were tried to notify about toaster changes, but no one were listened */\n    private hasUndelivered;\n    private toasts;\n    private eventEmitter;\n    destroy(): void;\n    add(toast: ToastProps): void;\n    remove(name: string): void;\n    removeAll(): void;\n    update(name: string, overrideOptions: Partial<ToastProps>): void;\n    has(name: string): boolean;\n    subscribe(listener: (toasts: InternalToastProps[]) => void): () => void;\n    private notify;\n}\n----\nimport type { ButtonView } from \"../Button/index.js\";\nimport type { TOAST_THEMES } from \"./constants.js\";\nexport type ToasterArgs = {\n    className?: string;\n    mobile?: boolean;\n};\nexport type ToastTheme = (typeof TOAST_THEMES)[number];\nexport type ToastAction = {\n    onClick: VoidFunction;\n    label: string;\n    view?: ButtonView;\n    removeAfterClick?: boolean;\n};\nexport type ToastProps = {\n    name: string;\n    title?: string;\n    className?: string;\n    autoHiding?: number | false;\n    content?: React.ReactNode;\n    theme?: ToastTheme;\n    isClosable?: boolean;\n    actions?: (() => React.ReactElement) | ToastAction[];\n    onClose?: () => void;\n    /** Function. Use for toast icon customization. By default type-based behavior is used */\n    renderIcon?: (toastProps: ToastProps) => React.ReactNode;\n};\nexport type InternalToastProps = ToastProps & {\n    addedAt?: number;\n    ref?: React.RefObject<HTMLDivElement | null>;\n};\nexport interface ToasterContextMethods {\n    add(toast: ToastProps): void;\n    remove(toastName: ToastProps['name']): void;\n    removeAll(): void;\n    update(toastName: ToastProps['name'], override: Partial<ToastProps>): void;\n    has(toastName: ToastProps['name']): boolean;\n}\nexport interface ToasterPublicMethods extends ToasterContextMethods {\n}\n/**\n * Toaster implementation for usage in `<Toaster.Provider/>`\n */\nexport interface ToasterImplementation extends ToasterContextMethods {\n    subscribe(callback: (toasts: InternalToastProps[]) => void): VoidFunction;\n}\n----\nimport { Toaster } from \"./components/Toaster/Toaster.js\";\nexport declare const toaster: Toaster;\n----\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Provider:\nToasterContext.d.ts\nToasterContext.js\nToasterContext.js.map\nToasterProvider.d.ts\nToasterProvider.js\nToasterProvider.js.map\nToastsContext.d.ts\nToastsContext.js\nToastsContext.js.map\n\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/hooks:\nuseInToasterContext.d.ts\nuseInToasterContext.js\nuseInToasterContext.js.map\nuseToaster.d.ts\nuseToaster.js\nuseToaster.js.map\nimport * as React from 'react';\nimport type { ToasterContextMethods } from \"../types.js\";\nexport declare const ToasterContext: React.Context<ToasterContextMethods | null>;\nimport * as React from 'react';\nimport type { ToasterImplementation } from \"../types.js\";\ntype Props = React.PropsWithChildren<{\n    toaster: ToasterImplementation;\n}>;\nexport declare const ToasterProvider: {\n    ({ toaster, children }: Props): import(\"react/jsx-runtime\").JSX.Element;\n    displayName: string;\n};\nexport {};\nimport * as React from 'react';\nimport type { InternalToastProps } from \"../types.js\";\nexport declare const ToastsContext: React.Context<InternalToastProps[]>;\nexport declare function useInToasterContext(): boolean;\nimport type { ToasterPublicMethods } from \"../types.js\";\nexport declare function useToaster(): ToasterPublicMethods;",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:44.455Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "cd /tmp && curl -sS -m 20 -o /tmp/uikit7-llms.txt -w '%{http_code}\\n' https://gravity-ui.com/llms/uikit/7/llms.txt; wc -c /tmp/uikit7-llms.txt 2>/dev/null; rg -n -i 'toaster' /tmp/uikit7-llms.txt 2>/dev/null | head -40",
+          "description": "Read Toaster declarations and try online uikit major-line docs",
+          "_extractedCommand": "cd /tmp && curl -sS -m 20 -o /tmp/uikit7-llms.txt -w '%{http_code}\\n' https://gravity-ui.com/llms/uikit/7/llms.txt; wc -c /tmp/uikit7-llms.txt 2>/dev/null; rg -n -i 'toaster' /tmp/uikit7-llms.txt 2>/dev/null | head -40"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "cd /tmp && curl -sS -m 20 -o /tmp/uikit7-llms.txt -w '%{http_code}\\n' https://gravity-ui.com/llms/uikit/7/llms.txt; wc -c /tmp/uikit7-llms.txt 2>/dev/null; rg -n -i 'toaster' /tmp/uikit7-llms.txt 2>/dev/null | head -40",
+          "description": "Read Toaster declarations and try online uikit major-line docs"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:44.616Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01FxQM6xBJqk2UCM2fHnnY9S",
+        "result": "200\n26051 /tmp/uikit7-llms.txt\n175:- [Toaster](https://unpkg.com/@gravity-ui/uikit@7.51.1/build/docs/components/Toaster.md) — This is a component for adjustable notifications also known as toasts.\nShell cwd was reset to /home/sandbox/workspace",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01FxQM6xBJqk2UCM2fHnnY9S",
+        "type": "tool_result",
+        "content": "200\n26051 /tmp/uikit7-llms.txt\n175:- [Toaster](https://unpkg.com/@gravity-ui/uikit@7.51.1/build/docs/components/Toaster.md) — This is a component for adjustable notifications also known as toasts.\nShell cwd was reset to /home/sandbox/workspace",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:48.148Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; ls $D/components/Toaster/ToasterComponent; cat $D/components/Toaster/ToasterComponent/ToasterComponent.d.ts; echo ----; cat $D/components/Toaster/ToasterComponent/ToasterComponent.js | head -80; echo ----; cat $D/components/Toaster/hooks/useToaster.js; echo ----; cat $D/toaster-singleton.js; echo ----; grep -rn 'autoHiding' $D/components/Toaster --include=*.js | head; echo ----; cat $D/components/Toaster/constants.js | head -40",
+          "description": "Inspect ToasterComponent implementation and defaults",
+          "_extractedCommand": "D=node_modules/@gravity-ui/uikit/build/esm; ls $D/components/Toaster/ToasterComponent; cat $D/components/Toaster/ToasterComponent/ToasterComponent.d.ts; echo ----; cat $D/components/Toaster/ToasterComponent/ToasterComponent.js | head -80; echo ----; cat $D/components/Toaster/hooks/useToaster.js; echo ----; cat $D/toaster-singleton.js; echo ----; grep -rn 'autoHiding' $D/components/Toaster --include=*.js | head; echo ----; cat $D/components/Toaster/constants.js | head -40"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; ls $D/components/Toaster/ToasterComponent; cat $D/components/Toaster/ToasterComponent/ToasterComponent.d.ts; echo ----; cat $D/components/Toaster/ToasterComponent/ToasterComponent.js | head -80; echo ----; cat $D/components/Toaster/hooks/useToaster.js; echo ----; cat $D/toaster-singleton.js; echo ----; grep -rn 'autoHiding' $D/components/Toaster --include=*.js | head; echo ----; cat $D/components/Toaster/constants.js | head -40",
+          "description": "Inspect ToasterComponent implementation and defaults"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:48.170Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_014jgBdByFMdQNn6wWY4PJnu",
+        "result": "ToasterComponent.d.ts\nToasterComponent.js\nToasterComponent.js.map\ninterface Props {\n    className?: string;\n    mobile?: boolean;\n    hasPortal?: boolean;\n}\nexport declare function ToasterComponent({ className, mobile, hasPortal }: Props): import(\"react/jsx-runtime\").JSX.Element;\nexport declare namespace ToasterComponent {\n    var displayName: string;\n}\nexport {};\n----\n'use client';\nimport { jsx as _jsx } from \"react/jsx-runtime\";\nimport * as React from 'react';\nimport { Portal } from \"../../Portal/index.js\";\nimport { useMobile } from \"../../mobile/index.js\";\nimport { block } from \"../../utils/cn.js\";\nimport { ToastsContext } from \"../Provider/ToastsContext.js\";\nimport { ToastList } from \"../ToastList/ToastList.js\";\nimport { useToaster } from \"../hooks/useToaster.js\";\nconst b = block('toaster');\nexport function ToasterComponent({ className, mobile, hasPortal = true }) {\n    const defaultMobile = useMobile();\n    const { remove } = useToaster();\n    const list = React.useContext(ToastsContext);\n    const toaster = (_jsx(ToastList, { toasts: list, removeCallback: remove, mobile: mobile ?? defaultMobile }));\n    if (!hasPortal) {\n        return toaster;\n    }\n    return (_jsx(Portal, { children: _jsx(\"div\", { className: b({ mobile: mobile ?? defaultMobile }, className), \"aria-live\": \"assertive\", children: toaster }) }));\n}\nToasterComponent.displayName = 'ToasterComponent';\n//# sourceMappingURL=ToasterComponent.js.map\n----\nimport * as React from 'react';\nimport { ToasterContext } from \"../Provider/ToasterContext.js\";\nexport function useToaster() {\n    const toaster = React.useContext(ToasterContext);\n    if (toaster === null) {\n        throw new Error('Toaster: `useToaster` hook is used out of context');\n    }\n    return React.useMemo(() => ({\n        add: toaster.add.bind(toaster),\n        remove: toaster.remove.bind(toaster),\n        removeAll: toaster.removeAll.bind(toaster),\n        update: toaster.update.bind(toaster),\n        has: toaster.has.bind(toaster),\n    }), [toaster]);\n}\n//# sourceMappingURL=useToaster.js.map\n----\nimport { Toaster } from \"./components/Toaster/Toaster.js\";\nexport const toaster = new Toaster();\n//# sourceMappingURL=toaster-singleton.js.map\n----\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.js:52:    const { name, content, actions, title, className, theme = 'normal', renderIcon, autoHiding: timeoutProp = DEFAULT_TIMEOUT, isClosable = true, mobile = false, onClose, removeCallback, } = props;\n----\nexport const TOAST_THEMES = ['normal', 'info', 'success', 'warning', 'danger', 'utility'];\n//# sourceMappingURL=constants.js.map",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_014jgBdByFMdQNn6wWY4PJnu",
+        "type": "tool_result",
+        "content": "ToasterComponent.d.ts\nToasterComponent.js\nToasterComponent.js.map\ninterface Props {\n    className?: string;\n    mobile?: boolean;\n    hasPortal?: boolean;\n}\nexport declare function ToasterComponent({ className, mobile, hasPortal }: Props): import(\"react/jsx-runtime\").JSX.Element;\nexport declare namespace ToasterComponent {\n    var displayName: string;\n}\nexport {};\n----\n'use client';\nimport { jsx as _jsx } from \"react/jsx-runtime\";\nimport * as React from 'react';\nimport { Portal } from \"../../Portal/index.js\";\nimport { useMobile } from \"../../mobile/index.js\";\nimport { block } from \"../../utils/cn.js\";\nimport { ToastsContext } from \"../Provider/ToastsContext.js\";\nimport { ToastList } from \"../ToastList/ToastList.js\";\nimport { useToaster } from \"../hooks/useToaster.js\";\nconst b = block('toaster');\nexport function ToasterComponent({ className, mobile, hasPortal = true }) {\n    const defaultMobile = useMobile();\n    const { remove } = useToaster();\n    const list = React.useContext(ToastsContext);\n    const toaster = (_jsx(ToastList, { toasts: list, removeCallback: remove, mobile: mobile ?? defaultMobile }));\n    if (!hasPortal) {\n        return toaster;\n    }\n    return (_jsx(Portal, { children: _jsx(\"div\", { className: b({ mobile: mobile ?? defaultMobile }, className), \"aria-live\": \"assertive\", children: toaster }) }));\n}\nToasterComponent.displayName = 'ToasterComponent';\n//# sourceMappingURL=ToasterComponent.js.map\n----\nimport * as React from 'react';\nimport { ToasterContext } from \"../Provider/ToasterContext.js\";\nexport function useToaster() {\n    const toaster = React.useContext(ToasterContext);\n    if (toaster === null) {\n        throw new Error('Toaster: `useToaster` hook is used out of context');\n    }\n    return React.useMemo(() => ({\n        add: toaster.add.bind(toaster),\n        remove: toaster.remove.bind(toaster),\n        removeAll: toaster.removeAll.bind(toaster),\n        update: toaster.update.bind(toaster),\n        has: toaster.has.bind(toaster),\n    }), [toaster]);\n}\n//# sourceMappingURL=useToaster.js.map\n----\nimport { Toaster } from \"./components/Toaster/Toaster.js\";\nexport const toaster = new Toaster();\n//# sourceMappingURL=toaster-singleton.js.map\n----\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/Toast/Toast.js:52:    const { name, content, actions, title, className, theme = 'normal', renderIcon, autoHiding: timeoutProp = DEFAULT_TIMEOUT, isClosable = true, mobile = false, onClose, removeCallback, } = props;\n----\nexport const TOAST_THEMES = ['normal', 'info', 'success', 'warning', 'danger', 'utility'];\n//# sourceMappingURL=constants.js.map",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:50.685Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; rg -n 'toaster-singleton|Toaster' $D/index.d.ts; rg -n 'DEFAULT_TIMEOUT' $D/components/Toaster/Toast/Toast.js | head -3; rg -n 'Button' $D/components/index.d.ts | head -3; grep -n '\"version\"' node_modules/@gravity-ui/uikit/package.json; grep -n 'Button\\|view' $D/components/Button/Button.d.ts | head -20; ls $D/components/Button | head; cat $D/components/Button/types.d.ts 2>/dev/null | head -40",
+          "description": "Check toaster root export and Button API",
+          "_extractedCommand": "D=node_modules/@gravity-ui/uikit/build/esm; rg -n 'toaster-singleton|Toaster' $D/index.d.ts; rg -n 'DEFAULT_TIMEOUT' $D/components/Toaster/Toast/Toast.js | head -3; rg -n 'Button' $D/components/index.d.ts | head -3; grep -n '\"version\"' node_modules/@gravity-ui/uikit/package.json; grep -n 'Button\\|view' $D/components/Button/Button.d.ts | head -20; ls $D/components/Button | head; cat $D/components/Button/types.d.ts 2>/dev/null | head -40"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; rg -n 'toaster-singleton|Toaster' $D/index.d.ts; rg -n 'DEFAULT_TIMEOUT' $D/components/Toaster/Toast/Toast.js | head -3; rg -n 'Button' $D/components/index.d.ts | head -3; grep -n '\"version\"' node_modules/@gravity-ui/uikit/package.json; grep -n 'Button\\|view' $D/components/Button/Button.d.ts | head -20; ls $D/components/Button | head; cat $D/components/Button/types.d.ts 2>/dev/null | head -40",
+          "description": "Check toaster root export and Button API"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:50.716Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01SWcdSGhbDGbwWYNDinv7Fx",
+        "result": "12:const DEFAULT_TIMEOUT = 5000;\n52:    const { name, content, actions, title, className, theme = 'normal', renderIcon, autoHiding: timeoutProp = DEFAULT_TIMEOUT, isClosable = true, mobile = false, onClose, removeCallback, } = props;\n12:export * from \"./Button/index.js\";\n15:export * from \"./ClipboardButton/index.js\";\n3:  \"version\": \"7.43.0\",\n4:import \"./Button.css\";\n5:export type ButtonView = (typeof BUTTON_VIEWS)[number];\n6:export type ButtonSize = 'xs' | 's' | 'm' | 'l' | 'xl';\n7:export type ButtonPin = 'round-round' | 'brick-brick' | 'clear-clear' | 'circle-circle' | 'round-brick' | 'brick-round' | 'round-clear' | 'clear-round' | 'brick-clear' | 'clear-brick' | 'circle-brick' | 'brick-circle' | 'circle-clear' | 'clear-circle';\n8:export type ButtonWidth = 'auto' | 'max';\n9:export interface ButtonCommonProps extends QAProps, DOMProps {\n10:    view?: ButtonView;\n11:    size?: ButtonSize;\n12:    pin?: ButtonPin;\n16:    width?: ButtonWidth;\n19:export interface ButtonButtonProps extends ButtonCommonProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'disabled' | 'style'> {\n25:    extraProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;\n27:export interface ButtonLinkProps extends ButtonCommonProps, Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'style'> {\n35:export type ButtonComponentProps<T extends Exclude<ButtonCustomElementType, undefined>> = ButtonCommonProps & React.ComponentPropsWithoutRef<T> & {\n42:export type ButtonCustomElementType = Exclude<React.ElementType, 'a' | 'button'> | undefined;\n43:export type ButtonProps<T extends ButtonCustomElementType = undefined> = ButtonLinkProps | ButtonButtonProps | ButtonComponentProps<Exclude<T, undefined>>;\n44:export declare const Button: (<T extends ButtonCustomElementType, P extends ButtonProps<T>>(props: P extends {\n46:} ? ButtonComponentProps<Exclude<T, undefined>> & {\n50:} ? ButtonLinkProps & {\n52:} : ButtonButtonProps & {\nButton.css\nButton.d.ts\nButton.js\nButton.js.map\nButtonIcon.d.ts\nButtonIcon.js\nButtonIcon.js.map\nconstants.d.ts\nconstants.js\nconstants.js.map",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01SWcdSGhbDGbwWYNDinv7Fx",
+        "type": "tool_result",
+        "content": "12:const DEFAULT_TIMEOUT = 5000;\n52:    const { name, content, actions, title, className, theme = 'normal', renderIcon, autoHiding: timeoutProp = DEFAULT_TIMEOUT, isClosable = true, mobile = false, onClose, removeCallback, } = props;\n12:export * from \"./Button/index.js\";\n15:export * from \"./ClipboardButton/index.js\";\n3:  \"version\": \"7.43.0\",\n4:import \"./Button.css\";\n5:export type ButtonView = (typeof BUTTON_VIEWS)[number];\n6:export type ButtonSize = 'xs' | 's' | 'm' | 'l' | 'xl';\n7:export type ButtonPin = 'round-round' | 'brick-brick' | 'clear-clear' | 'circle-circle' | 'round-brick' | 'brick-round' | 'round-clear' | 'clear-round' | 'brick-clear' | 'clear-brick' | 'circle-brick' | 'brick-circle' | 'circle-clear' | 'clear-circle';\n8:export type ButtonWidth = 'auto' | 'max';\n9:export interface ButtonCommonProps extends QAProps, DOMProps {\n10:    view?: ButtonView;\n11:    size?: ButtonSize;\n12:    pin?: ButtonPin;\n16:    width?: ButtonWidth;\n19:export interface ButtonButtonProps extends ButtonCommonProps, Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'disabled' | 'style'> {\n25:    extraProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;\n27:export interface ButtonLinkProps extends ButtonCommonProps, Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'style'> {\n35:export type ButtonComponentProps<T extends Exclude<ButtonCustomElementType, undefined>> = ButtonCommonProps & React.ComponentPropsWithoutRef<T> & {\n42:export type ButtonCustomElementType = Exclude<React.ElementType, 'a' | 'button'> | undefined;\n43:export type ButtonProps<T extends ButtonCustomElementType = undefined> = ButtonLinkProps | ButtonButtonProps | ButtonComponentProps<Exclude<T, undefined>>;\n44:export declare const Button: (<T extends ButtonCustomElementType, P extends ButtonProps<T>>(props: P extends {\n46:} ? ButtonComponentProps<Exclude<T, undefined>> & {\n50:} ? ButtonLinkProps & {\n52:} : ButtonButtonProps & {\nButton.css\nButton.d.ts\nButton.js\nButton.js.map\nButtonIcon.d.ts\nButtonIcon.js\nButtonIcon.js.map\nconstants.d.ts\nconstants.js\nconstants.js.map",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:53.312Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/index.d.ts | head -20; echo ----; rg -rn 'toaster-singleton' $D --include=*.d.ts | head; echo ----; sed -n 1,20p $D/components/index.d.ts | head -5; echo; rg -n 'Toaster|toaster' $D/components/index.d.ts; echo ----; rg -n '\"\\./?\"|toaster' node_modules/@gravity-ui/uikit/package.json | head",
+          "description": "Verify root exports of toaster and singleton",
+          "_extractedCommand": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/index.d.ts | head -20; echo ----; rg -rn 'toaster-singleton' $D --include=*.d.ts | head; echo ----; sed -n 1,20p $D/components/index.d.ts | head -5; echo; rg -n 'Toaster|toaster' $D/components/index.d.ts; echo ----; rg -n '\"\\./?\"|toaster' node_modules/@gravity-ui/uikit/package.json | head"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/index.d.ts | head -20; echo ----; rg -rn 'toaster-singleton' $D --include=*.d.ts | head; echo ----; sed -n 1,20p $D/components/index.d.ts | head -5; echo; rg -n 'Toaster|toaster' $D/components/index.d.ts; echo ----; rg -n '\"\\./?\"|toaster' node_modules/@gravity-ui/uikit/package.json | head",
+          "description": "Verify root exports of toaster and singleton"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:53.339Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01NqBMkUekd6hfXxqW29b6eT",
+        "result": "export { Lang, configure, getConfig } from \"./utils/configure.js\";\nexport type { StringWithSuggest } from \"./utils/types.js\";\nexport * from \"./components/index.js\";\nexport * from \"./hooks/index.js\";\nexport * from \"./utils/dom.js\";\n----\nrg: unrecognized flag --include\n\nsimilar flags that are available: --include-zero\n----\nexport * from \"./types.js\";\nexport * from \"./mobile/index.js\";\nexport * from \"./theme/index.js\";\nexport * from \"./Accordion/index.js\";\nexport * from \"./ActionTooltip/index.js\";\n\n58:export * from \"./Toaster/index.js\";\n----\n22:    \".\": {\n32:    \"./toaster-singleton\": {\n34:        \"types\": \"./build/esm/toaster-singleton.d.ts\",\n35:        \"default\": \"./build/esm/toaster-singleton.js\"\n38:        \"types\": \"./build/cjs/toaster-singleton.d.ts\",\n39:        \"default\": \"./build/cjs/toaster-singleton.js\"",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01NqBMkUekd6hfXxqW29b6eT",
+        "type": "tool_result",
+        "content": "export { Lang, configure, getConfig } from \"./utils/configure.js\";\nexport type { StringWithSuggest } from \"./utils/types.js\";\nexport * from \"./components/index.js\";\nexport * from \"./hooks/index.js\";\nexport * from \"./utils/dom.js\";\n----\nrg: unrecognized flag --include\n\nsimilar flags that are available: --include-zero\n----\nexport * from \"./types.js\";\nexport * from \"./mobile/index.js\";\nexport * from \"./theme/index.js\";\nexport * from \"./Accordion/index.js\";\nexport * from \"./ActionTooltip/index.js\";\n\n58:export * from \"./Toaster/index.js\";\n----\n22:    \".\": {\n32:    \"./toaster-singleton\": {\n34:        \"types\": \"./build/esm/toaster-singleton.d.ts\",\n35:        \"default\": \"./build/esm/toaster-singleton.js\"\n38:        \"types\": \"./build/cjs/toaster-singleton.d.ts\",\n39:        \"default\": \"./build/cjs/toaster-singleton.js\"",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:59.035Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Toaster/Toaster.js | sed -n 1,60p; echo ----; cat $D/components/Toaster/Provider/ToasterProvider.js; echo ----; rg -n 'position|bottom|top|left|right' $D/components/Toaster/ToastList/*.css $D/components/Toaster/*.css 2>/dev/null | head -20; ls $D/components/Toaster/ToastList",
+          "description": "Read Toaster add semantics and provider implementation",
+          "_extractedCommand": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Toaster/Toaster.js | sed -n 1,60p; echo ----; cat $D/components/Toaster/Provider/ToasterProvider.js; echo ----; rg -n 'position|bottom|top|left|right' $D/components/Toaster/ToastList/*.css $D/components/Toaster/*.css 2>/dev/null | head -20; ls $D/components/Toaster/ToastList"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Toaster/Toaster.js | sed -n 1,60p; echo ----; cat $D/components/Toaster/Provider/ToasterProvider.js; echo ----; rg -n 'position|bottom|top|left|right' $D/components/Toaster/ToastList/*.css $D/components/Toaster/*.css 2>/dev/null | head -20; ls $D/components/Toaster/ToastList",
+          "description": "Read Toaster add semantics and provider implementation"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:59.062Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_014VL6ngQJxX85anZzuzb836",
+        "result": "import { EventEmitter } from \"../../utils/EventEmitter/index.js\";\nimport { getToastIndex } from \"./utilities/getToastIndex.js\";\nimport { hasToast } from \"./utilities/hasToast.js\";\nimport { removeToast } from \"./utilities/removeToast.js\";\nexport class Toaster {\n    /** We were tried to notify about toaster changes, but no one were listened */\n    hasUndelivered = false;\n    toasts = [];\n    eventEmitter = new EventEmitter();\n    destroy() {\n        this.removeAll();\n        this.eventEmitter.destroy();\n    }\n    add(toast) {\n        let nextToasts = this.toasts;\n        if (hasToast(nextToasts, toast.name)) {\n            nextToasts = removeToast(nextToasts, toast.name);\n        }\n        this.toasts = [\n            ...nextToasts,\n            {\n                ...toast,\n                addedAt: Date.now(),\n                ref: { current: null },\n            },\n        ];\n        this.notify();\n    }\n    remove(name) {\n        this.toasts = removeToast(this.toasts, name);\n        this.notify();\n    }\n    removeAll() {\n        this.toasts = [];\n        this.notify();\n    }\n    update(name, overrideOptions) {\n        if (!hasToast(this.toasts, name)) {\n            return;\n        }\n        const index = getToastIndex(this.toasts, name);\n        this.toasts = [\n            ...this.toasts.slice(0, index),\n            {\n                ...this.toasts[index],\n                ...overrideOptions,\n            },\n            ...this.toasts.slice(index + 1),\n        ];\n        this.notify();\n    }\n    has(name) {\n        return hasToast(this.toasts, name);\n    }\n    subscribe(listener) {\n        const unsubscribe = this.eventEmitter.subscribe('toasts-change', listener);\n        if (this.hasUndelivered) {\n            this.notify();\n        }\n        return unsubscribe;\n----\n'use client';\nimport { jsx as _jsx } from \"react/jsx-runtime\";\nimport * as React from 'react';\nimport { ToasterContext } from \"./ToasterContext.js\";\nimport { ToastsContext } from \"./ToastsContext.js\";\nexport const ToasterProvider = ({ toaster, children }) => {\n    const [toasts, setToasts] = React.useState([]);\n    React.useEffect(() => {\n        const unsubscribe = toaster.subscribe(setToasts);\n        return () => {\n            unsubscribe();\n        };\n    }, [toaster]);\n    return (_jsx(ToasterContext.Provider, { value: toaster, children: _jsx(ToastsContext.Provider, { value: toasts, children: children }) }));\n};\nToasterProvider.displayName = 'ToasterProvider';\n//# sourceMappingURL=ToasterProvider.js.map\n----\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:3:  position: absolute;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:7:  position: relative;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:85:.g-toast-animation-desktop_enter {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:87:  position: absolute;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:89:.g-toast-animation-desktop_enter_active {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:90:  animation: g-toast-enter-desktop 0.6s ease-out forwards;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:91:  position: relative;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:94:  .g-toast-animation-desktop_enter_active {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:98:.g-toast-animation-desktop_exit_active {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:99:  animation: g-toast-exit-desktop 0.6s ease-in forwards;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:102:  .g-toast-animation-desktop_exit_active {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:107:@keyframes g-toast-enter-desktop {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:130:@keyframes g-toast-exit-desktop {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css:3:  position: fixed;\nToastAnimation.css\nToastList.css\nToastList.d.ts\nToastList.js\nToastList.js.map",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_014VL6ngQJxX85anZzuzb836",
+        "type": "tool_result",
+        "content": "import { EventEmitter } from \"../../utils/EventEmitter/index.js\";\nimport { getToastIndex } from \"./utilities/getToastIndex.js\";\nimport { hasToast } from \"./utilities/hasToast.js\";\nimport { removeToast } from \"./utilities/removeToast.js\";\nexport class Toaster {\n    /** We were tried to notify about toaster changes, but no one were listened */\n    hasUndelivered = false;\n    toasts = [];\n    eventEmitter = new EventEmitter();\n    destroy() {\n        this.removeAll();\n        this.eventEmitter.destroy();\n    }\n    add(toast) {\n        let nextToasts = this.toasts;\n        if (hasToast(nextToasts, toast.name)) {\n            nextToasts = removeToast(nextToasts, toast.name);\n        }\n        this.toasts = [\n            ...nextToasts,\n            {\n                ...toast,\n                addedAt: Date.now(),\n                ref: { current: null },\n            },\n        ];\n        this.notify();\n    }\n    remove(name) {\n        this.toasts = removeToast(this.toasts, name);\n        this.notify();\n    }\n    removeAll() {\n        this.toasts = [];\n        this.notify();\n    }\n    update(name, overrideOptions) {\n        if (!hasToast(this.toasts, name)) {\n            return;\n        }\n        const index = getToastIndex(this.toasts, name);\n        this.toasts = [\n            ...this.toasts.slice(0, index),\n            {\n                ...this.toasts[index],\n                ...overrideOptions,\n            },\n            ...this.toasts.slice(index + 1),\n        ];\n        this.notify();\n    }\n    has(name) {\n        return hasToast(this.toasts, name);\n    }\n    subscribe(listener) {\n        const unsubscribe = this.eventEmitter.subscribe('toasts-change', listener);\n        if (this.hasUndelivered) {\n            this.notify();\n        }\n        return unsubscribe;\n----\n'use client';\nimport { jsx as _jsx } from \"react/jsx-runtime\";\nimport * as React from 'react';\nimport { ToasterContext } from \"./ToasterContext.js\";\nimport { ToastsContext } from \"./ToastsContext.js\";\nexport const ToasterProvider = ({ toaster, children }) => {\n    const [toasts, setToasts] = React.useState([]);\n    React.useEffect(() => {\n        const unsubscribe = toaster.subscribe(setToasts);\n        return () => {\n            unsubscribe();\n        };\n    }, [toaster]);\n    return (_jsx(ToasterContext.Provider, { value: toaster, children: _jsx(ToastsContext.Provider, { value: toasts, children: children }) }));\n};\nToasterProvider.displayName = 'ToasterProvider';\n//# sourceMappingURL=ToasterProvider.js.map\n----\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:3:  position: absolute;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:7:  position: relative;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:85:.g-toast-animation-desktop_enter {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:87:  position: absolute;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:89:.g-toast-animation-desktop_enter_active {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:90:  animation: g-toast-enter-desktop 0.6s ease-out forwards;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:91:  position: relative;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:94:  .g-toast-animation-desktop_enter_active {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:98:.g-toast-animation-desktop_exit_active {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:99:  animation: g-toast-exit-desktop 0.6s ease-in forwards;\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:102:  .g-toast-animation-desktop_exit_active {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:107:@keyframes g-toast-enter-desktop {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:130:@keyframes g-toast-exit-desktop {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css:3:  position: fixed;\nToastAnimation.css\nToastList.css\nToastList.d.ts\nToastList.js\nToastList.js.map",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:44:01.475Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; sed -n 1,20p $D/components/Toaster/ToastList/ToastList.css; echo ----; sed -n 1,30p $D/components/Toaster/ToasterComponent/*.css 2>/dev/null; ls $D/components/Toaster/ToasterComponent; rg -n 'g-toaster' $D/components/Toaster --glob '*.css' | head -5",
+          "description": "Check toast list fixed position",
+          "_extractedCommand": "D=node_modules/@gravity-ui/uikit/build/esm; sed -n 1,20p $D/components/Toaster/ToastList/ToastList.css; echo ----; sed -n 1,30p $D/components/Toaster/ToasterComponent/*.css 2>/dev/null; ls $D/components/Toaster/ToasterComponent; rg -n 'g-toaster' $D/components/Toaster --glob '*.css' | head -5"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; sed -n 1,20p $D/components/Toaster/ToastList/ToastList.css; echo ----; sed -n 1,30p $D/components/Toaster/ToasterComponent/*.css 2>/dev/null; ls $D/components/Toaster/ToasterComponent; rg -n 'g-toaster' $D/components/Toaster --glob '*.css' | head -5",
+          "description": "Check toast list fixed position"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:44:01.496Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_0177s8NLh2XKzNRsc2HZ6Bw5",
+        "result": ".g-toaster {\n  --_--width: 312px;\n  position: fixed;\n  inset-block-end: 0;\n  inset-inline-end: 10px;\n  width: var(--g-toaster-width, var(--_--width));\n  z-index: 100000;\n  display: flex;\n  flex-direction: column;\n  align-items: flex-end;\n}\n.g-toaster_mobile {\n  --_--width: calc(100% - 20px);\n  inset-inline-start: 50%;\n  transform: translate(-50%);\n}----\nToasterComponent.d.ts\nToasterComponent.js\nToasterComponent.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css:1:.g-toaster {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css:6:  width: var(--g-toaster-width, var(--_--width));\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css:12:.g-toaster_mobile {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:32:    margin-block-end: var(--g-toaster-item-gap, var(--_--item-gap));\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:33:    padding: var(--g-toaster-item-padding, var(--_--item-padding));",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_0177s8NLh2XKzNRsc2HZ6Bw5",
+        "type": "tool_result",
+        "content": ".g-toaster {\n  --_--width: 312px;\n  position: fixed;\n  inset-block-end: 0;\n  inset-inline-end: 10px;\n  width: var(--g-toaster-width, var(--_--width));\n  z-index: 100000;\n  display: flex;\n  flex-direction: column;\n  align-items: flex-end;\n}\n.g-toaster_mobile {\n  --_--width: calc(100% - 20px);\n  inset-inline-start: 50%;\n  transform: translate(-50%);\n}----\nToasterComponent.d.ts\nToasterComponent.js\nToasterComponent.js.map\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css:1:.g-toaster {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css:6:  width: var(--g-toaster-width, var(--_--width));\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastList.css:12:.g-toaster_mobile {\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:32:    margin-block-end: var(--g-toaster-item-gap, var(--_--item-gap));\nnode_modules/@gravity-ui/uikit/build/esm/components/Toaster/ToastList/ToastAnimation.css:33:    padding: var(--g-toaster-item-padding, var(--_--item-padding));",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:44:06.012Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Button/constants.js | head -20; rg -o -n -- '--g-spacing-4:[^;]*' node_modules/@gravity-ui/uikit/styles/ 2>/dev/null | head -3; rg -n 'spacing' .agents/skills/gravity-ui/references/layout.md | head -8",
+          "description": "Check Button views and spacing token",
+          "_extractedCommand": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Button/constants.js | head -20; rg -o -n -- '--g-spacing-4:[^;]*' node_modules/@gravity-ui/uikit/styles/ 2>/dev/null | head -3; rg -n 'spacing' .agents/skills/gravity-ui/references/layout.md | head -8"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Button/constants.js | head -20; rg -o -n -- '--g-spacing-4:[^;]*' node_modules/@gravity-ui/uikit/styles/ 2>/dev/null | head -3; rg -n 'spacing' .agents/skills/gravity-ui/references/layout.md | head -8",
+          "description": "Check Button views and spacing token"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:44:06.043Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01MZGtHauQhVgf3VqMKH6znD",
+        "result": "export const BUTTON_VIEWS = [\n    'normal', // Grey background, no border\n    'action', // Branded background, no border\n    'outlined', // No background, grey border\n    'outlined-info', // No background, with info-type border color\n    'outlined-success', // No background, with success-type border color\n    'outlined-warning', // No background, with warning-type border color\n    'outlined-danger', // No background, with danger-type border color\n    'outlined-utility', // No background, with utility-type border color\n    'outlined-action', // No background, with branded border color\n    'raised', // With white background and shadow\n    'flat', // No background, no border\n    'flat-secondary', // No background, no border, secondary-type text color\n    'flat-info', // No background, no border, info-type text color\n    'flat-success', // No background, no border, success-type text color\n    'flat-warning', // No background, no border, warning-type text color\n    'flat-danger', // No background, no border, danger-type text color\n    'flat-utility', // No background, no border, utility-type text color\n    'flat-action', // No background, no border, branded text color\n    'normal-contrast', // normal button appearance with contrast background\nnode_modules/@gravity-ui/uikit/styles/themes/common/spacing.scss:9:--g-spacing-4: calc(var(--g-spacing-base) * 4)\nnode_modules/@gravity-ui/uikit/styles/styles.css:122:--g-spacing-4: calc(var(--g-spacing-base) * 4)\n1:# Layout — spacing scale, `Flex`/`Box`, grid (`Row`/`Col`/`Container`)\n13:This reference covers the **spacing scale, layout components, and responsive\n20:# Layout components and spacings\n22:This guide covers UIKit's layout foundations: a shared **spacing** scale (`--g-spacing-*`, used\n35:Every step is a multiple of a base unit (`--g-spacing-base`, `4px` by default), so `step × 4px`:\n39:| `0`   | `--g-spacing-0`    | 0    |\n40:| `0.5` | `--g-spacing-half` | 2px  |\n41:| `1`   | `--g-spacing-1`    | 4px  |",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01MZGtHauQhVgf3VqMKH6znD",
+        "type": "tool_result",
+        "content": "export const BUTTON_VIEWS = [\n    'normal', // Grey background, no border\n    'action', // Branded background, no border\n    'outlined', // No background, grey border\n    'outlined-info', // No background, with info-type border color\n    'outlined-success', // No background, with success-type border color\n    'outlined-warning', // No background, with warning-type border color\n    'outlined-danger', // No background, with danger-type border color\n    'outlined-utility', // No background, with utility-type border color\n    'outlined-action', // No background, with branded border color\n    'raised', // With white background and shadow\n    'flat', // No background, no border\n    'flat-secondary', // No background, no border, secondary-type text color\n    'flat-info', // No background, no border, info-type text color\n    'flat-success', // No background, no border, success-type text color\n    'flat-warning', // No background, no border, warning-type text color\n    'flat-danger', // No background, no border, danger-type text color\n    'flat-utility', // No background, no border, utility-type text color\n    'flat-action', // No background, no border, branded text color\n    'normal-contrast', // normal button appearance with contrast background\nnode_modules/@gravity-ui/uikit/styles/themes/common/spacing.scss:9:--g-spacing-4: calc(var(--g-spacing-base) * 4)\nnode_modules/@gravity-ui/uikit/styles/styles.css:122:--g-spacing-4: calc(var(--g-spacing-base) * 4)\n1:# Layout — spacing scale, `Flex`/`Box`, grid (`Row`/`Col`/`Container`)\n13:This reference covers the **spacing scale, layout components, and responsive\n20:# Layout components and spacings\n22:This guide covers UIKit's layout foundations: a shared **spacing** scale (`--g-spacing-*`, used\n35:Every step is a multiple of a base unit (`--g-spacing-base`, `4px` by default), so `step × 4px`:\n39:| `0`   | `--g-spacing-0`    | 0    |\n40:| `0.5` | `--g-spacing-half` | 2px  |\n41:| `1`   | `--g-spacing-1`    | 4px  |",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:44:14.982Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "file_write",
+        "originalName": "Write",
+        "args": {
+          "file_path": "/home/sandbox/workspace/src/App.tsx",
+          "content": "import * as React from 'react';\nimport { Button, ToasterComponent, ToasterProvider } from '@gravity-ui/uikit';\nimport { toaster } from '@gravity-ui/uikit/toaster-singleton';\n\nconst TOAST_AUTO_HIDING_MS = 3000;\n\nfunction NotifyButton() {\n  // Each click gets its own toast name, so clicks stack instead of replacing each other.\n  const counter = React.useRef(0);\n\n  const handleClick = () => {\n    counter.current += 1;\n    toaster.add({\n      name: `notification-${counter.current}`,\n      title: 'Уведомление',\n      content: 'Кнопка была нажата',\n      theme: 'info',\n      autoHiding: TOAST_AUTO_HIDING_MS,\n    });\n  };\n\n  return (\n    <div\n      style={{\n        position: 'fixed',\n        top: 'var(--g-spacing-4)',\n        right: 'var(--g-spacing-4)',\n      }}\n    >\n      <Button view=\"action\" size=\"l\" onClick={handleClick}>\n        Показать уведомление\n      </Button>\n    </div>\n  );\n}\n\nexport function App() {\n  return (\n    <ToasterProvider toaster={toaster}>\n      <NotifyButton />\n      <ToasterComponent />\n    </ToasterProvider>\n  );\n}\n",
+          "_extractedPath": "/home/sandbox/workspace/src/App.tsx"
+        }
+      },
+      "raw": {
+        "name": "Write",
+        "input": {
+          "file_path": "/home/sandbox/workspace/src/App.tsx",
+          "content": "import * as React from 'react';\nimport { Button, ToasterComponent, ToasterProvider } from '@gravity-ui/uikit';\nimport { toaster } from '@gravity-ui/uikit/toaster-singleton';\n\nconst TOAST_AUTO_HIDING_MS = 3000;\n\nfunction NotifyButton() {\n  // Each click gets its own toast name, so clicks stack instead of replacing each other.\n  const counter = React.useRef(0);\n\n  const handleClick = () => {\n    counter.current += 1;\n    toaster.add({\n      name: `notification-${counter.current}`,\n      title: 'Уведомление',\n      content: 'Кнопка была нажата',\n      theme: 'info',\n      autoHiding: TOAST_AUTO_HIDING_MS,\n    });\n  };\n\n  return (\n    <div\n      style={{\n        position: 'fixed',\n        top: 'var(--g-spacing-4)',\n        right: 'var(--g-spacing-4)',\n      }}\n    >\n      <Button view=\"action\" size=\"l\" onClick={handleClick}>\n        Показать уведомление\n      </Button>\n    </div>\n  );\n}\n\nexport function App() {\n  return (\n    <ToasterProvider toaster={toaster}>\n      <NotifyButton />\n      <ToasterComponent />\n    </ToasterProvider>\n  );\n}\n"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:44:15.010Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01T4XnLXCb28fFTsoNRfJpbN",
+        "result": "The file /home/sandbox/workspace/src/App.tsx has been updated successfully. (file state is current in your context — no need to Read it back)",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01T4XnLXCb28fFTsoNRfJpbN",
+        "type": "tool_result",
+        "content": "The file /home/sandbox/workspace/src/App.tsx has been updated successfully. (file state is current in your context — no need to Read it back)"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:44:16.558Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "npx tsc --noEmit; echo \"exit=$?\"",
+          "description": "Run TypeScript typecheck",
+          "_extractedCommand": "npx tsc --noEmit; echo \"exit=$?\""
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "npx tsc --noEmit; echo \"exit=$?\"",
+          "description": "Run TypeScript typecheck"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:44:17.060Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01QBEnkLCKCa9qMNt2HrSENJ",
+        "result": "npm warn Unknown env config \"store-dir\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\nnpm warn Unknown env config \"dangerously-allow-all-builds\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\nexit=0",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01QBEnkLCKCa9qMNt2HrSENJ",
+        "type": "tool_result",
+        "content": "npm warn Unknown env config \"store-dir\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\nnpm warn Unknown env config \"dangerously-allow-all-builds\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\nexit=0",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:44:19.452Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "npx vite build --outDir /tmp/comp-toast-build --emptyOutDir 2>&1 | tail -n 8; echo \"exit=${PIPESTATUS[0]}\"",
+          "description": "Verify production bundle builds into temp directory",
+          "_extractedCommand": "npx vite build --outDir /tmp/comp-toast-build --emptyOutDir 2>&1 | tail -n 8; echo \"exit=${PIPESTATUS[0]}\""
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "npx vite build --outDir /tmp/comp-toast-build --emptyOutDir 2>&1 | tail -n 8; echo \"exit=${PIPESTATUS[0]}\"",
+          "description": "Verify production bundle builds into temp directory"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:44:20.758Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01MGJqSr74cECyawCH1uvVVZ",
+        "result": "transforming...\n✓ 2062 modules transformed.\nrendering chunks...\ncomputing gzip size...\n../../../tmp/comp-toast-build/index.html                   0.40 kB │ gzip:  0.27 kB\n../../../tmp/comp-toast-build/assets/index-BL4Sm7u4.css  121.57 kB │ gzip: 14.18 kB\n../../../tmp/comp-toast-build/assets/index-D7OdClzL.js   202.97 kB │ gzip: 67.84 kB\n✓ built in 1.04s\nexit=0",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01MGJqSr74cECyawCH1uvVVZ",
+        "type": "tool_result",
+        "content": "transforming...\n✓ 2062 modules transformed.\nrendering chunks...\ncomputing gzip size...\n../../../tmp/comp-toast-build/index.html                   0.40 kB │ gzip:  0.27 kB\n../../../tmp/comp-toast-build/assets/index-BL4Sm7u4.css  121.57 kB │ gzip: 14.18 kB\n../../../tmp/comp-toast-build/assets/index-D7OdClzL.js   202.97 kB │ gzip: 67.84 kB\n✓ built in 1.04s\nexit=0",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:44:24.822Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "Кнопка в правом верхнем углу показывает уведомление по клику, и оно само исчезает через 3 секунды. Изменён только `src/App.tsx`.\n\n- **Компоненты:** используется `Toaster` из `@gravity-ui/uikit` 7.43.0, который уже установлен. `ToasterProvider` и `ToasterComponent` подключены в `App`, так что `main.tsx` не менялся.\n- **Выбор, который можно поменять:** кнопка сверху справа, потому что уведомления Gravity по умолчанию появляются снизу справа. Текст на русском, тема уведомления `info`.\n- **Повторные клики:** каждое уведомление получает своё имя, поэтому при нескольких нажатиях они накладываются друг на друга, а не заменяют одно.\n\nПроверки: `tsc --noEmit` проходит, production-сборка через `vite build` собирается (во временную папку, в репозиторий ничего не добавлено). В браузере я не запускал, поэтому светлую и тёмную темы и узкие экраны не проверял.",
+      "raw": {
+        "parentUuid": "290b5645-9688-4cb5-a847-392fc59a7385",
+        "isSidechain": false,
+        "message": {
+          "id": "msg_011CgmciNa1fx76CZfbm5uXQ",
+          "type": "message",
+          "role": "assistant",
+          "container": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "Кнопка в правом верхнем углу показывает уведомление по клику, и оно само исчезает через 3 секунды. Изменён только `src/App.tsx`.\n\n- **Компоненты:** используется `Toaster` из `@gravity-ui/uikit` 7.43.0, который уже установлен. `ToasterProvider` и `ToasterComponent` подключены в `App`, так что `main.tsx` не менялся.\n- **Выбор, который можно поменять:** кнопка сверху справа, потому что уведомления Gravity по умолчанию появляются снизу справа. Текст на русском, тема уведомления `info`.\n- **Повторные клики:** каждое уведомление получает своё имя, поэтому при нескольких нажатиях они накладываются друг на друга, а не заменяют одно.\n\nПроверки: `tsc --noEmit` проходит, production-сборка через `vite build` собирается (во временную папку, в репозиторий ничего не добавлено). В браузере я не запускал, поэтому светлую и тёмную темы и узкие экраны не проверял.",
+              "citations": []
+            }
+          ],
+          "model": "anthropic/claude-haiku-5.5",
+          "stop_reason": "end_turn",
+          "stop_details": null,
+          "stop_sequence": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 465,
+            "cache_read_input_tokens": 45712,
+            "output_tokens": 533,
+            "output_tokens_details": {
+              "thinking_tokens": 168
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 465
+            },
+            "inference_geo": "global",
+            "iterations": [],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "provider": "Claude Platform on AWS"
+        },
+        "apiBlockIndex": 1,
+        "requestRef": "75b16805-cb40-4bde-a411-aee9a6e06c72",
+        "requestedModel": "anthropic/claude-haiku-5.5",
+        "promptCacheRequested": "5m",
+        "type": "assistant",
+        "uuid": "0b1c8138-1e85-46f6-8222-357476b2cb61",
+        "timestamp": "2026-11-06T11:44:24.822Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "5b5f29e0-0b83-4185-b0fe-0ed3c56dd8fc",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    }
+  ],
+  "summary": {
+    "totalTurns": 1,
+    "toolCalls": {
+      "file_read": 1,
+      "file_write": 1,
+      "file_edit": 0,
+      "shell": 14,
+      "web_fetch": 0,
+      "web_search": 0,
+      "glob": 0,
+      "grep": 0,
+      "list_dir": 0,
+      "agent_task": 0,
+      "unknown": 0
+    },
+    "totalToolCalls": 16,
+    "webFetches": [],
+    "filesRead": [
+      "/home/sandbox/workspace/.agents/skills/gravity-ui/SKILL.md"
+    ],
+    "filesModified": [
+      "/home/sandbox/workspace/src/App.tsx"
+    ],
+    "shellCommands": [
+      {
+        "command": "git status --short && ls -la && cat package.json 2>/dev/null; find . -path ./node_modules -prune -o -type f -print | grep -v '^./.git/' | grep -v '.agents/' | head -100",
+        "success": true
+      },
+      {
+        "command": "cat src/App.tsx; echo ----; cat src/main.tsx; echo ----; cat src/vite-env.d.ts; echo ----; cat index.html; echo ----; cat tsconfig.json; echo ----; cat AGENTS.md; echo ----; cat .gitignore; echo ----; ls .agents -R | head -50; echo ----; cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; ls node_modules/@gravity-ui/uikit/build/docs 2>/dev/null | head; ls node_modules/@gravity-ui/uikit/build | head -50",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace/.agents/skills/gravity-ui && rg -n -i 'toast|notif' references/package-routing.md | head -20; echo ----; sed -n 1,60p references/package-routing.md; echo ----; cat rules/hallucination-traps.md | head -150",
+        "success": true
+      },
+      {
+        "command": "cd /home/sandbox/workspace && ls node_modules/@gravity-ui/uikit/build/esm/components/Toast* -d 2>/dev/null; find node_modules/@gravity-ui/uikit/build/esm -ipath '*toast*' | head -30; echo ----; rg -n 'Toaster|useToaster|ToasterProvider|ToasterComponent' node_modules/@gravity-ui/uikit/build/esm/index.d.ts node_modules/@gravity-ui/uikit/build/esm/components/index.d.ts 2>/dev/null | head; echo ----; cat node_modules/@gravity-ui/uikit/README.md | rg -n -i -C 3 'toast|Required setup' | head -120",
+        "success": true
+      },
+      {
+        "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Toaster/index.d.ts; echo ----; cat $D/components/Toaster/Toaster.d.ts; echo ----; cat $D/components/Toaster/types.d.ts; echo ----; cat $D/toaster-singleton.d.ts; echo ----; ls $D/components/Toaster/Provider $D/components/Toaster/hooks; cat $D/components/Toaster/Provider/*.d.ts $D/components/Toaster/hooks/*.d.ts 2>/dev/null | head -150",
+        "success": true
+      },
+      {
+        "command": "cd /tmp && curl -sS -m 20 -o /tmp/uikit7-llms.txt -w '%{http_code}\\n' https://gravity-ui.com/llms/uikit/7/llms.txt; wc -c /tmp/uikit7-llms.txt 2>/dev/null; rg -n -i 'toaster' /tmp/uikit7-llms.txt 2>/dev/null | head -40",
+        "success": true
+      },
+      {
+        "command": "D=node_modules/@gravity-ui/uikit/build/esm; ls $D/components/Toaster/ToasterComponent; cat $D/components/Toaster/ToasterComponent/ToasterComponent.d.ts; echo ----; cat $D/components/Toaster/ToasterComponent/ToasterComponent.js | head -80; echo ----; cat $D/components/Toaster/hooks/useToaster.js; echo ----; cat $D/toaster-singleton.js; echo ----; grep -rn 'autoHiding' $D/components/Toaster --include=*.js | head; echo ----; cat $D/components/Toaster/constants.js | head -40",
+        "success": true
+      },
+      {
+        "command": "D=node_modules/@gravity-ui/uikit/build/esm; rg -n 'toaster-singleton|Toaster' $D/index.d.ts; rg -n 'DEFAULT_TIMEOUT' $D/components/Toaster/Toast/Toast.js | head -3; rg -n 'Button' $D/components/index.d.ts | head -3; grep -n '\"version\"' node_modules/@gravity-ui/uikit/package.json; grep -n 'Button\\|view' $D/components/Button/Button.d.ts | head -20; ls $D/components/Button | head; cat $D/components/Button/types.d.ts 2>/dev/null | head -40",
+        "success": true
+      },
+      {
+        "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/index.d.ts | head -20; echo ----; rg -rn 'toaster-singleton' $D --include=*.d.ts | head; echo ----; sed -n 1,20p $D/components/index.d.ts | head -5; echo; rg -n 'Toaster|toaster' $D/components/index.d.ts; echo ----; rg -n '\"\\./?\"|toaster' node_modules/@gravity-ui/uikit/package.json | head",
+        "success": true
+      },
+      {
+        "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Toaster/Toaster.js | sed -n 1,60p; echo ----; cat $D/components/Toaster/Provider/ToasterProvider.js; echo ----; rg -n 'position|bottom|top|left|right' $D/components/Toaster/ToastList/*.css $D/components/Toaster/*.css 2>/dev/null | head -20; ls $D/components/Toaster/ToastList",
+        "success": true
+      },
+      {
+        "command": "D=node_modules/@gravity-ui/uikit/build/esm; sed -n 1,20p $D/components/Toaster/ToastList/ToastList.css; echo ----; sed -n 1,30p $D/components/Toaster/ToasterComponent/*.css 2>/dev/null; ls $D/components/Toaster/ToasterComponent; rg -n 'g-toaster' $D/components/Toaster --glob '*.css' | head -5",
+        "success": true
+      },
+      {
+        "command": "D=node_modules/@gravity-ui/uikit/build/esm; cat $D/components/Button/constants.js | head -20; rg -o -n -- '--g-spacing-4:[^;]*' node_modules/@gravity-ui/uikit/styles/ 2>/dev/null | head -3; rg -n 'spacing' .agents/skills/gravity-ui/references/layout.md | head -8",
+        "success": true
+      },
+      {
+        "command": "npx tsc --noEmit; echo \"exit=$?\"",
+        "success": true
+      },
+      {
+        "command": "npx vite build --outDir /tmp/comp-toast-build --emptyOutDir 2>&1 | tail -n 8; echo \"exit=${PIPESTATUS[0]}\"",
+        "success": true
+      }
+    ],
+    "errors": [],
+    "thinkingBlocks": 0,
+    "usage": {
+      "inputTokens": 28,
+      "outputTokens": 8608,
+      "cacheReadTokens": 476876,
+      "cacheWriteTokens": 32549,
+      "totalTokens": 518061
+    }
+  },
+  "parseSuccess": true
+}

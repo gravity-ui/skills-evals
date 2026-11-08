@@ -1,0 +1,1221 @@
+{
+  "agent": "claude-code",
+  "model": "claude-haiku-5-5",
+  "events": [
+    {
+      "timestamp": "2026-11-06T11:42:00.364Z",
+      "type": "message",
+      "role": "user",
+      "content": "Сделай кнопку, по клику на которую открывается модальное окно с текстом\nи двумя действиями — подтвердить и отменить.\n\n\nBefore implementing, read and follow the gravity-ui skill at .agents/skills/gravity-ui/SKILL.md. Read its referenced files as required by the skill.",
+      "raw": {
+        "parentUuid": null,
+        "isSidechain": false,
+        "promptId": "e9d51873-f08a-4abd-99b0-4d113a91e2fa",
+        "type": "user",
+        "message": {
+          "role": "user",
+          "content": "Сделай кнопку, по клику на которую открывается модальное окно с текстом\nи двумя действиями — подтвердить и отменить.\n\n\nBefore implementing, read and follow the gravity-ui skill at .agents/skills/gravity-ui/SKILL.md. Read its referenced files as required by the skill."
+        },
+        "uuid": "ef87b117-4828-4c79-b8cc-70728414eec1",
+        "timestamp": "2026-11-06T11:42:00.364Z",
+        "permissionMode": "bypassPermissions",
+        "promptSource": "sdk",
+        "turnOrigin": "sdk",
+        "turnPosition": {
+          "promptIndex": 0,
+          "turnIndex": 1
+        },
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "ebb21a23-060c-4d38-a98f-325c6a4673d0",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:02.179Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "file_read",
+        "originalName": "Read",
+        "args": {
+          "file_path": "/home/sandbox/workspace/.agents/skills/gravity-ui/SKILL.md",
+          "_extractedPath": "/home/sandbox/workspace/.agents/skills/gravity-ui/SKILL.md"
+        }
+      },
+      "raw": {
+        "name": "Read",
+        "input": {
+          "file_path": "/home/sandbox/workspace/.agents/skills/gravity-ui/SKILL.md"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:02.194Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01EbvStNxvE6qX4eiizg5Dn3",
+        "result": "1\t---\n2\tname: gravity-ui\n3\tdescription: Builds, fixes, styles, and composes UI with the Gravity UI design system — the React ecosystem of @gravity-ui/* packages (uikit, charts, table, navigation, date-components, icons, and more). Routes to the correct package when look-alikes exist, applies theming and required setup, and prevents invented component APIs. Applies when working with @gravity-ui imports, uikit, ThemeProvider, --g- CSS tokens, or any prompt (EN or RU) mentioning gravity-ui, гравити, дизайн-система, компоненты, дашборд, таблица, график, or форма. Also installs required specialized Gravity UI packages when they are absent.\n4\t---\n5\t\n6\t# Building UI with Gravity UI\n7\t\n8\tBuild UI on **real** Gravity UI components, not from memory. Gravity UI is a\n9\tmulti-package React design system (`@gravity-ui/*`), so the two things that go\n10\twrong are picking the wrong package and using an API from the wrong version.\n11\tThis skill routes you to the right package, grounds you in the installed\n12\tversion, and stops you from inventing APIs — match the installed versions and\n13\tfollow the ecosystem catalog instead of guessing.\n14\t\n15\t## Efficiency guardrails\n16\t\n17\t- Do not read the same file twice. Reuse evidence already present in the session.\n18\t- Do not dump a reference file wholesale. Use targeted `rg -n -C 4` searches and keep each result below\n19\t  200 lines unless the whole file is necessary to resolve the task.\n20\t- Batch package, component, and symbol lookups into as few commands as possible.\n21\t- Stop documentation research as soon as package choice, import path, required setup, and uncertain props\n22\t  are confirmed. Documentation is evidence for decisions, not a checklist to read in full.\n23\t- Do not query unpkg, package source repositories, or alternative documentation mirrors.\n24\t- Do not install browsers or screenshot tooling, and do not start a dev server for routine verification,\n25\t  unless the user explicitly requests visual or browser verification.\n26\t- Run typecheck/build after implementation. If it fails, inspect only the failing API, fix it, and rerun\n27\t  the check. Do not repeatedly rebuild unchanged code.\n28\t\n29\t## Step 0 — pick the right package first (ecosystem routing)\n30\t\n31\tBefore doing anything else, work out which `@gravity-ui/*` library the task\n32\tneeds. Do not guess from training data — the ecosystem has look-alike packages\n33\t(`charts` vs `chartkit`, uikit `Table` vs `@gravity-ui/table`, `date-components`\n34\tvs `date-utils`, …) and picking the wrong one is the #1 failure.\n35\tChoose from the task's functionality, not only from dependencies already present in the project.\n36\tOpen [`references/package-routing.md`](references/package-routing.md) and read\n37\tits top **first**: it opens with a task → package decision table that settles the\n38\tcommon cases (landing page, dashboard, data grid, calendar, charts, editor, app\n39\tshell, i18n), followed by the ecosystem catalog with a one-line \"what it's for /\n40\twhat to use instead\" per package for everything else. Use it to choose the\n41\tpackage, then come back here for Step 1.\n42\t\n43\tSearch the catalog for the task's relevant terms and read the matching package entries. Do not read the\n44\tentire catalog when its top and those entries are sufficient.\n45\t\n46\tOnly after the package is chosen, run Step 1 to ground in that package's\n47\tinstalled version and API.\n48\t\n49\t## Step 1 — ground in the installed version of the chosen package\n50\t\n51\t1. **Read `package.json`.** Note each installed `@gravity-ui/*` package and its\n52\t   version. The installed version is the source of truth, not your memory.\n53\t   Resolve ranges from `node_modules` (`<pkg>/package.json` `version` field), not\n54\t   the range string in the root `package.json`.\n55\t\n56\t   If the chosen specialized package other than `@gravity-ui/uikit` is absent, add it with the project's\n57\t   existing package manager before importing it. Install its documented peer dependencies too, then\n58\t   resolve the installed version and continue with the local evidence below. Do not fall back to uikit,\n59\t   raw HTML, or a foreign library merely because the specialized package was initially absent. If\n60\t   installation is blocked, report the exact failure.\n61\t\n62\t2. **Fetch the docs for the package you are about to use, in this order,\n63\t   stopping at the first source that answers your question:**\n64\t\n65\t   (a) **LOCAL** — start with `node_modules/@gravity-ui/<pkg>/dist/docs/INDEX.md` or `node_modules/@gravity-ui/<pkg>/build/docs/INDEX.md`.\n66\t      If `INDEX.md` is absent for this package, fall back to the package's root `node_modules/@gravity-ui/<pkg>/README.md`.\n67\t      This is the *exact* installed version — always preferred for version-sensitive questions.\n68\t      Note: bundled docs are a recent addition — `uikit` ships `build/docs` only from **7.45.0**;\n69\t      older installs have no local docs at all, and that is expected, not an error. Go to (b).\n70\t      If an import, component, hook, or prop remains uncertain, inspect only its exact installed `.d.ts`\n71\t      before moving online. Batch all uncertain symbol lookups for that package.\n72\t   (b) **ONLINE** — per-package llms.txt at the **major line**:\n73\t      `https://gravity-ui.com/llms/<pkg>/<major>/llms.txt`\n74\t      (e.g. `/llms/uikit/7/llms.txt` for `^7.2.1`). The major-line URL serves the\n75\t      latest minor of that major — it tracks the major but not the exact patch.\n76\t      Use it when LOCAL has no docs for the package.\n77\t\n78\t3. **Fallback rule — never silently proceed on a failed or empty source:**\n79\t\n80\t   - If LOCAL has no README / `dist/docs` / `build/docs` for the package, or they are empty\n81\t     → fetch the ONLINE major-line llms.txt (b).\n82\t   - If the ONLINE request fails — network timeout, DNS, connection refused\n83\t     (air-gapped / corporate proxy), HTTP 404 (major not hosted), or an empty /\n84\t     non-markdown body → fall back to LOCAL README + dist/docs or build/docs (a).\n85\t   - **Do NOT use the `/llms/<pkg>/llms.txt` \"latest\" alias** as a fallback — it\n86\t     serves the newest major, which may differ from the installed one and have a\n87\t     different API. The major-line URL is the versioned fallback; below it, go\n88\t     LOCAL, not \"latest\".\n89\t   - If BOTH are unreachable for a package → STOP and tell the user the\n90\t     package's docs are unreachable. Do not guess its API from training data.\n91\t\n92\tFor a bounded local inspection, run:\n93\t\n94\t```sh\n95\t.agents/skills/gravity-ui/scripts/inspect-package.sh uikit Button Card Switch ThemeProvider\n96\t```\n97\t\n98\tThe script reports the resolved version, available local documentation, and declaration files matching\n99\tthe requested symbols. Read only the returned files needed to confirm an uncertain API.\n100\t\n101\t## Step 2 — implement on the chosen packages, then typecheck\n102\t\n103\t1. **Implement using only the `@gravity-ui/*` packages chosen in Step 0 and\n104\t   confirmed installed in Step 1.** Import from those packages exactly — do\n105\t   not substitute look-alike libraries (MUI, Ant, plain `<input>`) and do not\n106\t   reach for a `@gravity-ui/*` package that Step 1 did not confirm installed.\n107\t   Follow the prop APIs from the docs you just read, not memory; if a prop\n108\t   you want is not documented, it does not exist — use the documented one, or\n109\t   ask the user.\n110\t\n111\t2. **Apply the cross-cutting rules** in `rules/hallucination-traps.md` while\n112\t   writing: typography variants, the flex contract, theming/ladders,\n113\t   `Button view`, `Icon data`. Per-component traps live in the package's own\n114\t   `dist/docs`.\n115\t\n116\t3. **Typecheck before declaring done.** Run the project's typecheck command\n117\t   (typically `tsc --noEmit`; for monorepos, the workspace's typecheck script).\n118\t   Fix every error before reporting completion — a type error almost always\n119\t   means a wrong/invented prop, a wrong import path, or a version mismatch,\n120\t   which is precisely what Steps 0–1 were meant to prevent.\n121\t\n122\t   - If the typecheck surfaces a prop/path that contradicts the docs you read\n123\t     in Step 1, trust the **installed version** (the typechecker), not the\n124\t     docs snapshot — the docs may be from a different minor. Re-ground: read\n125\t     the package's `dist/docs/INDEX.md` in `node_modules` for the exact\n126\t     installed types.\n127\t   - If the typecheck is unavailable (no TS in the project), say so\n128\t     explicitly and ask the user how they want to verify; do not silently\n129\t     skip verification.\n130\t   - **Escape hatch.** If the user explicitly waived verification (\"just\n131\t     sketch it\", \"quick prototype\", \"no need to check\"), you may skip the\n132\t     typecheck — but state this plainly in your reply: *\"typecheck skipped by\n133\t     user request — code is not verified\"*. Do not skip silently.\n134\t   - **Know what typecheck does not cover.** A green `tsc` proves the API is\n135\t     real; it says nothing about layout or contrast. Before reporting done,\n136\t     say so, and either check or list for the user to check by hand: the\n137\t     screen in both `light` and `dark` themes (text and controls on colored\n138\t     fills especially), narrow (~375px) and wide (~1400px) viewports for\n139\t     horizontal overflow, and empty / loading / error states.\n140\t\n141\t## Hard rules\n142\t\n143\t- **`@gravity-ui/uikit` MUST be installed in every Gravity UI project.** It is\n144\t  the base component + design-token library every other `@gravity-ui/*` package\n145\t  builds on; without it components render unstyled. If `package.json` lacks it,\n146\t  stop and have the user install and configure it first (setup:\n147\t  `https://gravity-ui.com/llms/uikit/llms.txt`).\n148\t- **Read `package.json` before importing any `@gravity-ui/*` package.** Never\n149\t  assume a package is installed; never assume its major version.\n150\t- **Do not invent props or components.** Before using a component API you are\n151\t  not 100% sure of, check `rules/hallucination-traps.md` (ecosystem patterns)\n152\t  and the component's README in `dist/docs`. If still unsure, ask the user\n153\t  rather than guessing.\n154\t- **Never guess icon names** — they are hallucinated more often than not. To\n155\t  match an icon from a screenshot/photo/mock, run `scripts/icon-image-search.sh`\n156\t  (reverse image search). With only a description, look the name up on\n157\t  `gravity-ui.com/icons` or ask the user — do not invent one. Then pass it as an\n158\t  object (`<Icon data={CheckIcon} />`), never a string key. See\n159\t  `references/icons.md`.\n160\t- **Theming uses semantic `--g-*` tokens.** Never hardcode colors (`#fff`,\n161\t  `blue-500`); never hand-write `dark:` overrides. Full token tables live in\n162\t  `references/theming.md`; the cross-cutting traps (partial brand overrides,\n163\t  a `ThemeProvider` that themes the whole page, controls on a brand background) live in\n164\t  `rules/hallucination-traps.md`.\n165\t- **Required setup is package-specific** (style imports, `ThemeProvider`,\n166\t  peer-deps). It lives in each package's root README under \"Required setup\" —\n167\t  read it once per package, do not rely on memory.\n168\t\n169\t## What NOT to do\n170\t\n171\tThese are the five most common ways agents break Gravity UI code. They are\n172\talready implied by the rules above; this section exists as an explicit\n173\tstop-sign. If you are about to do any of these, stop and re-ground.\n174\t\n175\t- **Do not substitute non-Gravity libraries.** No MUI, Ant Design, plain\n176\t  `<input>`/`<button>`, or look-alike component libs. Use the `@gravity-ui/*`\n177\t  package the task needs.\n178\t- **Do not invent component APIs or props.** If a prop is not in the docs you\n179\t  read in Step 1, it does not exist — do not write `variant=`, `color=`,\n180\t  `name=` (on `Icon`), or a `header-3` variant. Use the documented prop or\n181\t  ask the user. See `rules/hallucination-traps.md`.\n182\t- **Do not use the `/llms/<pkg>/llms.txt` \"latest\" alias as a fallback.** It\n183\t  serves the newest major, which may differ from the installed one and have a\n184\t  different API. The versioned online fallback is the major-line URL\n185\t  (`/llms/<pkg>/<major>/llms.txt`); below that, go LOCAL.\n186\t- **Do not partial-brand.** Setting only `--g-color-base-brand` leaves\n187\t  selection, focus, links and contrast on the default accent — a mismatched\n188\t  UI. Override the full brand token set, on each theme you support.\n189\t- **Do not override internal markup with `[class*='…']` / ID selectors.**\n190\t  That's written against one DOM structure and breaks silently when the\n191\t  component changes. Climb the customization ladder\n192\t  (global token → component CSS API → narrow flagged hack) before ever\n193\t  touching structure.\n194\t\n195\t## Deeper material — read on demand\n196\t\n197\tThese files live alongside this SKILL.md and load only when relevant:\n198\t\n199\t- `references/package-routing.md` — offline snapshot of the ecosystem catalog\n200\t  (`gravity-ui.com/llms.txt`), refreshed each skill release. Used as the\n201\t  offline fallback in Step 0.\n202\t- `references/theming.md` — verbatim copy of uikit's `docs/theming.md`:\n203\t  `--g-*` token layers, `ThemeProvider`, branding, custom themes, scoped\n204\t  themes, `uikit-themer`. The bundled copy may lag — read\n205\t  `node_modules/@gravity-ui/uikit/build/docs/guides/theming.md` for the\n206\t  version-matched file.\n207\t- `references/layout.md` — verbatim copy of uikit's `docs/layout.md`:\n208\t  spacing scale (`--g-spacing-*`), `Flex`/`Box`, `Row`/`Col`/`Container`\n209\t  grid, breakpoints, `useLayoutContext`.\n210\t- `references/icons.md` — finding an icon by image\n211\t  (`scripts/icon-image-search.sh`) or on gravity-ui.com/icons; the\n212\t  object-vs-string rendering rule.\n213\t- `rules/hallucination-traps.md` — Incorrect/Correct pairs for the most\n214\t  commonly invented APIs: typography variants (`header-3..6` don't exist, no\n215\t  `Heading`), the flex contract (`min-width:0`, who shrinks), theming traps\n216\t  (partial brand overrides, a `ThemeProvider` that themes the whole page, customization\n217\t  ladder), `Button view` not `variant`, `Icon data` not `name`. Per-component\n218\t  traps live in each package's `dist/docs`, not here.\n219\t",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01EbvStNxvE6qX4eiizg5Dn3",
+        "type": "tool_result",
+        "content": "1\t---\n2\tname: gravity-ui\n3\tdescription: Builds, fixes, styles, and composes UI with the Gravity UI design system — the React ecosystem of @gravity-ui/* packages (uikit, charts, table, navigation, date-components, icons, and more). Routes to the correct package when look-alikes exist, applies theming and required setup, and prevents invented component APIs. Applies when working with @gravity-ui imports, uikit, ThemeProvider, --g- CSS tokens, or any prompt (EN or RU) mentioning gravity-ui, гравити, дизайн-система, компоненты, дашборд, таблица, график, or форма. Also installs required specialized Gravity UI packages when they are absent.\n4\t---\n5\t\n6\t# Building UI with Gravity UI\n7\t\n8\tBuild UI on **real** Gravity UI components, not from memory. Gravity UI is a\n9\tmulti-package React design system (`@gravity-ui/*`), so the two things that go\n10\twrong are picking the wrong package and using an API from the wrong version.\n11\tThis skill routes you to the right package, grounds you in the installed\n12\tversion, and stops you from inventing APIs — match the installed versions and\n13\tfollow the ecosystem catalog instead of guessing.\n14\t\n15\t## Efficiency guardrails\n16\t\n17\t- Do not read the same file twice. Reuse evidence already present in the session.\n18\t- Do not dump a reference file wholesale. Use targeted `rg -n -C 4` searches and keep each result below\n19\t  200 lines unless the whole file is necessary to resolve the task.\n20\t- Batch package, component, and symbol lookups into as few commands as possible.\n21\t- Stop documentation research as soon as package choice, import path, required setup, and uncertain props\n22\t  are confirmed. Documentation is evidence for decisions, not a checklist to read in full.\n23\t- Do not query unpkg, package source repositories, or alternative documentation mirrors.\n24\t- Do not install browsers or screenshot tooling, and do not start a dev server for routine verification,\n25\t  unless the user explicitly requests visual or browser verification.\n26\t- Run typecheck/build after implementation. If it fails, inspect only the failing API, fix it, and rerun\n27\t  the check. Do not repeatedly rebuild unchanged code.\n28\t\n29\t## Step 0 — pick the right package first (ecosystem routing)\n30\t\n31\tBefore doing anything else, work out which `@gravity-ui/*` library the task\n32\tneeds. Do not guess from training data — the ecosystem has look-alike packages\n33\t(`charts` vs `chartkit`, uikit `Table` vs `@gravity-ui/table`, `date-components`\n34\tvs `date-utils`, …) and picking the wrong one is the #1 failure.\n35\tChoose from the task's functionality, not only from dependencies already present in the project.\n36\tOpen [`references/package-routing.md`](references/package-routing.md) and read\n37\tits top **first**: it opens with a task → package decision table that settles the\n38\tcommon cases (landing page, dashboard, data grid, calendar, charts, editor, app\n39\tshell, i18n), followed by the ecosystem catalog with a one-line \"what it's for /\n40\twhat to use instead\" per package for everything else. Use it to choose the\n41\tpackage, then come back here for Step 1.\n42\t\n43\tSearch the catalog for the task's relevant terms and read the matching package entries. Do not read the\n44\tentire catalog when its top and those entries are sufficient.\n45\t\n46\tOnly after the package is chosen, run Step 1 to ground in that package's\n47\tinstalled version and API.\n48\t\n49\t## Step 1 — ground in the installed version of the chosen package\n50\t\n51\t1. **Read `package.json`.** Note each installed `@gravity-ui/*` package and its\n52\t   version. The installed version is the source of truth, not your memory.\n53\t   Resolve ranges from `node_modules` (`<pkg>/package.json` `version` field), not\n54\t   the range string in the root `package.json`.\n55\t\n56\t   If the chosen specialized package other than `@gravity-ui/uikit` is absent, add it with the project's\n57\t   existing package manager before importing it. Install its documented peer dependencies too, then\n58\t   resolve the installed version and continue with the local evidence below. Do not fall back to uikit,\n59\t   raw HTML, or a foreign library merely because the specialized package was initially absent. If\n60\t   installation is blocked, report the exact failure.\n61\t\n62\t2. **Fetch the docs for the package you are about to use, in this order,\n63\t   stopping at the first source that answers your question:**\n64\t\n65\t   (a) **LOCAL** — start with `node_modules/@gravity-ui/<pkg>/dist/docs/INDEX.md` or `node_modules/@gravity-ui/<pkg>/build/docs/INDEX.md`.\n66\t      If `INDEX.md` is absent for this package, fall back to the package's root `node_modules/@gravity-ui/<pkg>/README.md`.\n67\t      This is the *exact* installed version — always preferred for version-sensitive questions.\n68\t      Note: bundled docs are a recent addition — `uikit` ships `build/docs` only from **7.45.0**;\n69\t      older installs have no local docs at all, and that is expected, not an error. Go to (b).\n70\t      If an import, component, hook, or prop remains uncertain, inspect only its exact installed `.d.ts`\n71\t      before moving online. Batch all uncertain symbol lookups for that package.\n72\t   (b) **ONLINE** — per-package llms.txt at the **major line**:\n73\t      `https://gravity-ui.com/llms/<pkg>/<major>/llms.txt`\n74\t      (e.g. `/llms/uikit/7/llms.txt` for `^7.2.1`). The major-line URL serves the\n75\t      latest minor of that major — it tracks the major but not the exact patch.\n76\t      Use it when LOCAL has no docs for the package.\n77\t\n78\t3. **Fallback rule — never silently proceed on a failed or empty source:**\n79\t\n80\t   - If LOCAL has no README / `dist/docs` / `build/docs` for the package, or they are empty\n81\t     → fetch the ONLINE major-line llms.txt (b).\n82\t   - If the ONLINE request fails — network timeout, DNS, connection refused\n83\t     (air-gapped / corporate proxy), HTTP 404 (major not hosted), or an empty /\n84\t     non-markdown body → fall back to LOCAL README + dist/docs or build/docs (a).\n85\t   - **Do NOT use the `/llms/<pkg>/llms.txt` \"latest\" alias** as a fallback — it\n86\t     serves the newest major, which may differ from the installed one and have a\n87\t     different API. The major-line URL is the versioned fallback; below it, go\n88\t     LOCAL, not \"latest\".\n89\t   - If BOTH are unreachable for a package → STOP and tell the user the\n90\t     package's docs are unreachable. Do not guess its API from training data.\n91\t\n92\tFor a bounded local inspection, run:\n93\t\n94\t```sh\n95\t.agents/skills/gravity-ui/scripts/inspect-package.sh uikit Button Card Switch ThemeProvider\n96\t```\n97\t\n98\tThe script reports the resolved version, available local documentation, and declaration files matching\n99\tthe requested symbols. Read only the returned files needed to confirm an uncertain API.\n100\t\n101\t## Step 2 — implement on the chosen packages, then typecheck\n102\t\n103\t1. **Implement using only the `@gravity-ui/*` packages chosen in Step 0 and\n104\t   confirmed installed in Step 1.** Import from those packages exactly — do\n105\t   not substitute look-alike libraries (MUI, Ant, plain `<input>`) and do not\n106\t   reach for a `@gravity-ui/*` package that Step 1 did not confirm installed.\n107\t   Follow the prop APIs from the docs you just read, not memory; if a prop\n108\t   you want is not documented, it does not exist — use the documented one, or\n109\t   ask the user.\n110\t\n111\t2. **Apply the cross-cutting rules** in `rules/hallucination-traps.md` while\n112\t   writing: typography variants, the flex contract, theming/ladders,\n113\t   `Button view`, `Icon data`. Per-component traps live in the package's own\n114\t   `dist/docs`.\n115\t\n116\t3. **Typecheck before declaring done.** Run the project's typecheck command\n117\t   (typically `tsc --noEmit`; for monorepos, the workspace's typecheck script).\n118\t   Fix every error before reporting completion — a type error almost always\n119\t   means a wrong/invented prop, a wrong import path, or a version mismatch,\n120\t   which is precisely what Steps 0–1 were meant to prevent.\n121\t\n122\t   - If the typecheck surfaces a prop/path that contradicts the docs you read\n123\t     in Step 1, trust the **installed version** (the typechecker), not the\n124\t     docs snapshot — the docs may be from a different minor. Re-ground: read\n125\t     the package's `dist/docs/INDEX.md` in `node_modules` for the exact\n126\t     installed types.\n127\t   - If the typecheck is unavailable (no TS in the project), say so\n128\t     explicitly and ask the user how they want to verify; do not silently\n129\t     skip verification.\n130\t   - **Escape hatch.** If the user explicitly waived verification (\"just\n131\t     sketch it\", \"quick prototype\", \"no need to check\"), you may skip the\n132\t     typecheck — but state this plainly in your reply: *\"typecheck skipped by\n133\t     user request — code is not verified\"*. Do not skip silently.\n134\t   - **Know what typecheck does not cover.** A green `tsc` proves the API is\n135\t     real; it says nothing about layout or contrast. Before reporting done,\n136\t     say so, and either check or list for the user to check by hand: the\n137\t     screen in both `light` and `dark` themes (text and controls on colored\n138\t     fills especially), narrow (~375px) and wide (~1400px) viewports for\n139\t     horizontal overflow, and empty / loading / error states.\n140\t\n141\t## Hard rules\n142\t\n143\t- **`@gravity-ui/uikit` MUST be installed in every Gravity UI project.** It is\n144\t  the base component + design-token library every other `@gravity-ui/*` package\n145\t  builds on; without it components render unstyled. If `package.json` lacks it,\n146\t  stop and have the user install and configure it first (setup:\n147\t  `https://gravity-ui.com/llms/uikit/llms.txt`).\n148\t- **Read `package.json` before importing any `@gravity-ui/*` package.** Never\n149\t  assume a package is installed; never assume its major version.\n150\t- **Do not invent props or components.** Before using a component API you are\n151\t  not 100% sure of, check `rules/hallucination-traps.md` (ecosystem patterns)\n152\t  and the component's README in `dist/docs`. If still unsure, ask the user\n153\t  rather than guessing.\n154\t- **Never guess icon names** — they are hallucinated more often than not. To\n155\t  match an icon from a screenshot/photo/mock, run `scripts/icon-image-search.sh`\n156\t  (reverse image search). With only a description, look the name up on\n157\t  `gravity-ui.com/icons` or ask the user — do not invent one. Then pass it as an\n158\t  object (`<Icon data={CheckIcon} />`), never a string key. See\n159\t  `references/icons.md`.\n160\t- **Theming uses semantic `--g-*` tokens.** Never hardcode colors (`#fff`,\n161\t  `blue-500`); never hand-write `dark:` overrides. Full token tables live in\n162\t  `references/theming.md`; the cross-cutting traps (partial brand overrides,\n163\t  a `ThemeProvider` that themes the whole page, controls on a brand background) live in\n164\t  `rules/hallucination-traps.md`.\n165\t- **Required setup is package-specific** (style imports, `ThemeProvider`,\n166\t  peer-deps). It lives in each package's root README under \"Required setup\" —\n167\t  read it once per package, do not rely on memory.\n168\t\n169\t## What NOT to do\n170\t\n171\tThese are the five most common ways agents break Gravity UI code. They are\n172\talready implied by the rules above; this section exists as an explicit\n173\tstop-sign. If you are about to do any of these, stop and re-ground.\n174\t\n175\t- **Do not substitute non-Gravity libraries.** No MUI, Ant Design, plain\n176\t  `<input>`/`<button>`, or look-alike component libs. Use the `@gravity-ui/*`\n177\t  package the task needs.\n178\t- **Do not invent component APIs or props.** If a prop is not in the docs you\n179\t  read in Step 1, it does not exist — do not write `variant=`, `color=`,\n180\t  `name=` (on `Icon`), or a `header-3` variant. Use the documented prop or\n181\t  ask the user. See `rules/hallucination-traps.md`.\n182\t- **Do not use the `/llms/<pkg>/llms.txt` \"latest\" alias as a fallback.** It\n183\t  serves the newest major, which may differ from the installed one and have a\n184\t  different API. The versioned online fallback is the major-line URL\n185\t  (`/llms/<pkg>/<major>/llms.txt`); below that, go LOCAL.\n186\t- **Do not partial-brand.** Setting only `--g-color-base-brand` leaves\n187\t  selection, focus, links and contrast on the default accent — a mismatched\n188\t  UI. Override the full brand token set, on each theme you support.\n189\t- **Do not override internal markup with `[class*='…']` / ID selectors.**\n190\t  That's written against one DOM structure and breaks silently when the\n191\t  component changes. Climb the customization ladder\n192\t  (global token → component CSS API → narrow flagged hack) before ever\n193\t  touching structure.\n194\t\n195\t## Deeper material — read on demand\n196\t\n197\tThese files live alongside this SKILL.md and load only when relevant:\n198\t\n199\t- `references/package-routing.md` — offline snapshot of the ecosystem catalog\n200\t  (`gravity-ui.com/llms.txt`), refreshed each skill release. Used as the\n201\t  offline fallback in Step 0.\n202\t- `references/theming.md` — verbatim copy of uikit's `docs/theming.md`:\n203\t  `--g-*` token layers, `ThemeProvider`, branding, custom themes, scoped\n204\t  themes, `uikit-themer`. The bundled copy may lag — read\n205\t  `node_modules/@gravity-ui/uikit/build/docs/guides/theming.md` for the\n206\t  version-matched file.\n207\t- `references/layout.md` — verbatim copy of uikit's `docs/layout.md`:\n208\t  spacing scale (`--g-spacing-*`), `Flex`/`Box`, `Row`/`Col`/`Container`\n209\t  grid, breakpoints, `useLayoutContext`.\n210\t- `references/icons.md` — finding an icon by image\n211\t  (`scripts/icon-image-search.sh`) or on gravity-ui.com/icons; the\n212\t  object-vs-string rendering rule.\n213\t- `rules/hallucination-traps.md` — Incorrect/Correct pairs for the most\n214\t  commonly invented APIs: typography variants (`header-3..6` don't exist, no\n215\t  `Heading`), the flex contract (`min-width:0`, who shrinks), theming traps\n216\t  (partial brand overrides, a `ThemeProvider` that themes the whole page, customization\n217\t  ladder), `Button view` not `variant`, `Icon data` not `name`. Per-component\n218\t  traps live in each package's `dist/docs`, not here.\n219\t"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:02.646Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "git status --short && ls -la && cat package.json 2>/dev/null; find . -path ./node_modules -prune -o -type f -print | grep -v \"^./.git/\" | head -100",
+          "description": "Inspect project layout and package.json",
+          "_extractedCommand": "git status --short && ls -la && cat package.json 2>/dev/null; find . -path ./node_modules -prune -o -type f -print | grep -v \"^./.git/\" | head -100"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "git status --short && ls -la && cat package.json 2>/dev/null; find . -path ./node_modules -prune -o -type f -print | grep -v \"^./.git/\" | head -100",
+          "description": "Inspect project layout and package.json"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:02.695Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01YU3nw2tX67ZHRZTLEHbqmF",
+        "result": "?? .agents/\n?? AGENTS.md\n?? CLAUDE.md\n?? package-lock.json\ntotal 148\ndrwxr-xr-x 1 node node    268 Nov  6 11:41 .\ndrwxr-xr-x 1 root root     18 Nov  6 11:39 ..\ndrwxr-xr-x 1 node node     12 Nov  6 11:39 .agents\ndrwxr-xr-x 1 node node    136 Nov  6 11:42 .git\n-rw-r--r-- 1 node node     30 Nov  6 11:39 .gitignore\n-rw-r--r-- 1 node node    278 Nov  6 11:39 AGENTS.md\n-rw-r--r-- 1 node node    278 Nov  6 11:39 CLAUDE.md\ndrwxr-xr-x 1 node node     14 Nov  6 11:41 __agent_eval__\n-rw-r--r-- 1 node node    302 Nov  6 11:39 index.html\ndrwxr-xr-x 1 node node   1946 Nov  6 11:41 node_modules\n-rw-r--r-- 1 node node 122596 Nov  6 11:41 package-lock.json\n-rw-r--r-- 1 node node    473 Nov  6 11:39 package.json\ndrwxr-xr-x 1 node node     56 Nov  6 11:39 src\n-rw-r--r-- 1 node node    494 Nov  6 11:39 tsconfig.json\n-rw-r--r-- 1 node node    136 Nov  6 11:39 vite.config.ts\n{\n  \"name\": \"comp-modal-confirm\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"build\": \"tsc --noEmit && vite build\",\n    \"dev\": \"vite\"\n  },\n  \"dependencies\": {\n    \"@gravity-ui/uikit\": \"7.43.0\",\n    \"react\": \"^18.3.1\",\n    \"react-dom\": \"^18.3.1\"\n  },\n  \"devDependencies\": {\n    \"@types/react\": \"^18.3.12\",\n    \"@types/react-dom\": \"^18.3.1\",\n    \"@vitejs/plugin-react\": \"^4.3.4\",\n    \"typescript\": \"^7.0.2\",\n    \"vite\": \"^5.4.11\",\n    \"vitest\": \"^3.1.3\"\n  }\n}\n./index.html\n./package.json\n./tsconfig.json\n./vite.config.ts\n./.gitignore\n./AGENTS.md\n./CLAUDE.md\n./package-lock.json\n./src/App.tsx\n./src/main.tsx\n./src/vite-env.d.ts\n./__agent_eval__/run.mjs\n./.agents/skills/gravity-ui/SKILL.md\n./.agents/skills/gravity-ui/references/icons.md\n./.agents/skills/gravity-ui/references/layout.md\n./.agents/skills/gravity-ui/references/package-routing.md\n./.agents/skills/gravity-ui/references/theming.md\n./.agents/skills/gravity-ui/rules/hallucination-traps.md\n./.agents/skills/gravity-ui/scripts/icon-image-search.sh\n./.agents/skills/gravity-ui/scripts/inspect-package.sh",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01YU3nw2tX67ZHRZTLEHbqmF",
+        "type": "tool_result",
+        "content": "?? .agents/\n?? AGENTS.md\n?? CLAUDE.md\n?? package-lock.json\ntotal 148\ndrwxr-xr-x 1 node node    268 Nov  6 11:41 .\ndrwxr-xr-x 1 root root     18 Nov  6 11:39 ..\ndrwxr-xr-x 1 node node     12 Nov  6 11:39 .agents\ndrwxr-xr-x 1 node node    136 Nov  6 11:42 .git\n-rw-r--r-- 1 node node     30 Nov  6 11:39 .gitignore\n-rw-r--r-- 1 node node    278 Nov  6 11:39 AGENTS.md\n-rw-r--r-- 1 node node    278 Nov  6 11:39 CLAUDE.md\ndrwxr-xr-x 1 node node     14 Nov  6 11:41 __agent_eval__\n-rw-r--r-- 1 node node    302 Nov  6 11:39 index.html\ndrwxr-xr-x 1 node node   1946 Nov  6 11:41 node_modules\n-rw-r--r-- 1 node node 122596 Nov  6 11:41 package-lock.json\n-rw-r--r-- 1 node node    473 Nov  6 11:39 package.json\ndrwxr-xr-x 1 node node     56 Nov  6 11:39 src\n-rw-r--r-- 1 node node    494 Nov  6 11:39 tsconfig.json\n-rw-r--r-- 1 node node    136 Nov  6 11:39 vite.config.ts\n{\n  \"name\": \"comp-modal-confirm\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"build\": \"tsc --noEmit && vite build\",\n    \"dev\": \"vite\"\n  },\n  \"dependencies\": {\n    \"@gravity-ui/uikit\": \"7.43.0\",\n    \"react\": \"^18.3.1\",\n    \"react-dom\": \"^18.3.1\"\n  },\n  \"devDependencies\": {\n    \"@types/react\": \"^18.3.12\",\n    \"@types/react-dom\": \"^18.3.1\",\n    \"@vitejs/plugin-react\": \"^4.3.4\",\n    \"typescript\": \"^7.0.2\",\n    \"vite\": \"^5.4.11\",\n    \"vitest\": \"^3.1.3\"\n  }\n}\n./index.html\n./package.json\n./tsconfig.json\n./vite.config.ts\n./.gitignore\n./AGENTS.md\n./CLAUDE.md\n./package-lock.json\n./src/App.tsx\n./src/main.tsx\n./src/vite-env.d.ts\n./__agent_eval__/run.mjs\n./.agents/skills/gravity-ui/SKILL.md\n./.agents/skills/gravity-ui/references/icons.md\n./.agents/skills/gravity-ui/references/layout.md\n./.agents/skills/gravity-ui/references/package-routing.md\n./.agents/skills/gravity-ui/references/theming.md\n./.agents/skills/gravity-ui/rules/hallucination-traps.md\n./.agents/skills/gravity-ui/scripts/icon-image-search.sh\n./.agents/skills/gravity-ui/scripts/inspect-package.sh",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:04.773Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "cat src/App.tsx; echo ----; cat src/main.tsx; echo ----; cat src/vite-env.d.ts; echo ----; cat tsconfig.json; echo ----; cat AGENTS.md; echo ----; cat .gitignore; echo ----; cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; ls node_modules/@gravity-ui/uikit/build/docs 2>/dev/null | head; echo ----; cat .agents/skills/gravity-ui/rules/hallucination-traps.md | head -150",
+          "description": "Read source files, config, and uikit version",
+          "_extractedCommand": "cat src/App.tsx; echo ----; cat src/main.tsx; echo ----; cat src/vite-env.d.ts; echo ----; cat tsconfig.json; echo ----; cat AGENTS.md; echo ----; cat .gitignore; echo ----; cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; ls node_modules/@gravity-ui/uikit/build/docs 2>/dev/null | head; echo ----; cat .agents/skills/gravity-ui/rules/hallucination-traps.md | head -150"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "cat src/App.tsx; echo ----; cat src/main.tsx; echo ----; cat src/vite-env.d.ts; echo ----; cat tsconfig.json; echo ----; cat AGENTS.md; echo ----; cat .gitignore; echo ----; cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; ls node_modules/@gravity-ui/uikit/build/docs 2>/dev/null | head; echo ----; cat .agents/skills/gravity-ui/rules/hallucination-traps.md | head -150",
+          "description": "Read source files, config, and uikit version"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:04.818Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_018sKdMXxeybpuadhpWmEveN",
+        "result": "// Implement the requested feature here (and may add sibling files).\nexport function App() {\n  return <div style={{ padding: 24 }}>{/* TODO: implement the requested component */}</div>;\n}\n----\n// Preconfigured Gravity UI setup is ALREADY wired here (both CSS imports + ThemeProvider).\n// Implement the requested feature in App.tsx (you may add sibling files).\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport { ThemeProvider } from '@gravity-ui/uikit';\n\nimport { App } from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <ThemeProvider theme=\"light\">\n      <App />\n    </ThemeProvider>\n  </React.StrictMode>,\n);\n----\n/// <reference types=\"vite/client\" />\n----\n{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"useDefineForClassFields\": true,\n    \"lib\": [\n      \"ES2022\",\n      \"DOM\",\n      \"DOM.Iterable\"\n    ],\n    \"module\": \"ESNext\",\n    \"skipLibCheck\": true,\n    \"moduleResolution\": \"bundler\",\n    \"resolveJsonModule\": true,\n    \"isolatedModules\": true,\n    \"moduleDetection\": \"force\",\n    \"noEmit\": true,\n    \"jsx\": \"react-jsx\",\n    \"strict\": true,\n    \"noUnusedLocals\": false,\n    \"noUnusedParameters\": false\n  },\n  \"include\": [\n    \"src\"\n  ]\n}\n----\n# Gravity UI\n\nThis project uses the Gravity UI design system (`@gravity-ui/*`). Before writing or modifying Gravity UI component code, you MUST read and follow the `gravity-ui` skill at `.agents/skills/gravity-ui/SKILL.md`, including every referenced file relevant to the task.\n----\nnode_modules/\n__agent_eval__/\n----\n  \"version\": \"7.43.0\",\n----\n# Hallucination traps — Incorrect / Correct pairs\n\nRead this before using any Gravity UI component API you are not 100% sure of.\nThese are the APIs agents invent most often — each pair shows the wrong guess,\nthe correct form, and *why*. The references under `references/` cover the\nground truth (full token tables, prop lists); this file is the shortcut to not\nfalling into the common holes.\n\nPer-component traps (a specific `Table`, `Button`, `Chart` prop) live in each\npackage's own `dist/docs/INDEX.md` — read that for component detail. This file\ncovers the **cross-cutting** traps that affect every `@gravity-ui/*` package.\n\n---\n\n## Typography\n\n### `header-3`…`header-6` do not exist\n\n❌ **Incorrect** — invented scale:\n\n```tsx\n<Text variant=\"header-3\">Section title</Text>\n<Text variant=\"header-4\">Subsection</Text>\n<Heading size=\"lg\">Page title</Heading>   // also: there is no `Heading` component\n```\n\n✓ **Correct** — the real `Text` variants:\n\n```tsx\n<Text variant=\"header-1\">Page title</Text>\n<Text variant=\"header-2\">Section title</Text>\n<Text variant=\"subheader-1\">Subsection</Text>   {/* or subheader-2/3 */}\n<Text variant=\"display-1\">Hero</Text>           {/* display-1…4 are larger than headers */}\n```\n\n**Why:** only `header-1` and `header-2` exist. Above them sit `display-1…4`,\nbelow them `subheader-1…3`. Body variants are `body-1`/`body-2`/`body-3`\n(plus `body-short`), and small text is `caption-1`/`caption-2`. There is no\nstandalone `Heading` component — headings are `<Text variant=\"…\">`. Setting a\nsize via inline `fontSize` is also wrong; pick the variant.\n\n### Page title is a `Text`, not an `<h1>`\n\n❌ `<h1>Dashboard</h1>`\n✓ `<Text variant=\"header-1\">Dashboard</Text>`\n\n**Why:** the design system's metrics (font-family, weight, line-height, tracking)\ncome from `--g-text-header-1-*` tokens. A raw `<h1>` bypasses them and renders\nwith the browser default.\n\n---\n\n## Layout — the flex contract\n\n### `Flex`/`Box` have no `padding` / `margin` props\n\n❌ **Incorrect** — MUI-style props (do not exist):\n\n```tsx\n<Flex p={4} mb={3}>…</Flex>\n<Box padding=\"16px\" marginTop={2}>…</Box>\n```\n\n✓ **Correct** — use `gap` between children, `Box spacing` for offsets on a\n`Box`, `spacing()` / `sp()` for any other element:\n\n```tsx\nimport {Box, Flex, sp} from '@gravity-ui/uikit';\n\n<Flex gap={4}>                       {/* 16px between children */}\n  <Button />\n  <Button />\n</Flex>\n\n<Box spacing={{p: 4, mb: 3}}>…</Box>          {/* padding + margin-bottom */}\n<div className={sp({p: 4, mb: 3})}>…</div>   {/* same, for a non-Box element */}\n```\n\n**Why:** `Flex`/`Box` take `gap` (a spacing-scale step `0…10`; the only\nhalf-step is `0.5`), and `Box` additionally takes `spacing={{…}}` with the\nsame `m*`/`p*` shortcuts. For everything else use the `spacing()` (or `sp()`)\nutility, which returns a className, or the raw `--g-spacing-*` variables in\nCSS. Never hard-code pixel values.\n\n### In a row, explicitly assign who flexes and who holds\n\n❌ **Incorrect** — relying on flex defaults:\n\n```tsx\n<Flex alignItems=\"center\">\n  <Avatar />                {/* gets crushed when text is long */}\n  <span>{veryLongName}</span>\n  <Button>Edit</Button>     {/* also gets crushed */}\n</Flex>\n```\n\n✓ **Correct** — fix-elements get `flex-shrink: 0`, the flexible middle gets\n`flex: 1; min-width: 0`:\n\n```tsx\n<Flex alignItems=\"center\" gap={2}>\n  <Avatar style={{flexShrink: 0}} />\n  <span style={{flex: 1, minWidth: 0}}>{veryLongName}</span>\n  <Button style={{flexShrink: 0}}>Edit</Button>\n</Flex>\n```\n\n**Why:** flex defaults are `flex-shrink: 1` and `min-width: auto` on every\nchild — both work against you. Without `flex-shrink: 0`, fix-sized elements\n(avatars, icons, badges, the right-aligned action button) get squashed when a\nsibling is long. Without `min-width: 0` on the flexible child, the flex\n`min-width: auto` prevents it from shrinking and the text overflows the\ncontainer / overlaps its siblings — and this is invisible to layout tests\nbecause the element's bounding box stays clean. The fix-elements are what\nshould hold their size; compression goes into the flexible element (text gets\ntruncated, breadcrumbs collapse to `…`, a list scrolls).\n\nThe same contract applies vertically: panels `flex: 1; min-height: 0`;\nterminal zones (header / footer / composer) `flex-shrink: 0`.\n\n### Horizontal scroll lives inside the widget, not the page\n\n❌ **Incorrect** — wrap the whole workspace:\n\n```tsx\n<div style={{overflowX: 'auto'}}>      {/* breaks sticky headers, sidebars */}\n  <Workspace />\n</div>\n```\n\n✓ **Correct** — wrap only the wide widget, give the content its honest\n`min-width`:\n\n```tsx\n<div style={{overflowX: 'auto', maxWidth: '100%'}}>\n  <WideTable style={{minWidth: 1200}} />\n</div>\n```\n\n**Why:** wrapping the whole workspace makes sticky columns/headers and the\nsidebar scroll horizontally too. Compression should go into scroll on the\ncontainer of the wide thing only.\n\nFor a full-height app frame: root `height: 100vh` (+ a sane `min-height`),\npanels `flex: 1; min-height: 0; overflow-y: auto` — the panel scrolls, not the\ndocument.\n\n---\n\n## Theming",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_018sKdMXxeybpuadhpWmEveN",
+        "type": "tool_result",
+        "content": "// Implement the requested feature here (and may add sibling files).\nexport function App() {\n  return <div style={{ padding: 24 }}>{/* TODO: implement the requested component */}</div>;\n}\n----\n// Preconfigured Gravity UI setup is ALREADY wired here (both CSS imports + ThemeProvider).\n// Implement the requested feature in App.tsx (you may add sibling files).\nimport '@gravity-ui/uikit/styles/fonts.css';\nimport '@gravity-ui/uikit/styles/styles.css';\n\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport { ThemeProvider } from '@gravity-ui/uikit';\n\nimport { App } from './App';\n\nReactDOM.createRoot(document.getElementById('root')!).render(\n  <React.StrictMode>\n    <ThemeProvider theme=\"light\">\n      <App />\n    </ThemeProvider>\n  </React.StrictMode>,\n);\n----\n/// <reference types=\"vite/client\" />\n----\n{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"useDefineForClassFields\": true,\n    \"lib\": [\n      \"ES2022\",\n      \"DOM\",\n      \"DOM.Iterable\"\n    ],\n    \"module\": \"ESNext\",\n    \"skipLibCheck\": true,\n    \"moduleResolution\": \"bundler\",\n    \"resolveJsonModule\": true,\n    \"isolatedModules\": true,\n    \"moduleDetection\": \"force\",\n    \"noEmit\": true,\n    \"jsx\": \"react-jsx\",\n    \"strict\": true,\n    \"noUnusedLocals\": false,\n    \"noUnusedParameters\": false\n  },\n  \"include\": [\n    \"src\"\n  ]\n}\n----\n# Gravity UI\n\nThis project uses the Gravity UI design system (`@gravity-ui/*`). Before writing or modifying Gravity UI component code, you MUST read and follow the `gravity-ui` skill at `.agents/skills/gravity-ui/SKILL.md`, including every referenced file relevant to the task.\n----\nnode_modules/\n__agent_eval__/\n----\n  \"version\": \"7.43.0\",\n----\n# Hallucination traps — Incorrect / Correct pairs\n\nRead this before using any Gravity UI component API you are not 100% sure of.\nThese are the APIs agents invent most often — each pair shows the wrong guess,\nthe correct form, and *why*. The references under `references/` cover the\nground truth (full token tables, prop lists); this file is the shortcut to not\nfalling into the common holes.\n\nPer-component traps (a specific `Table`, `Button`, `Chart` prop) live in each\npackage's own `dist/docs/INDEX.md` — read that for component detail. This file\ncovers the **cross-cutting** traps that affect every `@gravity-ui/*` package.\n\n---\n\n## Typography\n\n### `header-3`…`header-6` do not exist\n\n❌ **Incorrect** — invented scale:\n\n```tsx\n<Text variant=\"header-3\">Section title</Text>\n<Text variant=\"header-4\">Subsection</Text>\n<Heading size=\"lg\">Page title</Heading>   // also: there is no `Heading` component\n```\n\n✓ **Correct** — the real `Text` variants:\n\n```tsx\n<Text variant=\"header-1\">Page title</Text>\n<Text variant=\"header-2\">Section title</Text>\n<Text variant=\"subheader-1\">Subsection</Text>   {/* or subheader-2/3 */}\n<Text variant=\"display-1\">Hero</Text>           {/* display-1…4 are larger than headers */}\n```\n\n**Why:** only `header-1` and `header-2` exist. Above them sit `display-1…4`,\nbelow them `subheader-1…3`. Body variants are `body-1`/`body-2`/`body-3`\n(plus `body-short`), and small text is `caption-1`/`caption-2`. There is no\nstandalone `Heading` component — headings are `<Text variant=\"…\">`. Setting a\nsize via inline `fontSize` is also wrong; pick the variant.\n\n### Page title is a `Text`, not an `<h1>`\n\n❌ `<h1>Dashboard</h1>`\n✓ `<Text variant=\"header-1\">Dashboard</Text>`\n\n**Why:** the design system's metrics (font-family, weight, line-height, tracking)\ncome from `--g-text-header-1-*` tokens. A raw `<h1>` bypasses them and renders\nwith the browser default.\n\n---\n\n## Layout — the flex contract\n\n### `Flex`/`Box` have no `padding` / `margin` props\n\n❌ **Incorrect** — MUI-style props (do not exist):\n\n```tsx\n<Flex p={4} mb={3}>…</Flex>\n<Box padding=\"16px\" marginTop={2}>…</Box>\n```\n\n✓ **Correct** — use `gap` between children, `Box spacing` for offsets on a\n`Box`, `spacing()` / `sp()` for any other element:\n\n```tsx\nimport {Box, Flex, sp} from '@gravity-ui/uikit';\n\n<Flex gap={4}>                       {/* 16px between children */}\n  <Button />\n  <Button />\n</Flex>\n\n<Box spacing={{p: 4, mb: 3}}>…</Box>          {/* padding + margin-bottom */}\n<div className={sp({p: 4, mb: 3})}>…</div>   {/* same, for a non-Box element */}\n```\n\n**Why:** `Flex`/`Box` take `gap` (a spacing-scale step `0…10`; the only\nhalf-step is `0.5`), and `Box` additionally takes `spacing={{…}}` with the\nsame `m*`/`p*` shortcuts. For everything else use the `spacing()` (or `sp()`)\nutility, which returns a className, or the raw `--g-spacing-*` variables in\nCSS. Never hard-code pixel values.\n\n### In a row, explicitly assign who flexes and who holds\n\n❌ **Incorrect** — relying on flex defaults:\n\n```tsx\n<Flex alignItems=\"center\">\n  <Avatar />                {/* gets crushed when text is long */}\n  <span>{veryLongName}</span>\n  <Button>Edit</Button>     {/* also gets crushed */}\n</Flex>\n```\n\n✓ **Correct** — fix-elements get `flex-shrink: 0`, the flexible middle gets\n`flex: 1; min-width: 0`:\n\n```tsx\n<Flex alignItems=\"center\" gap={2}>\n  <Avatar style={{flexShrink: 0}} />\n  <span style={{flex: 1, minWidth: 0}}>{veryLongName}</span>\n  <Button style={{flexShrink: 0}}>Edit</Button>\n</Flex>\n```\n\n**Why:** flex defaults are `flex-shrink: 1` and `min-width: auto` on every\nchild — both work against you. Without `flex-shrink: 0`, fix-sized elements\n(avatars, icons, badges, the right-aligned action button) get squashed when a\nsibling is long. Without `min-width: 0` on the flexible child, the flex\n`min-width: auto` prevents it from shrinking and the text overflows the\ncontainer / overlaps its siblings — and this is invisible to layout tests\nbecause the element's bounding box stays clean. The fix-elements are what\nshould hold their size; compression goes into the flexible element (text gets\ntruncated, breadcrumbs collapse to `…`, a list scrolls).\n\nThe same contract applies vertically: panels `flex: 1; min-height: 0`;\nterminal zones (header / footer / composer) `flex-shrink: 0`.\n\n### Horizontal scroll lives inside the widget, not the page\n\n❌ **Incorrect** — wrap the whole workspace:\n\n```tsx\n<div style={{overflowX: 'auto'}}>      {/* breaks sticky headers, sidebars */}\n  <Workspace />\n</div>\n```\n\n✓ **Correct** — wrap only the wide widget, give the content its honest\n`min-width`:\n\n```tsx\n<div style={{overflowX: 'auto', maxWidth: '100%'}}>\n  <WideTable style={{minWidth: 1200}} />\n</div>\n```\n\n**Why:** wrapping the whole workspace makes sticky columns/headers and the\nsidebar scroll horizontally too. Compression should go into scroll on the\ncontainer of the wide thing only.\n\nFor a full-height app frame: root `height: 100vh` (+ a sane `min-height`),\npanels `flex: 1; min-height: 0; overflow-y: auto` — the panel scrolls, not the\ndocument.\n\n---\n\n## Theming",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:06.495Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "sed -n 150,400p .agents/skills/gravity-ui/rules/hallucination-traps.md; echo ----; cat .agents/skills/gravity-ui/scripts/inspect-package.sh | head -60; echo ----; ls node_modules/@gravity-ui/uikit/; ls node_modules/@gravity-ui/uikit/dist 2>/dev/null | head -30",
+          "description": "Read rest of traps file and inspect uikit layout",
+          "_extractedCommand": "sed -n 150,400p .agents/skills/gravity-ui/rules/hallucination-traps.md; echo ----; cat .agents/skills/gravity-ui/scripts/inspect-package.sh | head -60; echo ----; ls node_modules/@gravity-ui/uikit/; ls node_modules/@gravity-ui/uikit/dist 2>/dev/null | head -30"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "sed -n 150,400p .agents/skills/gravity-ui/rules/hallucination-traps.md; echo ----; cat .agents/skills/gravity-ui/scripts/inspect-package.sh | head -60; echo ----; ls node_modules/@gravity-ui/uikit/; ls node_modules/@gravity-ui/uikit/dist 2>/dev/null | head -30",
+          "description": "Read rest of traps file and inspect uikit layout"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:06.513Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01VShCZHPYLcch6FB9wJ7vyM",
+        "result": "## Theming\n\n### Styles + fonts are required; order matters\n\n❌ **Incorrect** — missing imports, or theme before base:\n\n```tsx\nimport './theme.css';                                  // before styles.css → gets overwritten\nimport {ThemeProvider} from '@gravity-ui/uikit';\n// no styles.css, no fonts.css → components render unstyled\n```\n\n✓ **Correct**:\n\n```tsx\nimport '@gravity-ui/uikit/styles/fonts.css';           // fonts first\nimport '@gravity-ui/uikit/styles/styles.css';          // then base\nimport './theme.css';                                  // custom ALWAYS after styles.css\nimport {ThemeProvider} from '@gravity-ui/uikit';\n```\n\n**Why:** without `styles.css` + `fonts.css` imported once at the entry point,\nevery component renders unstyled. A custom theme file imported *before*\n`styles.css` is overwritten by it in the cascade — custom always comes after.\n\n### `theme` takes five values — no `\"default\"` or `\"auto\"`\n\n❌ `<ThemeProvider theme=\"default\">`\n❌ `<ThemeProvider theme=\"auto\">`\n✓ `<ThemeProvider theme=\"light\">` / `\"dark\"` / `\"light-hc\"` / `\"dark-hc\"`\n✓ `<ThemeProvider theme=\"system\">` (resolves to light/dark from OS preference)\n\n### Branding means a full token set, on both themes — never 2–4 tokens\n\n❌ **Incorrect** — partial override:\n\n```css\n.g-root { --g-color-base-brand: #007AFF; }\n```\n\n✓ **Correct** — override the full brand group, per theme:\n\n```css\n.g-root_theme_light {\n  --g-color-base-brand: #007AFF;\n  --g-color-base-brand-hover: #0066D6;\n  --g-color-base-selection: rgba(0, 122, 255, 0.05);\n  --g-color-base-selection-hover: rgba(0, 122, 255, 0.1);\n  --g-color-line-brand: #007AFF;\n  --g-color-text-brand: #007AFF;\n  --g-color-text-brand-contrast: #FFFFFF;   /* required: text on brand bg */\n  --g-color-text-link: #007AFF;\n  --g-color-text-link-hover: #0066D6;\n}\n.g-root_theme_dark {\n  /* different values — dark usually needs a brighter brand */\n  --g-color-base-brand: #2E8BFF;\n  /* … same set, dark-tuned … */\n}\n```\n\n**Why:** the semantic layer has many tokens pointing at \"brand\" — selection,\nfocus, links, the contrast text on a brand background. Override only\n`--g-color-base-brand` and you get a UI where the button is branded but\nselection, links and focus rings are still the default accent. Provide the full\nset, and provide it for *each* theme you support (dark themes usually need a\nbrighter brand than light). Forgetting `--g-color-text-brand-contrast` makes\ntext on a brand button unreadable.\n\nBetter than hand-writing: generate the full set with the\n[Themer](https://gravity-ui.com/themer) web tool or\n[`@gravity-ui/uikit-themer`](https://github.com/gravity-ui/uikit-themer) — both\nrecalculate the dependent palette from a single base color.\n\n### A section `ThemeProvider` with no provider above it themes the whole page\n\n❌ **Incorrect** — a dark widget mounted where no `ThemeProvider` (or v8\n`Provider`) wraps it: an embedded widget, a micro-frontend, a separate React\nroot:\n\n```tsx\n<ThemeProvider theme=\"dark\">   {/* no provider above → writes to document.body */}\n  <Toolbar />\n</ThemeProvider>\n```\n\n✓ **Correct**:\n\n```tsx\n<ThemeProvider scoped theme=\"dark\">\n  <Toolbar />\n</ThemeProvider>\n```\n\n**Why:** only the outermost `ThemeProvider` writes the theme class to\n`document.body` — globally, last-wins. One nested inside another\n`ThemeProvider` (or a v8 `Provider`) is always scoped, with or without the prop,\nso a dark section inside the app needs no `scoped`. With no provider above,\n`scoped` renders a dedicated `<div class=\"g-root g-root_theme_dark\">` around the\nchildren *and* updates the theme React context (so `useTheme` inside the\nsection sees the section's theme). For a CSS-only region without context, apply\nthe class manually: `<div className={getRootClassName({theme: 'dark'})}>`.\n\n### Controls on a brand/colored background: fixed contrast, both themes\n\n❌ **Incorrect** — default button on a brand-colored hero:\n\n```tsx\n<section style={{background: 'var(--g-color-base-brand)'}}>\n  <Button>Sign up</Button>   {/* default view follows theme → low contrast on bright bg */}\n</section>\n```\n\n✓ **Correct** — use a `*-contrast` view, which is built for a contrast\nbackground, or scope a CSS override fixing contrast for both themes:\n\n```tsx\n<section style={{background: 'var(--g-color-base-brand)'}}>\n  <Button view=\"normal-contrast\">Sign up</Button>   {/* also outlined-contrast, flat-contrast */}\n</section>\n```\n\n**Why:** a brand-colored fill is usually the *same* color in light and dark\n(it's a fill, not a themed surface), so the control on top should keep a fixed\ncontrast in both themes rather than lightening/darkening with the theme.\n`normal-contrast` / `outlined-contrast` / `flat-contrast` do exactly that.\nDo **not** reach for `raised` here — its surface is themed (light in light,\ndark in dark), so it does not hold contrast on a fixed fill. If no `*-contrast`\nview fits, override the component's CSS API (`--g-button-background-color`,\n`--g-button-text-color`, …) scoped to the section, with contrast values for\nboth themes. This is distinct from `--g-color-text-brand-contrast`, which is\nabout text on a *brand button* (`view=\"action\"`).\n\n### Customization ladder — descend only when there's no higher handle\n\nWhen you need to change how a Gravity UI component looks, try in this order:\n\n1. **Global tokens** (`--g-*` semantic tokens / theme) — change the look\n   everywhere by changing the token, not components one by one.\n2. **Component's own CSS API** (`--g-button-*`, `--g-card-border-radius`,\n   `--g-text-input-*`, …) — scoped to the wrapper / class of the spot you're\n   changing. Check the component's README for the variables it exposes.\n3. **A narrow, flagged hack** — a custom class on a specific internal element,\n   with a comment \"hack on internal classes, pinned to version <X>\", and a note\n   to upstream it. Only after confirming step 1 and 2 don't expose a handle.\n4. **NEVER** broad structural matches: `[class*='…']` or ID selectors against\n   internal markup. Such an override is written against one specific DOM\n   structure and breaks silently when it changes.\n\n**Why:** a `[class*='…']` override that worked yesterday breaks tomorrow when\nthe component adds a wrapper or renames an internal class — and you won't get a\ntype error, just a visually broken layout. Always start at the top of the\nladder; descend one rung only when the rung above has no handle.\n\n---\n\n## Color & shape\n\n### Use semantic tokens, never raw hex or private tokens\n\n❌ `color: #1677FF`\n❌ `background: var(--g-color-private-blue-500)`\n✓ `color: var(--g-color-text-link)`\n✓ `background: var(--g-color-base-brand)`\n\n**Why:** Gravity UI's color system is two-layered. The *private* layer\n(`--g-color-private-<hue>-<step>`) is the raw palette — an implementation\ndetail that can change, never reference it directly. The *semantic* layer\n(`--g-color-{group}-{role}`) encodes intent and is theme-aware. Use it:\n\n- backgrounds/fills: `--g-color-base-*` (`base-background`, `base-brand`,\n  `base-generic`, `base-danger-*`, …)\n- text/icons: `--g-color-text-*` (`text-primary`, `text-secondary`, `text-hint`,\n  `text-brand`, `text-link`, …)\n- borders/lines: `--g-color-line-*` (`line-generic`, `line-brand`, `line-focus`,\n  `line-danger`)\n- effects: `--g-color-sfx-*` (`sfx-shadow`, `sfx-veil`, `sfx-fade`)\n\nFor text on a brand/colored background, use `--g-color-text-brand-contrast`\n(not the plain brand color — it has no contrast guarantee).\n\n### Border radius uses a token, never a hard-coded `px`\n\n❌ `border-radius: 8px`\n✓ `border-radius: var(--g-border-radius-m)`\n\n**Why:** the scale is `--g-border-radius-{xs|s|m|l|xl}`. Components expose\ntheir own radius variable on the same scale (`--g-button-border-radius`,\n`--g-card-border-radius`, `--g-modal-border-radius`, …) so you can tune one\ncomponent without moving the global scale. Use a token, always.\n\n---\n\n## Component-prop traps (cross-cutting)\n\n### `Button` uses `view`, not `variant` / `color`\n\n❌ `<Button variant=\"primary\">` / `<Button color=\"primary\">`\n✓ `<Button view=\"action\">` (also `normal`, `outlined`, `flat`, `raised`;\n   semantic `outlined-{info|success|warning|danger|utility|action}` and\n   `flat-{secondary|info|success|warning|danger|utility|action}`; and\n   `normal-contrast` / `outlined-contrast` / `flat-contrast` for colored\n   backgrounds). There is no `special` or `clear` view.\n\n### `Icon` takes an object via `data`, never a string name\n\n❌ `<Icon name=\"check\" />` / `<Icon data=\"Check\" />`\n✓ `<Icon data={CheckIcon} size={16} />`\n\n**Why:** `Icon` (from `@gravity-ui/uikit`) is the *renderer*; the glyphs live\nin `@gravity-ui/icons` as React components. There is no `name` prop. Pass the\nimported component object through `data`. Never guess an icon name — use\n`scripts/icon-image-search.sh` (reverse image search) or look it up at\n`gravity-ui.com/icons`. See `references/icons.md`.\n\n---\n\n## When in doubt\n\n1. Read `references/theming.md` (full token tables) and\n   `references/layout.md` (spacing scale, breakpoints).\n2. Read the chosen package's `dist/docs/INDEX.md` for component-specific props.\n3. If still unsure, ask the user rather than guessing — invented APIs are the\n   single biggest source of broken Gravity UI code.\n----\n#!/usr/bin/env bash\nset -euo pipefail\n\npkg=\"${1:-}\"\nshift || true\n\nif [[ -z \"$pkg\" ]]; then\n  echo \"usage: inspect-package.sh <gravity-package> [Symbol ...]\" >&2\n  exit 2\nfi\n\nroot=\"node_modules/@gravity-ui/$pkg\"\nmanifest=\"$root/package.json\"\nif [[ ! -f \"$manifest\" ]]; then\n  echo \"missing installed package: @gravity-ui/$pkg\" >&2\n  exit 1\nfi\n\nnode -e 'const p=require(process.argv[1]); console.log(`package=@gravity-ui/${p.name.split(\"/\").pop()} version=${p.version}`)' \"./$manifest\"\n\nfor doc in \"$root/dist/docs/INDEX.md\" \"$root/build/docs/INDEX.md\" \"$root/README.md\"; do\n  [[ -s \"$doc\" ]] && echo \"doc=$doc\"\ndone\n\nfor symbol in \"$@\"; do\n  echo \"symbol=$symbol\"\n  rg -l --glob '*.d.ts' \"(declare (const|function|class) $symbol|interface ${symbol}Props|type ${symbol}Props|export .*\\\\b$symbol\\\\b)\" \\\n    \"$root/dist\" \"$root/build\" 2>/dev/null | sed -n '1,8p' || true\ndone\n----\nLICENSE\nREADME.md\nbuild\npackage.json\nstyles",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01VShCZHPYLcch6FB9wJ7vyM",
+        "type": "tool_result",
+        "content": "## Theming\n\n### Styles + fonts are required; order matters\n\n❌ **Incorrect** — missing imports, or theme before base:\n\n```tsx\nimport './theme.css';                                  // before styles.css → gets overwritten\nimport {ThemeProvider} from '@gravity-ui/uikit';\n// no styles.css, no fonts.css → components render unstyled\n```\n\n✓ **Correct**:\n\n```tsx\nimport '@gravity-ui/uikit/styles/fonts.css';           // fonts first\nimport '@gravity-ui/uikit/styles/styles.css';          // then base\nimport './theme.css';                                  // custom ALWAYS after styles.css\nimport {ThemeProvider} from '@gravity-ui/uikit';\n```\n\n**Why:** without `styles.css` + `fonts.css` imported once at the entry point,\nevery component renders unstyled. A custom theme file imported *before*\n`styles.css` is overwritten by it in the cascade — custom always comes after.\n\n### `theme` takes five values — no `\"default\"` or `\"auto\"`\n\n❌ `<ThemeProvider theme=\"default\">`\n❌ `<ThemeProvider theme=\"auto\">`\n✓ `<ThemeProvider theme=\"light\">` / `\"dark\"` / `\"light-hc\"` / `\"dark-hc\"`\n✓ `<ThemeProvider theme=\"system\">` (resolves to light/dark from OS preference)\n\n### Branding means a full token set, on both themes — never 2–4 tokens\n\n❌ **Incorrect** — partial override:\n\n```css\n.g-root { --g-color-base-brand: #007AFF; }\n```\n\n✓ **Correct** — override the full brand group, per theme:\n\n```css\n.g-root_theme_light {\n  --g-color-base-brand: #007AFF;\n  --g-color-base-brand-hover: #0066D6;\n  --g-color-base-selection: rgba(0, 122, 255, 0.05);\n  --g-color-base-selection-hover: rgba(0, 122, 255, 0.1);\n  --g-color-line-brand: #007AFF;\n  --g-color-text-brand: #007AFF;\n  --g-color-text-brand-contrast: #FFFFFF;   /* required: text on brand bg */\n  --g-color-text-link: #007AFF;\n  --g-color-text-link-hover: #0066D6;\n}\n.g-root_theme_dark {\n  /* different values — dark usually needs a brighter brand */\n  --g-color-base-brand: #2E8BFF;\n  /* … same set, dark-tuned … */\n}\n```\n\n**Why:** the semantic layer has many tokens pointing at \"brand\" — selection,\nfocus, links, the contrast text on a brand background. Override only\n`--g-color-base-brand` and you get a UI where the button is branded but\nselection, links and focus rings are still the default accent. Provide the full\nset, and provide it for *each* theme you support (dark themes usually need a\nbrighter brand than light). Forgetting `--g-color-text-brand-contrast` makes\ntext on a brand button unreadable.\n\nBetter than hand-writing: generate the full set with the\n[Themer](https://gravity-ui.com/themer) web tool or\n[`@gravity-ui/uikit-themer`](https://github.com/gravity-ui/uikit-themer) — both\nrecalculate the dependent palette from a single base color.\n\n### A section `ThemeProvider` with no provider above it themes the whole page\n\n❌ **Incorrect** — a dark widget mounted where no `ThemeProvider` (or v8\n`Provider`) wraps it: an embedded widget, a micro-frontend, a separate React\nroot:\n\n```tsx\n<ThemeProvider theme=\"dark\">   {/* no provider above → writes to document.body */}\n  <Toolbar />\n</ThemeProvider>\n```\n\n✓ **Correct**:\n\n```tsx\n<ThemeProvider scoped theme=\"dark\">\n  <Toolbar />\n</ThemeProvider>\n```\n\n**Why:** only the outermost `ThemeProvider` writes the theme class to\n`document.body` — globally, last-wins. One nested inside another\n`ThemeProvider` (or a v8 `Provider`) is always scoped, with or without the prop,\nso a dark section inside the app needs no `scoped`. With no provider above,\n`scoped` renders a dedicated `<div class=\"g-root g-root_theme_dark\">` around the\nchildren *and* updates the theme React context (so `useTheme` inside the\nsection sees the section's theme). For a CSS-only region without context, apply\nthe class manually: `<div className={getRootClassName({theme: 'dark'})}>`.\n\n### Controls on a brand/colored background: fixed contrast, both themes\n\n❌ **Incorrect** — default button on a brand-colored hero:\n\n```tsx\n<section style={{background: 'var(--g-color-base-brand)'}}>\n  <Button>Sign up</Button>   {/* default view follows theme → low contrast on bright bg */}\n</section>\n```\n\n✓ **Correct** — use a `*-contrast` view, which is built for a contrast\nbackground, or scope a CSS override fixing contrast for both themes:\n\n```tsx\n<section style={{background: 'var(--g-color-base-brand)'}}>\n  <Button view=\"normal-contrast\">Sign up</Button>   {/* also outlined-contrast, flat-contrast */}\n</section>\n```\n\n**Why:** a brand-colored fill is usually the *same* color in light and dark\n(it's a fill, not a themed surface), so the control on top should keep a fixed\ncontrast in both themes rather than lightening/darkening with the theme.\n`normal-contrast` / `outlined-contrast` / `flat-contrast` do exactly that.\nDo **not** reach for `raised` here — its surface is themed (light in light,\ndark in dark), so it does not hold contrast on a fixed fill. If no `*-contrast`\nview fits, override the component's CSS API (`--g-button-background-color`,\n`--g-button-text-color`, …) scoped to the section, with contrast values for\nboth themes. This is distinct from `--g-color-text-brand-contrast`, which is\nabout text on a *brand button* (`view=\"action\"`).\n\n### Customization ladder — descend only when there's no higher handle\n\nWhen you need to change how a Gravity UI component looks, try in this order:\n\n1. **Global tokens** (`--g-*` semantic tokens / theme) — change the look\n   everywhere by changing the token, not components one by one.\n2. **Component's own CSS API** (`--g-button-*`, `--g-card-border-radius`,\n   `--g-text-input-*`, …) — scoped to the wrapper / class of the spot you're\n   changing. Check the component's README for the variables it exposes.\n3. **A narrow, flagged hack** — a custom class on a specific internal element,\n   with a comment \"hack on internal classes, pinned to version <X>\", and a note\n   to upstream it. Only after confirming step 1 and 2 don't expose a handle.\n4. **NEVER** broad structural matches: `[class*='…']` or ID selectors against\n   internal markup. Such an override is written against one specific DOM\n   structure and breaks silently when it changes.\n\n**Why:** a `[class*='…']` override that worked yesterday breaks tomorrow when\nthe component adds a wrapper or renames an internal class — and you won't get a\ntype error, just a visually broken layout. Always start at the top of the\nladder; descend one rung only when the rung above has no handle.\n\n---\n\n## Color & shape\n\n### Use semantic tokens, never raw hex or private tokens\n\n❌ `color: #1677FF`\n❌ `background: var(--g-color-private-blue-500)`\n✓ `color: var(--g-color-text-link)`\n✓ `background: var(--g-color-base-brand)`\n\n**Why:** Gravity UI's color system is two-layered. The *private* layer\n(`--g-color-private-<hue>-<step>`) is the raw palette — an implementation\ndetail that can change, never reference it directly. The *semantic* layer\n(`--g-color-{group}-{role}`) encodes intent and is theme-aware. Use it:\n\n- backgrounds/fills: `--g-color-base-*` (`base-background`, `base-brand`,\n  `base-generic`, `base-danger-*`, …)\n- text/icons: `--g-color-text-*` (`text-primary`, `text-secondary`, `text-hint`,\n  `text-brand`, `text-link`, …)\n- borders/lines: `--g-color-line-*` (`line-generic`, `line-brand`, `line-focus`,\n  `line-danger`)\n- effects: `--g-color-sfx-*` (`sfx-shadow`, `sfx-veil`, `sfx-fade`)\n\nFor text on a brand/colored background, use `--g-color-text-brand-contrast`\n(not the plain brand color — it has no contrast guarantee).\n\n### Border radius uses a token, never a hard-coded `px`\n\n❌ `border-radius: 8px`\n✓ `border-radius: var(--g-border-radius-m)`\n\n**Why:** the scale is `--g-border-radius-{xs|s|m|l|xl}`. Components expose\ntheir own radius variable on the same scale (`--g-button-border-radius`,\n`--g-card-border-radius`, `--g-modal-border-radius`, …) so you can tune one\ncomponent without moving the global scale. Use a token, always.\n\n---\n\n## Component-prop traps (cross-cutting)\n\n### `Button` uses `view`, not `variant` / `color`\n\n❌ `<Button variant=\"primary\">` / `<Button color=\"primary\">`\n✓ `<Button view=\"action\">` (also `normal`, `outlined`, `flat`, `raised`;\n   semantic `outlined-{info|success|warning|danger|utility|action}` and\n   `flat-{secondary|info|success|warning|danger|utility|action}`; and\n   `normal-contrast` / `outlined-contrast` / `flat-contrast` for colored\n   backgrounds). There is no `special` or `clear` view.\n\n### `Icon` takes an object via `data`, never a string name\n\n❌ `<Icon name=\"check\" />` / `<Icon data=\"Check\" />`\n✓ `<Icon data={CheckIcon} size={16} />`\n\n**Why:** `Icon` (from `@gravity-ui/uikit`) is the *renderer*; the glyphs live\nin `@gravity-ui/icons` as React components. There is no `name` prop. Pass the\nimported component object through `data`. Never guess an icon name — use\n`scripts/icon-image-search.sh` (reverse image search) or look it up at\n`gravity-ui.com/icons`. See `references/icons.md`.\n\n---\n\n## When in doubt\n\n1. Read `references/theming.md` (full token tables) and\n   `references/layout.md` (spacing scale, breakpoints).\n2. Read the chosen package's `dist/docs/INDEX.md` for component-specific props.\n3. If still unsure, ask the user rather than guessing — invented APIs are the\n   single biggest source of broken Gravity UI code.\n----\n#!/usr/bin/env bash\nset -euo pipefail\n\npkg=\"${1:-}\"\nshift || true\n\nif [[ -z \"$pkg\" ]]; then\n  echo \"usage: inspect-package.sh <gravity-package> [Symbol ...]\" >&2\n  exit 2\nfi\n\nroot=\"node_modules/@gravity-ui/$pkg\"\nmanifest=\"$root/package.json\"\nif [[ ! -f \"$manifest\" ]]; then\n  echo \"missing installed package: @gravity-ui/$pkg\" >&2\n  exit 1\nfi\n\nnode -e 'const p=require(process.argv[1]); console.log(`package=@gravity-ui/${p.name.split(\"/\").pop()} version=${p.version}`)' \"./$manifest\"\n\nfor doc in \"$root/dist/docs/INDEX.md\" \"$root/build/docs/INDEX.md\" \"$root/README.md\"; do\n  [[ -s \"$doc\" ]] && echo \"doc=$doc\"\ndone\n\nfor symbol in \"$@\"; do\n  echo \"symbol=$symbol\"\n  rg -l --glob '*.d.ts' \"(declare (const|function|class) $symbol|interface ${symbol}Props|type ${symbol}Props|export .*\\\\b$symbol\\\\b)\" \\\n    \"$root/dist\" \"$root/build\" 2>/dev/null | sed -n '1,8p' || true\ndone\n----\nLICENSE\nREADME.md\nbuild\npackage.json\nstyles",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:09.231Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "rg -n -i \"modal|dialog|confirm\" .agents/skills/gravity-ui/references/package-routing.md | head -30; echo ----; ls node_modules/@gravity-ui/uikit/build | head -50; echo ----; rg -n -i \"dialog|modal\" node_modules/@gravity-ui/uikit/README.md | head; echo ----; ls node_modules/@gravity-ui/uikit/build/esm/components/Dialog 2>/dev/null; ls node_modules/@gravity-ui/uikit/build/esm/components/Modal 2>/dev/null",
+          "description": "Search routing doc and uikit build for Dialog/Modal",
+          "_extractedCommand": "rg -n -i \"modal|dialog|confirm\" .agents/skills/gravity-ui/references/package-routing.md | head -30; echo ----; ls node_modules/@gravity-ui/uikit/build | head -50; echo ----; rg -n -i \"dialog|modal\" node_modules/@gravity-ui/uikit/README.md | head; echo ----; ls node_modules/@gravity-ui/uikit/build/esm/components/Dialog 2>/dev/null; ls node_modules/@gravity-ui/uikit/build/esm/components/Modal 2>/dev/null"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "rg -n -i \"modal|dialog|confirm\" .agents/skills/gravity-ui/references/package-routing.md | head -30; echo ----; ls node_modules/@gravity-ui/uikit/build | head -50; echo ----; rg -n -i \"dialog|modal\" node_modules/@gravity-ui/uikit/README.md | head; echo ----; ls node_modules/@gravity-ui/uikit/build/esm/components/Dialog 2>/dev/null; ls node_modules/@gravity-ui/uikit/build/esm/components/Modal 2>/dev/null",
+          "description": "Search routing doc and uikit build for Dialog/Modal"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:09.252Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01CWvDXWwHPD5LN8SYmt5nXE",
+        "result": "31:Everything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\n64:- Standard application UI: buttons, form controls, modals and popups, menus, tabs, labels, typography, and layout primitives.\n91:- For general-purpose UI primitives (buttons, inputs, modals), use [`@gravity-ui/uikit`](https://gravity-ui.com/uikit) directly — AIKit builds on top of it for chat-specific needs.\n172:The composite-component layer of Gravity UI — ready-made form rows, confirmation dialogs, notifications, stories, galleries and similar product-level widgets assembled from `@gravity-ui/uikit` primitives, so you do not rebuild them by hand.\n177:- Confirmation flows: `ConfirmDialog` instead of composing `Dialog` with two buttons yourself.\n178:- Product widgets: `Notifications`, `Stories` / `StoriesGroup`, `ChangelogDialog`, `OnboardingMenu`, `PromoSheet`, `CookieConsent`, `Reactions`, `SharePopover`, `StoreBadge`.\n252:## Dialog Fields — `@gravity-ui/dialog-fields`\n254:> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/dialog-fields/llms.txt)\n255:> GitHub: [gravity-ui/dialog-fields](https://github.com/gravity-ui/dialog-fields)\n420:- General application UI (buttons, forms, modals) — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit).\n----\ncjs\nesm\n----\n----\nButtonClose\nDialog.css\nDialog.d.ts\nDialog.js\nDialog.js.map\nDialogBody\nDialogDivider\nDialogFooter\nDialogHeader\nDialogPrivateContext.d.ts\nDialogPrivateContext.js\nDialogPrivateContext.js.map\ni18n\nindex.d.ts\nindex.js\nindex.js.map\nvariables.css\nModal.css\nModal.d.ts\nModal.js\nModal.js.map\ni18n\nindex.d.ts\nindex.js\nindex.js.map",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01CWvDXWwHPD5LN8SYmt5nXE",
+        "type": "tool_result",
+        "content": "31:Everything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\n64:- Standard application UI: buttons, form controls, modals and popups, menus, tabs, labels, typography, and layout primitives.\n91:- For general-purpose UI primitives (buttons, inputs, modals), use [`@gravity-ui/uikit`](https://gravity-ui.com/uikit) directly — AIKit builds on top of it for chat-specific needs.\n172:The composite-component layer of Gravity UI — ready-made form rows, confirmation dialogs, notifications, stories, galleries and similar product-level widgets assembled from `@gravity-ui/uikit` primitives, so you do not rebuild them by hand.\n177:- Confirmation flows: `ConfirmDialog` instead of composing `Dialog` with two buttons yourself.\n178:- Product widgets: `Notifications`, `Stories` / `StoriesGroup`, `ChangelogDialog`, `OnboardingMenu`, `PromoSheet`, `CookieConsent`, `Reactions`, `SharePopover`, `StoreBadge`.\n252:## Dialog Fields — `@gravity-ui/dialog-fields`\n254:> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/dialog-fields/llms.txt)\n255:> GitHub: [gravity-ui/dialog-fields](https://github.com/gravity-ui/dialog-fields)\n420:- General application UI (buttons, forms, modals) — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit).\n----\ncjs\nesm\n----\n----\nButtonClose\nDialog.css\nDialog.d.ts\nDialog.js\nDialog.js.map\nDialogBody\nDialogDivider\nDialogFooter\nDialogHeader\nDialogPrivateContext.d.ts\nDialogPrivateContext.js\nDialogPrivateContext.js.map\ni18n\nindex.d.ts\nindex.js\nindex.js.map\nvariables.css\nModal.css\nModal.d.ts\nModal.js\nModal.js.map\ni18n\nindex.d.ts\nindex.js\nindex.js.map",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:12.126Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "sed -n 25,40p .agents/skills/gravity-ui/references/package-routing.md; echo ....; sed -n 165,185p .agents/skills/gravity-ui/references/package-routing.md; echo ....; rg -n -B2 -A8 \"ConfirmDialog|components\\`|@gravity-ui/components\" .agents/skills/gravity-ui/references/package-routing.md | head -80",
+          "description": "Read routing guidance for confirmation dialogs",
+          "_extractedCommand": "sed -n 25,40p .agents/skills/gravity-ui/references/package-routing.md; echo ....; sed -n 165,185p .agents/skills/gravity-ui/references/package-routing.md; echo ....; rg -n -B2 -A8 \"ConfirmDialog|components\\`|@gravity-ui/components\" .agents/skills/gravity-ui/references/package-routing.md | head -80"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "sed -n 25,40p .agents/skills/gravity-ui/references/package-routing.md; echo ....; sed -n 165,185p .agents/skills/gravity-ui/references/package-routing.md; echo ....; rg -n -B2 -A8 \"ConfirmDialog|components\\`|@gravity-ui/components\" .agents/skills/gravity-ui/references/package-routing.md | head -80",
+          "description": "Read routing guidance for confirmation dialogs"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:12.150Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01CqL7mpRb5YT42EfJMY2eon",
+        "result": "| A calendar, date / time / range picker | `@gravity-ui/date-components` (peer: `date-utils`) | a `Calendar` from uikit (does not exist), `react-datepicker` |\n| Charts and data visualization | `@gravity-ui/charts` (`<Chart>`); `@gravity-ui/yagr` only for dense realtime series | `chartkit` (legacy wrapper), `recharts`, raw canvas |\n| A Markdown / WYSIWYG editor | `@gravity-ui/markdown-editor` | `<textarea>` + custom preview |\n| The app shell: aside navigation, header, footer | `@gravity-ui/navigation` (`AsideHeader`) | a hand-rolled `<aside>` |\n| Interface language switching | uikit `configure({lang})` + `@gravity-ui/i18n` for app strings | `i18next`, `react-intl` |\n\nEverything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\nIf the package from the table is not installed yet, **install it** with the project's package manager (and\nits documented peer deps) — a project that only has `uikit` is not a reason to build the thing by hand.\n\n---\n\n# Gravity UI\n\nGravity UI is a open-source design system and ecosystem of React libraries for building web applications. This file is a compact catalog: pick a package, then fetch its per-package llms.txt for the full agent-facing docs. Read the user's `package.json` first and match the installed `@gravity-ui/*` versions — peer-version mismatches across the ecosystem are the most common failure.\n\n....\n- Non-React or server-only rendering — `Chart` renders React SVG and needs the DOM.\n\n## Components — `@gravity-ui/components`\n\n> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/components/llms.txt)\n> GitHub: [gravity-ui/components](https://github.com/gravity-ui/components)\n\nThe composite-component layer of Gravity UI — ready-made form rows, confirmation dialogs, notifications, stories, galleries and similar product-level widgets assembled from `@gravity-ui/uikit` primitives, so you do not rebuild them by hand.\n\n#### When to use\n\n- Form layout: `FormRow` (label + field + description) instead of a hand-made label/input wrapper.\n- Confirmation flows: `ConfirmDialog` instead of composing `Dialog` with two buttons yourself.\n- Product widgets: `Notifications`, `Stories` / `StoriesGroup`, `ChangelogDialog`, `OnboardingMenu`, `PromoSheet`, `CookieConsent`, `Reactions`, `SharePopover`, `StoreBadge`.\n- Data helpers: `InfiniteScroll`, `ItemSelector`, `DelayedTextInput`, `TokenizedInput`, `Gallery`.\n\n#### When not to use\n\n- Basic controls, overlays, layout and theming — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit) directly; this package only adds composites on top of it.\n- Data grids — use [`@gravity-ui/table`](https://github.com/gravity-ui/table); there is no table here.\n- Date pickers and calendars — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).\n....\n23-| A table with sorting, checkbox selection, pagination | uikit `Table` + `withTableSorting` / `withTableSelection` + `Pagination` | `@gravity-ui/table` |\n24-| A data grid that needs virtualization, column resizing / reordering, grouping, tree rows | `@gravity-ui/table` (TanStack-based) | uikit `Table` |\n25:| A calendar, date / time / range picker | `@gravity-ui/date-components` (peer: `date-utils`) | a `Calendar` from uikit (does not exist), `react-datepicker` |\n26-| Charts and data visualization | `@gravity-ui/charts` (`<Chart>`); `@gravity-ui/yagr` only for dense realtime series | `chartkit` (legacy wrapper), `recharts`, raw canvas |\n27-| A Markdown / WYSIWYG editor | `@gravity-ui/markdown-editor` | `<textarea>` + custom preview |\n28-| The app shell: aside navigation, header, footer | `@gravity-ui/navigation` (`AsideHeader`) | a hand-rolled `<aside>` |\n29-| Interface language switching | uikit `configure({lang})` + `@gravity-ui/i18n` for app strings | `i18next`, `react-intl` |\n30-\n31-Everything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\n32-If the package from the table is not installed yet, **install it** with the project's package manager (and\n33-its documented peer deps) — a project that only has `uikit` is not a reason to build the thing by hand.\n--\n71-- Charts and data visualization — use [`@gravity-ui/charts`](https://github.com/gravity-ui/charts) (`@gravity-ui/chartkit` is the legacy wrapper).\n72-- Application navigation shells (aside header, footer, logo) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation).\n73:- Date pickers, calendars, and range controls — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).\n74-- The SVG icon set itself — use [`@gravity-ui/icons`](https://github.com/gravity-ui/icons); uikit only ships the `Icon` renderer.\n75-\n76-## AIKit — `@gravity-ui/aikit`\n77-\n78-> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/aikit/llms.txt)\n79-> GitHub: [gravity-ui/aikit](https://github.com/gravity-ui/aikit)\n80-\n81-A React component library for building AI chat interfaces, organized by Atomic Design (atoms → molecules → organisms → templates → pages) and SDK-agnostic — reach for it to assemble a chat UI (message lists, prompt input, tool calls, attachments) instead of composing those primitives out of `@gravity-ui/uikit` by hand.\n--\n165-- Non-React or server-only rendering — `Chart` renders React SVG and needs the DOM.\n166-\n167:## Components — `@gravity-ui/components`\n168-\n169-> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/components/llms.txt)\n170-> GitHub: [gravity-ui/components](https://github.com/gravity-ui/components)\n171-\n172-The composite-component layer of Gravity UI — ready-made form rows, confirmation dialogs, notifications, stories, galleries and similar product-level widgets assembled from `@gravity-ui/uikit` primitives, so you do not rebuild them by hand.\n173-\n174-#### When to use\n175-\n176-- Form layout: `FormRow` (label + field + description) instead of a hand-made label/input wrapper.\n177:- Confirmation flows: `ConfirmDialog` instead of composing `Dialog` with two buttons yourself.\n178-- Product widgets: `Notifications`, `Stories` / `StoriesGroup`, `ChangelogDialog`, `OnboardingMenu`, `PromoSheet`, `CookieConsent`, `Reactions`, `SharePopover`, `StoreBadge`.\n179-- Data helpers: `InfiniteScroll`, `ItemSelector`, `DelayedTextInput`, `TokenizedInput`, `Gallery`.\n180-\n181-#### When not to use\n182-\n183-- Basic controls, overlays, layout and theming — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit) directly; this package only adds composites on top of it.\n184-- Data grids — use [`@gravity-ui/table`](https://github.com/gravity-ui/table); there is no table here.\n185:- Date pickers and calendars — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).\n186-- Application navigation shells (aside header, footer) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation).\n187-- Schema-driven forms — use [`@gravity-ui/dynamic-forms`](https://github.com/gravity-ui/dynamic-forms); `FormRow` is only a layout row.\n188-\n189-## DashKit — `@gravity-ui/dashkit`\n190-\n191-> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/dashkit/llms.txt)\n192-> GitHub: [gravity-ui/dashkit](https://github.com/gravity-ui/dashkit)\n193-\n--\n213-A wrapper around data fetching.\n214-\n215:## Date Components — `@gravity-ui/date-components`\n216-\n217-> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/date-components/llms.txt)\n218-> GitHub: [gravity-ui/date-components](https://github.com/gravity-ui/date-components)\n219-\n220-React date and time controls for Gravity UI apps — date/time pickers, calendars, and absolute/relative range selectors built on `@gravity-ui/date-utils`.\n221-\n222-#### When to use\n223-\n--\n247-#### When not to use\n248-\n249:- To render a calendar, date picker, or any date **UI**, use [`@gravity-ui/date-components`](https://gravity-ui.com/components/date-components) — it builds its visuals on top of this package.\n250-- For lightweight immutable date math and no timezone/relative-expression needs, `date-fns` or the native `Intl`/`Date` APIs may suffice.\n251-\n252-## Dialog Fields — `@gravity-ui/dialog-fields`\n253-\n254-> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/dialog-fields/llms.txt)\n255-> GitHub: [gravity-ui/dialog-fields](https://github.com/gravity-ui/dialog-fields)\n256-\n257-A react-final-form wrapper that provides some useful high-level components for building forms.",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01CqL7mpRb5YT42EfJMY2eon",
+        "type": "tool_result",
+        "content": "| A calendar, date / time / range picker | `@gravity-ui/date-components` (peer: `date-utils`) | a `Calendar` from uikit (does not exist), `react-datepicker` |\n| Charts and data visualization | `@gravity-ui/charts` (`<Chart>`); `@gravity-ui/yagr` only for dense realtime series | `chartkit` (legacy wrapper), `recharts`, raw canvas |\n| A Markdown / WYSIWYG editor | `@gravity-ui/markdown-editor` | `<textarea>` + custom preview |\n| The app shell: aside navigation, header, footer | `@gravity-ui/navigation` (`AsideHeader`) | a hand-rolled `<aside>` |\n| Interface language switching | uikit `configure({lang})` + `@gravity-ui/i18n` for app strings | `i18next`, `react-intl` |\n\nEverything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\nIf the package from the table is not installed yet, **install it** with the project's package manager (and\nits documented peer deps) — a project that only has `uikit` is not a reason to build the thing by hand.\n\n---\n\n# Gravity UI\n\nGravity UI is a open-source design system and ecosystem of React libraries for building web applications. This file is a compact catalog: pick a package, then fetch its per-package llms.txt for the full agent-facing docs. Read the user's `package.json` first and match the installed `@gravity-ui/*` versions — peer-version mismatches across the ecosystem are the most common failure.\n\n....\n- Non-React or server-only rendering — `Chart` renders React SVG and needs the DOM.\n\n## Components — `@gravity-ui/components`\n\n> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/components/llms.txt)\n> GitHub: [gravity-ui/components](https://github.com/gravity-ui/components)\n\nThe composite-component layer of Gravity UI — ready-made form rows, confirmation dialogs, notifications, stories, galleries and similar product-level widgets assembled from `@gravity-ui/uikit` primitives, so you do not rebuild them by hand.\n\n#### When to use\n\n- Form layout: `FormRow` (label + field + description) instead of a hand-made label/input wrapper.\n- Confirmation flows: `ConfirmDialog` instead of composing `Dialog` with two buttons yourself.\n- Product widgets: `Notifications`, `Stories` / `StoriesGroup`, `ChangelogDialog`, `OnboardingMenu`, `PromoSheet`, `CookieConsent`, `Reactions`, `SharePopover`, `StoreBadge`.\n- Data helpers: `InfiniteScroll`, `ItemSelector`, `DelayedTextInput`, `TokenizedInput`, `Gallery`.\n\n#### When not to use\n\n- Basic controls, overlays, layout and theming — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit) directly; this package only adds composites on top of it.\n- Data grids — use [`@gravity-ui/table`](https://github.com/gravity-ui/table); there is no table here.\n- Date pickers and calendars — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).\n....\n23-| A table with sorting, checkbox selection, pagination | uikit `Table` + `withTableSorting` / `withTableSelection` + `Pagination` | `@gravity-ui/table` |\n24-| A data grid that needs virtualization, column resizing / reordering, grouping, tree rows | `@gravity-ui/table` (TanStack-based) | uikit `Table` |\n25:| A calendar, date / time / range picker | `@gravity-ui/date-components` (peer: `date-utils`) | a `Calendar` from uikit (does not exist), `react-datepicker` |\n26-| Charts and data visualization | `@gravity-ui/charts` (`<Chart>`); `@gravity-ui/yagr` only for dense realtime series | `chartkit` (legacy wrapper), `recharts`, raw canvas |\n27-| A Markdown / WYSIWYG editor | `@gravity-ui/markdown-editor` | `<textarea>` + custom preview |\n28-| The app shell: aside navigation, header, footer | `@gravity-ui/navigation` (`AsideHeader`) | a hand-rolled `<aside>` |\n29-| Interface language switching | uikit `configure({lang})` + `@gravity-ui/i18n` for app strings | `i18next`, `react-intl` |\n30-\n31-Everything not listed — buttons, forms, dialogs, toasts, menus, tabs, theming — is `@gravity-ui/uikit`.\n32-If the package from the table is not installed yet, **install it** with the project's package manager (and\n33-its documented peer deps) — a project that only has `uikit` is not a reason to build the thing by hand.\n--\n71-- Charts and data visualization — use [`@gravity-ui/charts`](https://github.com/gravity-ui/charts) (`@gravity-ui/chartkit` is the legacy wrapper).\n72-- Application navigation shells (aside header, footer, logo) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation).\n73:- Date pickers, calendars, and range controls — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).\n74-- The SVG icon set itself — use [`@gravity-ui/icons`](https://github.com/gravity-ui/icons); uikit only ships the `Icon` renderer.\n75-\n76-## AIKit — `@gravity-ui/aikit`\n77-\n78-> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/aikit/llms.txt)\n79-> GitHub: [gravity-ui/aikit](https://github.com/gravity-ui/aikit)\n80-\n81-A React component library for building AI chat interfaces, organized by Atomic Design (atoms → molecules → organisms → templates → pages) and SDK-agnostic — reach for it to assemble a chat UI (message lists, prompt input, tool calls, attachments) instead of composing those primitives out of `@gravity-ui/uikit` by hand.\n--\n165-- Non-React or server-only rendering — `Chart` renders React SVG and needs the DOM.\n166-\n167:## Components — `@gravity-ui/components`\n168-\n169-> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/components/llms.txt)\n170-> GitHub: [gravity-ui/components](https://github.com/gravity-ui/components)\n171-\n172-The composite-component layer of Gravity UI — ready-made form rows, confirmation dialogs, notifications, stories, galleries and similar product-level widgets assembled from `@gravity-ui/uikit` primitives, so you do not rebuild them by hand.\n173-\n174-#### When to use\n175-\n176-- Form layout: `FormRow` (label + field + description) instead of a hand-made label/input wrapper.\n177:- Confirmation flows: `ConfirmDialog` instead of composing `Dialog` with two buttons yourself.\n178-- Product widgets: `Notifications`, `Stories` / `StoriesGroup`, `ChangelogDialog`, `OnboardingMenu`, `PromoSheet`, `CookieConsent`, `Reactions`, `SharePopover`, `StoreBadge`.\n179-- Data helpers: `InfiniteScroll`, `ItemSelector`, `DelayedTextInput`, `TokenizedInput`, `Gallery`.\n180-\n181-#### When not to use\n182-\n183-- Basic controls, overlays, layout and theming — use [`@gravity-ui/uikit`](https://github.com/gravity-ui/uikit) directly; this package only adds composites on top of it.\n184-- Data grids — use [`@gravity-ui/table`](https://github.com/gravity-ui/table); there is no table here.\n185:- Date pickers and calendars — use [`@gravity-ui/date-components`](https://github.com/gravity-ui/date-components).\n186-- Application navigation shells (aside header, footer) — use [`@gravity-ui/navigation`](https://github.com/gravity-ui/navigation).\n187-- Schema-driven forms — use [`@gravity-ui/dynamic-forms`](https://github.com/gravity-ui/dynamic-forms); `FormRow` is only a layout row.\n188-\n189-## DashKit — `@gravity-ui/dashkit`\n190-\n191-> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/dashkit/llms.txt)\n192-> GitHub: [gravity-ui/dashkit](https://github.com/gravity-ui/dashkit)\n193-\n--\n213-A wrapper around data fetching.\n214-\n215:## Date Components — `@gravity-ui/date-components`\n216-\n217-> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/date-components/llms.txt)\n218-> GitHub: [gravity-ui/date-components](https://github.com/gravity-ui/date-components)\n219-\n220-React date and time controls for Gravity UI apps — date/time pickers, calendars, and absolute/relative range selectors built on `@gravity-ui/date-utils`.\n221-\n222-#### When to use\n223-\n--\n247-#### When not to use\n248-\n249:- To render a calendar, date picker, or any date **UI**, use [`@gravity-ui/date-components`](https://gravity-ui.com/components/date-components) — it builds its visuals on top of this package.\n250-- For lightweight immutable date math and no timezone/relative-expression needs, `date-fns` or the native `Intl`/`Date` APIs may suffice.\n251-\n252-## Dialog Fields — `@gravity-ui/dialog-fields`\n253-\n254-> If you need this library, read more at package [llms.txt](https://gravity-ui.com/llms/dialog-fields/llms.txt)\n255-> GitHub: [gravity-ui/dialog-fields](https://github.com/gravity-ui/dialog-fields)\n256-\n257-A react-final-form wrapper that provides some useful high-level components for building forms.",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:15.824Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "The routing doc maps confirmation flows to `ConfirmDialog` in `@gravity-ui/components`, which isn't installed yet. I'll check its version and peer deps before installing.",
+      "raw": {
+        "parentUuid": "be2e5fe6-52f7-46ed-b524-36f008b29dce",
+        "isSidechain": false,
+        "message": {
+          "id": "msg_011CgmcYvyPWC4j7BX7VYCJR",
+          "type": "message",
+          "role": "assistant",
+          "container": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "The routing doc maps confirmation flows to `ConfirmDialog` in `@gravity-ui/components`, which isn't installed yet. I'll check its version and peer deps before installing.",
+              "citations": []
+            }
+          ],
+          "model": "anthropic/claude-haiku-5.5",
+          "stop_reason": "tool_use",
+          "stop_details": null,
+          "stop_sequence": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 4061,
+            "cache_read_input_tokens": 33228,
+            "output_tokens": 486,
+            "output_tokens_details": {
+              "thinking_tokens": 294
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 4061
+            },
+            "inference_geo": "global",
+            "iterations": [],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "provider": "Claude Platform on AWS"
+        },
+        "apiBlockIndex": 1,
+        "requestRef": "77dd7181-563e-4e71-b0aa-e140ceedcea4",
+        "requestedModel": "anthropic/claude-haiku-5.5",
+        "promptCacheRequested": "5m",
+        "type": "assistant",
+        "uuid": "9da295a5-5a6f-466b-8307-9fd52201ff03",
+        "timestamp": "2026-11-06T11:42:15.824Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "ebb21a23-060c-4d38-a98f-325c6a4673d0",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:16.224Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "npm view @gravity-ui/components version peerDependencies dependencies 2>&1 | head -60",
+          "description": "Check @gravity-ui/components version and peer deps",
+          "_extractedCommand": "npm view @gravity-ui/components version peerDependencies dependencies 2>&1 | head -60"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "npm view @gravity-ui/components version peerDependencies dependencies 2>&1 | head -60",
+          "description": "Check @gravity-ui/components version and peer deps"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:17.592Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01KXNd3SXQiz1YZjVf4BonyA",
+        "result": "npm warn Unknown env config \"store-dir\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\nnpm warn Unknown env config \"dangerously-allow-all-builds\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\nversion = '5.0.0'\npeerDependencies = {\n  react: '^18.0.0 || ^19.0.0',\n  'react-dom': '^18.0.0 || ^19.0.0',\n  '@gravity-ui/uikit': '^8.0.0'\n}\ndependencies = {\n  'es-toolkit': '^1.47.1',\n  'universal-cookie': '^7.2.0',\n  '@gravity-ui/icons': '^2.11.0',\n  '@hello-pangea/dnd': '^18.0.1',\n  '@bem-react/classname': '^1.6.0',\n  '@gravity-ui/date-utils': '^2.1.0',\n  '@tanstack/react-virtual': '^3.14.17'\n}",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01KXNd3SXQiz1YZjVf4BonyA",
+        "type": "tool_result",
+        "content": "npm warn Unknown env config \"store-dir\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\nnpm warn Unknown env config \"dangerously-allow-all-builds\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\nversion = '5.0.0'\npeerDependencies = {\n  react: '^18.0.0 || ^19.0.0',\n  'react-dom': '^18.0.0 || ^19.0.0',\n  '@gravity-ui/uikit': '^8.0.0'\n}\ndependencies = {\n  'es-toolkit': '^1.47.1',\n  'universal-cookie': '^7.2.0',\n  '@gravity-ui/icons': '^2.11.0',\n  '@hello-pangea/dnd': '^18.0.1',\n  '@bem-react/classname': '^1.6.0',\n  '@gravity-ui/date-utils': '^2.1.0',\n  '@tanstack/react-virtual': '^3.14.17'\n}",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:20.050Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "The latest `@gravity-ui/components` (5.0.0) requires `@gravity-ui/uikit ^8`, but the project pins `7.43.0`. I need the newest components release that peers on uikit 7.",
+      "raw": {
+        "parentUuid": "9ff7d4ff-feda-436a-94f3-053192af6241",
+        "isSidechain": false,
+        "message": {
+          "id": "msg_011CgmcZK4vXzS3kzksw8JTo",
+          "type": "message",
+          "role": "assistant",
+          "container": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "The latest `@gravity-ui/components` (5.0.0) requires `@gravity-ui/uikit ^8`, but the project pins `7.43.0`. I need the newest components release that peers on uikit 7.",
+              "citations": []
+            }
+          ],
+          "model": "anthropic/claude-haiku-5.5",
+          "stop_reason": "tool_use",
+          "stop_details": null,
+          "stop_sequence": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 839,
+            "cache_read_input_tokens": 37289,
+            "output_tokens": 362,
+            "output_tokens_details": {
+              "thinking_tokens": 80
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 839
+            },
+            "inference_geo": "global",
+            "iterations": [],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "provider": "Claude Platform on AWS"
+        },
+        "apiBlockIndex": 1,
+        "requestRef": "649daa2b-d187-4bc7-9604-1046507b1cbd",
+        "requestedModel": "anthropic/claude-haiku-5.5",
+        "promptCacheRequested": "5m",
+        "type": "assistant",
+        "uuid": "4a8623f4-a080-4322-a563-229850c37116",
+        "timestamp": "2026-11-06T11:42:20.050Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "ebb21a23-060c-4d38-a98f-325c6a4673d0",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:20.633Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "for v in $(npm view @gravity-ui/components versions --json 2>/dev/null | tr -d '[],\" ' | grep -E '^[0-9]' | sort -V | tail -40); do echo \"$v $(npm view @gravity-ui/components@$v peerDependencies.@gravity-ui/uikit 2>/dev/null)\"; done",
+          "description": "List components versions and their uikit peer ranges",
+          "_extractedCommand": "for v in $(npm view @gravity-ui/components versions --json 2>/dev/null | tr -d '[],\" ' | grep -E '^[0-9]' | sort -V | tail -40); do echo \"$v $(npm view @gravity-ui/components@$v peerDependencies.@gravity-ui/uikit 2>/dev/null)\"; done"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "for v in $(npm view @gravity-ui/components versions --json 2>/dev/null | tr -d '[],\" ' | grep -E '^[0-9]' | sort -V | tail -40); do echo \"$v $(npm view @gravity-ui/components@$v peerDependencies.@gravity-ui/uikit 2>/dev/null)\"; done",
+          "description": "List components versions and their uikit peer ranges"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:50.669Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01EJ6jomfgEeFWtdxRLMbze7",
+        "result": "4.1.0 ^7.0.0\n4.1.1 ^7.0.0\n4.1.2 ^7.0.0\n4.2.1 ^7.0.0\n4.2.2 ^7.0.0\n4.3.0 ^7.0.0\n4.3.1 ^7.0.0\n4.4.0 ^7.0.0\n4.5.0 ^7.0.0\n4.5.1 ^7.0.0\n4.6.0 ^7.0.0\n4.7.0 ^7.0.0\n4.7.1 ^7.0.0\n4.8.0 ^7.0.0\n4.9.0 ^7.0.0\n4.9.1 ^7.0.0\n4.9.2 ^7.0.0\n4.10.0 ^7.0.0\n4.11.0 ^7.0.0\n4.12.0 ^7.0.0\n4.13.0 ^7.21.0\n4.14.0 ^7.21.0\n4.14.1 ^7.21.0\n4.15.0 ^7.21.0\n4.16.0 ^7.21.0\n4.17.0 ^7.21.0\n4.18.0 ^7.21.0\n4.19.0 ^7.21.0\n4.19.1 ^7.21.0\n4.19.2 ^7.39.0\n4.20.0 ^7.39.0\n4.20.1 ^7.39.0\n4.20.2 ^7.39.0\n4.21.0 ^7.39.0\n4.22.0 ^7.39.0\n4.23.0 ^7.39.0\n4.23.1 ^7.39.0\n4.24.0 ^7.44.0\n4.24.1 ^7.44.0\n5.0.0 ^8.0.0",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01EJ6jomfgEeFWtdxRLMbze7",
+        "type": "tool_result",
+        "content": "4.1.0 ^7.0.0\n4.1.1 ^7.0.0\n4.1.2 ^7.0.0\n4.2.1 ^7.0.0\n4.2.2 ^7.0.0\n4.3.0 ^7.0.0\n4.3.1 ^7.0.0\n4.4.0 ^7.0.0\n4.5.0 ^7.0.0\n4.5.1 ^7.0.0\n4.6.0 ^7.0.0\n4.7.0 ^7.0.0\n4.7.1 ^7.0.0\n4.8.0 ^7.0.0\n4.9.0 ^7.0.0\n4.9.1 ^7.0.0\n4.9.2 ^7.0.0\n4.10.0 ^7.0.0\n4.11.0 ^7.0.0\n4.12.0 ^7.0.0\n4.13.0 ^7.21.0\n4.14.0 ^7.21.0\n4.14.1 ^7.21.0\n4.15.0 ^7.21.0\n4.16.0 ^7.21.0\n4.17.0 ^7.21.0\n4.18.0 ^7.21.0\n4.19.0 ^7.21.0\n4.19.1 ^7.21.0\n4.19.2 ^7.39.0\n4.20.0 ^7.39.0\n4.20.1 ^7.39.0\n4.20.2 ^7.39.0\n4.21.0 ^7.39.0\n4.22.0 ^7.39.0\n4.23.0 ^7.39.0\n4.23.1 ^7.39.0\n4.24.0 ^7.44.0\n4.24.1 ^7.44.0\n5.0.0 ^8.0.0",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:54.057Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "`4.23.1` is the newest 4.x release whose uikit peer (`^7.39.0`) is satisfied by the pinned `7.43.0`. I'll install that exact version rather than upgrading uikit.",
+      "raw": {
+        "parentUuid": "4266d17c-1b7f-49a1-a0fd-fa7e3129f7eb",
+        "isSidechain": false,
+        "message": {
+          "id": "msg_011CgmcbiSepFvapnNkXRhEt",
+          "type": "message",
+          "role": "assistant",
+          "container": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "`4.23.1` is the newest 4.x release whose uikit peer (`^7.39.0`) is satisfied by the pinned `7.43.0`. I'll install that exact version rather than upgrading uikit.",
+              "citations": []
+            }
+          ],
+          "model": "anthropic/claude-haiku-5.5",
+          "stop_reason": "tool_use",
+          "stop_details": null,
+          "stop_sequence": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 926,
+            "cache_read_input_tokens": 38128,
+            "output_tokens": 600,
+            "output_tokens_details": {
+              "thinking_tokens": 348
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 926
+            },
+            "inference_geo": "global",
+            "iterations": [],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "provider": "Claude Platform on AWS"
+        },
+        "apiBlockIndex": 1,
+        "requestRef": "0c022152-236d-4232-85e5-2febd9fd718a",
+        "requestedModel": "anthropic/claude-haiku-5.5",
+        "promptCacheRequested": "5m",
+        "type": "assistant",
+        "uuid": "598ae78f-1a9c-4217-b9ce-67b3c37b4ad7",
+        "timestamp": "2026-11-06T11:42:54.057Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "ebb21a23-060c-4d38-a98f-325c6a4673d0",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:54.520Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "npm install --save-exact @gravity-ui/components@4.23.1 2>&1 | tail -15 && node -e 'console.log(require(\"./node_modules/@gravity-ui/components/package.json\").version)' && git diff --stat",
+          "description": "Install @gravity-ui/components 4.23.1 pinned exactly",
+          "_extractedCommand": "npm install --save-exact @gravity-ui/components@4.23.1 2>&1 | tail -15 && node -e 'console.log(require(\"./node_modules/@gravity-ui/components/package.json\").version)' && git diff --stat"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "npm install --save-exact @gravity-ui/components@4.23.1 2>&1 | tail -15 && node -e 'console.log(require(\"./node_modules/@gravity-ui/components/package.json\").version)' && git diff --stat",
+          "description": "Install @gravity-ui/components 4.23.1 pinned exactly"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:42:59.151Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01TWcCfEqLAzRWoPfKzMfEpL",
+        "result": "added 6 packages, and audited 178 packages in 5s\n\n45 packages are looking for funding\n  run `npm fund` for details\n\n5 vulnerabilities (2 moderate, 1 high, 2 critical)\n\nTo address all issues (including breaking changes), run:\n  npm audit fix --force\n\nRun `npm audit` for details.\nnpm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:\nnpm warn allow-scripts   esbuild@0.21.5 (postinstall: node install.js)\nnpm warn allow-scripts\nnpm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.\n4.23.1\n package.json | 1 +\n 1 file changed, 1 insertion(+)",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01TWcCfEqLAzRWoPfKzMfEpL",
+        "type": "tool_result",
+        "content": "added 6 packages, and audited 178 packages in 5s\n\n45 packages are looking for funding\n  run `npm fund` for details\n\n5 vulnerabilities (2 moderate, 1 high, 2 critical)\n\nTo address all issues (including breaking changes), run:\n  npm audit fix --force\n\nRun `npm audit` for details.\nnpm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:\nnpm warn allow-scripts   esbuild@0.21.5 (postinstall: node install.js)\nnpm warn allow-scripts\nnpm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.\n4.23.1\n package.json | 1 +\n 1 file changed, 1 insertion(+)",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:00.888Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "Installed `4.23.1`. Now I'll check its bundled docs and the `ConfirmDialog` type declarations.",
+      "raw": {
+        "parentUuid": "61b8dc9e-d2b3-4762-ade1-f6ebdb6d5178",
+        "isSidechain": false,
+        "message": {
+          "id": "msg_011CgmccLXpEa6UjhW15q3yq",
+          "type": "message",
+          "role": "assistant",
+          "container": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "Installed `4.23.1`. Now I'll check its bundled docs and the `ConfirmDialog` type declarations.",
+              "citations": []
+            }
+          ],
+          "model": "anthropic/claude-haiku-5.5",
+          "stop_reason": "tool_use",
+          "stop_details": null,
+          "stop_sequence": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 878,
+            "cache_read_input_tokens": 39054,
+            "output_tokens": 309,
+            "output_tokens_details": {
+              "thinking_tokens": 54
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 878
+            },
+            "inference_geo": "global",
+            "iterations": [],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "provider": "Claude Platform on AWS"
+        },
+        "apiBlockIndex": 1,
+        "requestRef": "aee16b83-d689-49ef-b0f8-1a29e05de6ee",
+        "requestedModel": "anthropic/claude-haiku-5.5",
+        "promptCacheRequested": "5m",
+        "type": "assistant",
+        "uuid": "aa860836-c0ba-4e92-a44f-1eb045133c66",
+        "timestamp": "2026-11-06T11:43:00.888Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "ebb21a23-060c-4d38-a98f-325c6a4673d0",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:01.429Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "P=node_modules/@gravity-ui/components; ls $P; ls $P/dist/docs 2>/dev/null || ls $P/build/docs 2>/dev/null; rg -l \"ConfirmDialog\" $P --glob '*.d.ts' | head; echo ----; rg -n \"ConfirmDialog\" $P/README.md | head",
+          "description": "Locate ConfirmDialog docs and type declarations",
+          "_extractedCommand": "P=node_modules/@gravity-ui/components; ls $P; ls $P/dist/docs 2>/dev/null || ls $P/build/docs 2>/dev/null; rg -l \"ConfirmDialog\" $P --glob '*.d.ts' | head; echo ----; rg -n \"ConfirmDialog\" $P/README.md | head"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "P=node_modules/@gravity-ui/components; ls $P; ls $P/dist/docs 2>/dev/null || ls $P/build/docs 2>/dev/null; rg -l \"ConfirmDialog\" $P --glob '*.d.ts' | head; echo ----; rg -n \"ConfirmDialog\" $P/README.md | head",
+          "description": "Locate ConfirmDialog docs and type declarations"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:01.462Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_011oZ4NczmnGuZNk979odwzq",
+        "result": "LICENSE\nREADME.md\nbuild\npackage.json\nnode_modules/@gravity-ui/components/build/esm/components/index.d.ts\nnode_modules/@gravity-ui/components/build/cjs/components/index.d.ts\nnode_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/index.d.ts\nnode_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/ConfirmDialog.d.ts\nnode_modules/@gravity-ui/components/build/cjs/components/ConfirmDialog/index.d.ts\nnode_modules/@gravity-ui/components/build/cjs/components/ConfirmDialog/ConfirmDialog.d.ts\n----",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_011oZ4NczmnGuZNk979odwzq",
+        "type": "tool_result",
+        "content": "LICENSE\nREADME.md\nbuild\npackage.json\nnode_modules/@gravity-ui/components/build/esm/components/index.d.ts\nnode_modules/@gravity-ui/components/build/cjs/components/index.d.ts\nnode_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/index.d.ts\nnode_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/ConfirmDialog.d.ts\nnode_modules/@gravity-ui/components/build/cjs/components/ConfirmDialog/index.d.ts\nnode_modules/@gravity-ui/components/build/cjs/components/ConfirmDialog/ConfirmDialog.d.ts\n----",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:04.180Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "P=node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog; cat $P/ConfirmDialog.d.ts; echo ----; cat $P/index.d.ts; echo ----; grep -n \"ConfirmDialog\" node_modules/@gravity-ui/components/build/esm/components/index.d.ts; echo ----; rg -n \"ConfirmDialog\" node_modules/@gravity-ui/components/build/esm/index.d.ts 2>/dev/null; ls node_modules/@gravity-ui/components/build/esm | head -30",
+          "description": "Read ConfirmDialog type declarations and exports",
+          "_extractedCommand": "P=node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog; cat $P/ConfirmDialog.d.ts; echo ----; cat $P/index.d.ts; echo ----; grep -n \"ConfirmDialog\" node_modules/@gravity-ui/components/build/esm/components/index.d.ts; echo ----; rg -n \"ConfirmDialog\" node_modules/@gravity-ui/components/build/esm/index.d.ts 2>/dev/null; ls node_modules/@gravity-ui/components/build/esm | head -30"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "P=node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog; cat $P/ConfirmDialog.d.ts; echo ----; cat $P/index.d.ts; echo ----; grep -n \"ConfirmDialog\" node_modules/@gravity-ui/components/build/esm/components/index.d.ts; echo ----; rg -n \"ConfirmDialog\" node_modules/@gravity-ui/components/build/esm/index.d.ts 2>/dev/null; ls node_modules/@gravity-ui/components/build/esm | head -30",
+          "description": "Read ConfirmDialog type declarations and exports"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:04.213Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_0183h9LCiA3xg2wDp3tWREwU",
+        "result": "import * as React from 'react';\nimport type { DialogProps } from '@gravity-ui/uikit';\nimport { DialogFooterProps } from '@gravity-ui/uikit';\nimport \"./ConfirmDialog.css\";\nexport type ConfirmDialogProps = {\n    title?: string;\n    message?: React.ReactNode;\n} & Omit<DialogProps, 'children'> & Pick<DialogFooterProps, 'textButtonApply' | 'textButtonCancel' | 'onClickButtonCancel' | 'onClickButtonApply' | 'propsButtonCancel' | 'propsButtonApply'>;\nexport declare const ConfirmDialog: ({ title, message, textButtonApply, textButtonCancel, onClickButtonApply, onClickButtonCancel, propsButtonCancel, propsButtonApply, ...dialogProps }: ConfirmDialogProps) => import(\"react/jsx-runtime\").JSX.Element;\n----\nexport * from \"./ConfirmDialog.js\";\n----\n16:export * from \"./ConfirmDialog/index.js\";\n----\ncomponents\nhooks\nicons\nindex.d.ts\nindex.js\nindex.js.map\npackage.json",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_0183h9LCiA3xg2wDp3tWREwU",
+        "type": "tool_result",
+        "content": "import * as React from 'react';\nimport type { DialogProps } from '@gravity-ui/uikit';\nimport { DialogFooterProps } from '@gravity-ui/uikit';\nimport \"./ConfirmDialog.css\";\nexport type ConfirmDialogProps = {\n    title?: string;\n    message?: React.ReactNode;\n} & Omit<DialogProps, 'children'> & Pick<DialogFooterProps, 'textButtonApply' | 'textButtonCancel' | 'onClickButtonCancel' | 'onClickButtonApply' | 'propsButtonCancel' | 'propsButtonApply'>;\nexport declare const ConfirmDialog: ({ title, message, textButtonApply, textButtonCancel, onClickButtonApply, onClickButtonCancel, propsButtonCancel, propsButtonApply, ...dialogProps }: ConfirmDialogProps) => import(\"react/jsx-runtime\").JSX.Element;\n----\nexport * from \"./ConfirmDialog.js\";\n----\n16:export * from \"./ConfirmDialog/index.js\";\n----\ncomponents\nhooks\nicons\nindex.d.ts\nindex.js\nindex.js.map\npackage.json",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:06.643Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "cat node_modules/@gravity-ui/components/build/esm/index.d.ts; echo ----; cat node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/ConfirmDialog.js 2>/dev/null | head -60; ls node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/; echo ----; rg -n \"open|onClose|title\" node_modules/@gravity-ui/uikit/build/esm/components/Dialog/Dialog.d.ts | head -20",
+          "description": "Check root exports and uikit Dialog props",
+          "_extractedCommand": "cat node_modules/@gravity-ui/components/build/esm/index.d.ts; echo ----; cat node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/ConfirmDialog.js 2>/dev/null | head -60; ls node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/; echo ----; rg -n \"open|onClose|title\" node_modules/@gravity-ui/uikit/build/esm/components/Dialog/Dialog.d.ts | head -20"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "cat node_modules/@gravity-ui/components/build/esm/index.d.ts; echo ----; cat node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/ConfirmDialog.js 2>/dev/null | head -60; ls node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/; echo ----; rg -n \"open|onClose|title\" node_modules/@gravity-ui/uikit/build/esm/components/Dialog/Dialog.d.ts | head -20",
+          "description": "Check root exports and uikit Dialog props"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:06.668Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01QLKNpsiw9yoow6ZcR55Dwy",
+        "result": "export * from \"./components/index.js\";\nexport * from \"./hooks/index.js\";\n----\nimport { jsx as _jsx, jsxs as _jsxs } from \"react/jsx-runtime\";\nimport { Dialog } from '@gravity-ui/uikit';\nimport { block } from \"../utils/cn.js\";\nimport \"./ConfirmDialog.css\";\nconst b = block('confirm-dialog');\nexport const ConfirmDialog = ({ title, message, textButtonApply, textButtonCancel, onClickButtonApply, onClickButtonCancel, propsButtonCancel, propsButtonApply, ...dialogProps }) => {\n    return (_jsxs(Dialog, { initialFocus: \"apply\", ...dialogProps, children: [_jsx(Dialog.Header, { caption: title }), _jsx(Dialog.Body, { className: b('body'), children: message }), _jsx(Dialog.Footer, { preset: \"default\", showError: false, textButtonApply: textButtonApply, textButtonCancel: textButtonCancel, onClickButtonApply: onClickButtonApply, onClickButtonCancel: onClickButtonCancel, propsButtonCancel: propsButtonCancel, propsButtonApply: propsButtonApply })] }));\n};\n//# sourceMappingURL=ConfirmDialog.js.map\nConfirmDialog.css\nConfirmDialog.d.ts\nConfirmDialog.js\nConfirmDialog.js.map\nindex.d.ts\nindex.js\nindex.js.map\n----\n10:    open: boolean;\n16:    onClose: (event: MouseEvent | KeyboardEvent, reason: ModalCloseReason | 'closeButtonClick') => void;",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01QLKNpsiw9yoow6ZcR55Dwy",
+        "type": "tool_result",
+        "content": "export * from \"./components/index.js\";\nexport * from \"./hooks/index.js\";\n----\nimport { jsx as _jsx, jsxs as _jsxs } from \"react/jsx-runtime\";\nimport { Dialog } from '@gravity-ui/uikit';\nimport { block } from \"../utils/cn.js\";\nimport \"./ConfirmDialog.css\";\nconst b = block('confirm-dialog');\nexport const ConfirmDialog = ({ title, message, textButtonApply, textButtonCancel, onClickButtonApply, onClickButtonCancel, propsButtonCancel, propsButtonApply, ...dialogProps }) => {\n    return (_jsxs(Dialog, { initialFocus: \"apply\", ...dialogProps, children: [_jsx(Dialog.Header, { caption: title }), _jsx(Dialog.Body, { className: b('body'), children: message }), _jsx(Dialog.Footer, { preset: \"default\", showError: false, textButtonApply: textButtonApply, textButtonCancel: textButtonCancel, onClickButtonApply: onClickButtonApply, onClickButtonCancel: onClickButtonCancel, propsButtonCancel: propsButtonCancel, propsButtonApply: propsButtonApply })] }));\n};\n//# sourceMappingURL=ConfirmDialog.js.map\nConfirmDialog.css\nConfirmDialog.d.ts\nConfirmDialog.js\nConfirmDialog.js.map\nindex.d.ts\nindex.js\nindex.js.map\n----\n10:    open: boolean;\n16:    onClose: (event: MouseEvent | KeyboardEvent, reason: ModalCloseReason | 'closeButtonClick') => void;",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:08.864Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "The `ConfirmDialog` API is clear from the declarations. Per the skill, since this package has no local docs, I'll check the major-line llms.txt online for the 4.x line.",
+      "raw": {
+        "parentUuid": "a3441ef3-7e79-4f77-a25a-5cbaec7353bb",
+        "isSidechain": false,
+        "message": {
+          "id": "msg_011CgmccuDappJe9xfFKLzBd",
+          "type": "message",
+          "role": "assistant",
+          "container": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "The `ConfirmDialog` API is clear from the declarations. Per the skill, since this package has no local docs, I'll check the major-line llms.txt online for the 4.x line.",
+              "citations": []
+            }
+          ],
+          "model": "anthropic/claude-haiku-5.5",
+          "stop_reason": "tool_use",
+          "stop_details": null,
+          "stop_sequence": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 976,
+            "cache_read_input_tokens": 41185,
+            "output_tokens": 411,
+            "output_tokens_details": {
+              "thinking_tokens": 126
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 976
+            },
+            "inference_geo": "global",
+            "iterations": [],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "provider": "Claude Platform on AWS"
+        },
+        "apiBlockIndex": 1,
+        "requestRef": "04d4da5d-fd8f-4dc0-8794-f7adc3631e80",
+        "requestedModel": "anthropic/claude-haiku-5.5",
+        "promptCacheRequested": "5m",
+        "type": "assistant",
+        "uuid": "30620da2-a0f5-417f-8840-cbcaaba89c31",
+        "timestamp": "2026-11-06T11:43:08.864Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "ebb21a23-060c-4d38-a98f-325c6a4673d0",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:09.405Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "cd /tmp && curl -sS -m 20 https://gravity-ui.com/llms/components/4/llms.txt -o /tmp/gui-components-4.txt -w \"%{http_code}\\n\" 2>&1; wc -c /tmp/gui-components-4.txt 2>/dev/null; rg -n -i \"ConfirmDialog\" /tmp/gui-components-4.txt 2>/dev/null | head -20",
+          "description": "Fetch components 4.x llms.txt docs online",
+          "_extractedCommand": "cd /tmp && curl -sS -m 20 https://gravity-ui.com/llms/components/4/llms.txt -o /tmp/gui-components-4.txt -w \"%{http_code}\\n\" 2>&1; wc -c /tmp/gui-components-4.txt 2>/dev/null; rg -n -i \"ConfirmDialog\" /tmp/gui-components-4.txt 2>/dev/null | head -20"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "cd /tmp && curl -sS -m 20 https://gravity-ui.com/llms/components/4/llms.txt -o /tmp/gui-components-4.txt -w \"%{http_code}\\n\" 2>&1; wc -c /tmp/gui-components-4.txt 2>/dev/null; rg -n -i \"ConfirmDialog\" /tmp/gui-components-4.txt 2>/dev/null | head -20",
+          "description": "Fetch components 4.x llms.txt docs online"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:09.973Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01V2GDwmgKvX21L2F2rxHVQg",
+        "result": "404\n48508 /tmp/gui-components-4.txt\nShell cwd was reset to /home/sandbox/workspace",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01V2GDwmgKvX21L2F2rxHVQg",
+        "type": "tool_result",
+        "content": "404\n48508 /tmp/gui-components-4.txt\nShell cwd was reset to /home/sandbox/workspace",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:12.495Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "The major-line URL returns 404, so the skill's fallback is LOCAL. The installed `.d.ts` already answers the API question, but I'll check the README for required setup.",
+      "raw": {
+        "parentUuid": "1aa53fe8-9c67-46e7-a578-ae7ef673ac8b",
+        "isSidechain": false,
+        "message": {
+          "id": "msg_011Cgmcd8gTAGqLzrMWkPNkB",
+          "type": "message",
+          "role": "assistant",
+          "container": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "The major-line URL returns 404, so the skill's fallback is LOCAL. The installed `.d.ts` already answers the API question, but I'll check the README for required setup.",
+              "citations": []
+            }
+          ],
+          "model": "anthropic/claude-haiku-5.5",
+          "stop_reason": "tool_use",
+          "stop_details": null,
+          "stop_sequence": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 457,
+            "cache_read_input_tokens": 42161,
+            "output_tokens": 573,
+            "output_tokens_details": {
+              "thinking_tokens": 244
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 457
+            },
+            "inference_geo": "global",
+            "iterations": [],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "provider": "Claude Platform on AWS"
+        },
+        "apiBlockIndex": 1,
+        "requestRef": "b0c01964-a447-402b-9782-cef23e1da240",
+        "requestedModel": "anthropic/claude-haiku-5.5",
+        "promptCacheRequested": "5m",
+        "type": "assistant",
+        "uuid": "c8223e02-1670-41a2-a797-0d1f2c6fbd0c",
+        "timestamp": "2026-11-06T11:43:12.495Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "ebb21a23-060c-4d38-a98f-325c6a4673d0",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:13.399Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "wc -l node_modules/@gravity-ui/components/README.md && rg -n -i -A6 \"setup|install|style\" node_modules/@gravity-ui/components/README.md | head -60; echo ----; rg -n \"textButtonApply|textButtonCancel|onClickButtonApply|onClickButtonCancel|propsButtonApply|propsButtonCancel|preset\" node_modules/@gravity-ui/uikit/build/esm/components/Dialog/DialogFooter/DialogFooter.d.ts | head -20",
+          "description": "Check components README setup and DialogFooter props",
+          "_extractedCommand": "wc -l node_modules/@gravity-ui/components/README.md && rg -n -i -A6 \"setup|install|style\" node_modules/@gravity-ui/components/README.md | head -60; echo ----; rg -n \"textButtonApply|textButtonCancel|onClickButtonApply|onClickButtonCancel|propsButtonApply|propsButtonCancel|preset\" node_modules/@gravity-ui/uikit/build/esm/components/Dialog/DialogFooter/DialogFooter.d.ts | head -20"
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "wc -l node_modules/@gravity-ui/components/README.md && rg -n -i -A6 \"setup|install|style\" node_modules/@gravity-ui/components/README.md | head -60; echo ----; rg -n \"textButtonApply|textButtonCancel|onClickButtonApply|onClickButtonCancel|propsButtonApply|propsButtonCancel|preset\" node_modules/@gravity-ui/uikit/build/esm/components/Dialog/DialogFooter/DialogFooter.d.ts | head -20",
+          "description": "Check components README setup and DialogFooter props"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:13.416Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01AHFyM53m5XeWQpCwgY2xz3",
+        "result": "9 node_modules/@gravity-ui/components/README.md\n5:## Install\n6-\n7-```shell\n8:npm install --save-dev @gravity-ui/components\n9-```\n----\n6:    onClickButtonApply?: (event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent) => void;\n7:    onClickButtonCancel?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;\n8:    textButtonCancel?: string;\n9:    textButtonApply?: string;\n10:    propsButtonCancel?: ButtonButtonProps | ButtonLinkProps;\n11:    propsButtonApply?: ButtonButtonProps | ButtonLinkProps;\n19:    preset: ButtonPreset;",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01AHFyM53m5XeWQpCwgY2xz3",
+        "type": "tool_result",
+        "content": "9 node_modules/@gravity-ui/components/README.md\n5:## Install\n6-\n7-```shell\n8:npm install --save-dev @gravity-ui/components\n9-```\n----\n6:    onClickButtonApply?: (event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent) => void;\n7:    onClickButtonCancel?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;\n8:    textButtonCancel?: string;\n9:    textButtonApply?: string;\n10:    propsButtonCancel?: ButtonButtonProps | ButtonLinkProps;\n11:    propsButtonApply?: ButtonButtonProps | ButtonLinkProps;\n19:    preset: ButtonPreset;",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:18.137Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "I have what I need: `ConfirmDialog` (uikit `Dialog` + footer with apply/cancel), installed at 4.23.1 and compatible with uikit 7.43.0. Now I'll write the component.",
+      "raw": {
+        "parentUuid": "82423d02-87ab-4a7e-ad36-f0e2d8964a4b",
+        "isSidechain": false,
+        "message": {
+          "id": "msg_011CgmcdPBaeUtKUJkTSLTXQ",
+          "type": "message",
+          "role": "assistant",
+          "container": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "I have what I need: `ConfirmDialog` (uikit `Dialog` + footer with apply/cancel), installed at 4.23.1 and compatible with uikit 7.43.0. Now I'll write the component.",
+              "citations": []
+            }
+          ],
+          "model": "anthropic/claude-haiku-5.5",
+          "stop_reason": "tool_use",
+          "stop_details": null,
+          "stop_sequence": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 848,
+            "cache_read_input_tokens": 42618,
+            "output_tokens": 1182,
+            "output_tokens_details": {
+              "thinking_tokens": 721
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 848
+            },
+            "inference_geo": "global",
+            "iterations": [],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "provider": "Claude Platform on AWS"
+        },
+        "apiBlockIndex": 1,
+        "requestRef": "5a96e818-60cd-4820-a011-816b38632c64",
+        "requestedModel": "anthropic/claude-haiku-5.5",
+        "promptCacheRequested": "5m",
+        "type": "assistant",
+        "uuid": "8978dde4-dc26-48eb-bb8f-0cf6fc639aef",
+        "timestamp": "2026-11-06T11:43:18.137Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "ebb21a23-060c-4d38-a98f-325c6a4673d0",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:19.215Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "file_write",
+        "originalName": "Write",
+        "args": {
+          "file_path": "/home/sandbox/workspace/src/App.tsx",
+          "content": "import { useState } from 'react';\nimport { Button } from '@gravity-ui/uikit';\nimport { ConfirmDialog } from '@gravity-ui/components';\n\nexport function App() {\n  const [open, setOpen] = useState(false);\n\n  const close = () => setOpen(false);\n\n  return (\n    <div style={{ padding: 24 }}>\n      <Button view=\"action\" size=\"l\" onClick={() => setOpen(true)}>\n        Открыть окно подтверждения\n      </Button>\n\n      <ConfirmDialog\n        open={open}\n        onClose={close}\n        title=\"Подтверждение действия\"\n        message=\"Вы уверены, что хотите продолжить? Это действие нельзя будет отменить.\"\n        textButtonApply=\"Подтвердить\"\n        textButtonCancel=\"Отмена\"\n        onClickButtonApply={close}\n        onClickButtonCancel={close}\n      />\n    </div>\n  );\n}\n",
+          "_extractedPath": "/home/sandbox/workspace/src/App.tsx"
+        }
+      },
+      "raw": {
+        "name": "Write",
+        "input": {
+          "file_path": "/home/sandbox/workspace/src/App.tsx",
+          "content": "import { useState } from 'react';\nimport { Button } from '@gravity-ui/uikit';\nimport { ConfirmDialog } from '@gravity-ui/components';\n\nexport function App() {\n  const [open, setOpen] = useState(false);\n\n  const close = () => setOpen(false);\n\n  return (\n    <div style={{ padding: 24 }}>\n      <Button view=\"action\" size=\"l\" onClick={() => setOpen(true)}>\n        Открыть окно подтверждения\n      </Button>\n\n      <ConfirmDialog\n        open={open}\n        onClose={close}\n        title=\"Подтверждение действия\"\n        message=\"Вы уверены, что хотите продолжить? Это действие нельзя будет отменить.\"\n        textButtonApply=\"Подтвердить\"\n        textButtonCancel=\"Отмена\"\n        onClickButtonApply={close}\n        onClickButtonCancel={close}\n      />\n    </div>\n  );\n}\n"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:19.395Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01B2JEMaiU7A33TXZvHFUjDS",
+        "result": "The file /home/sandbox/workspace/src/App.tsx has been updated successfully. (file state is current in your context — no need to Read it back)",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01B2JEMaiU7A33TXZvHFUjDS",
+        "type": "tool_result",
+        "content": "The file /home/sandbox/workspace/src/App.tsx has been updated successfully. (file state is current in your context — no need to Read it back)"
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:21.449Z",
+      "type": "tool_call",
+      "tool": {
+        "name": "shell",
+        "originalName": "Bash",
+        "args": {
+          "command": "npx tsc --noEmit; echo \"tsc exit=$?\"; npx vite build --outDir /tmp/gui-build-check --emptyOutDir 2>&1 | tail -8; echo \"vite exit=${PIPESTATUS[0]}\"",
+          "description": "Typecheck and build the project without writing dist",
+          "_extractedCommand": "npx tsc --noEmit; echo \"tsc exit=$?\"; npx vite build --outDir /tmp/gui-build-check --emptyOutDir 2>&1 | tail -8; echo \"vite exit=${PIPESTATUS[0]}\""
+        }
+      },
+      "raw": {
+        "name": "Bash",
+        "input": {
+          "command": "npx tsc --noEmit; echo \"tsc exit=$?\"; npx vite build --outDir /tmp/gui-build-check --emptyOutDir 2>&1 | tail -8; echo \"vite exit=${PIPESTATUS[0]}\"",
+          "description": "Typecheck and build the project without writing dist"
+        }
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:23.809Z",
+      "type": "tool_result",
+      "tool": {
+        "name": "unknown",
+        "originalName": "toolu_01Gq7egwC4fNuyfqE7veUV4h",
+        "result": "npm warn Unknown env config \"store-dir\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\nnpm warn Unknown env config \"dangerously-allow-all-builds\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\ntsc exit=0\ntransforming...\n✓ 2770 modules transformed.\nrendering chunks...\ncomputing gzip size...\n../../../tmp/gui-build-check/index.html                   0.40 kB │ gzip:  0.26 kB\n../../../tmp/gui-build-check/assets/index-CBp_zeFr.css  126.91 kB │ gzip: 15.06 kB\n../../../tmp/gui-build-check/assets/index-C-8Dseta.js   248.45 kB │ gzip: 83.74 kB\n✓ built in 1.66s\nvite exit=0",
+        "success": true
+      },
+      "raw": {
+        "tool_use_id": "toolu_01Gq7egwC4fNuyfqE7veUV4h",
+        "type": "tool_result",
+        "content": "npm warn Unknown env config \"store-dir\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\nnpm warn Unknown env config \"dangerously-allow-all-builds\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.\ntsc exit=0\ntransforming...\n✓ 2770 modules transformed.\nrendering chunks...\ncomputing gzip size...\n../../../tmp/gui-build-check/index.html                   0.40 kB │ gzip:  0.26 kB\n../../../tmp/gui-build-check/assets/index-CBp_zeFr.css  126.91 kB │ gzip: 15.06 kB\n../../../tmp/gui-build-check/assets/index-C-8Dseta.js   248.45 kB │ gzip: 83.74 kB\n✓ built in 1.66s\nvite exit=0",
+        "is_error": false
+      }
+    },
+    {
+      "timestamp": "2026-11-06T11:43:29.978Z",
+      "type": "message",
+      "role": "assistant",
+      "content": "Кнопка и модальное окно с текстом и двумя действиями готовы в `src/App.tsx`. Typecheck (`tsc --noEmit`) и сборка (`vite build`) проходят без ошибок.\n\n**Что сделано**\n\n- Кнопка `Button` из uikit открывает окно. Окно — `ConfirmDialog` из `@gravity-ui/components`: skill относит подтверждающие диалоги к этому пакету, а не к сборке `Dialog` с двумя кнопками вручную.\n- В окне заголовок, текст и кнопки «Подтвердить» и «Отмена». Обе кнопки просто закрывают окно. Escape и клик по фону тоже закрывают его.\n- Тексты на русском, как в вашей просьбе. Если нужны другие тексты или действие по «Подтвердить», скажите.\n\n**Решения, которые вы можете пересмотреть**\n\n- Установлен `@gravity-ui/components@4.23.1`, зафиксирован точной версией (`package.json`). Последняя версия `5.0.0` требует `@gravity-ui/uikit ^8`, а `4.24.x` требует uikit `^7.44`. Проект закреплён на `7.43.0`, поэтому я не стал обновлять uikit и взял самую новую версию, совместимую с ним.\n- Онлайн-документация для 4.x (`gravity-ui.com/llms/components/4/llms.txt`) вернула 404, а локальных docs у пакета нет. Поэтому API `ConfirmDialog` взят из установленных `.d.ts`.\n\n**Не проверено**\n\n- Визуально в браузере не проверял: по skill запуск dev-сервера нужен только по явной просьбе. Остаются проверки в светлой и тёмной темах и на узком экране.\n- `npm install` сообщил о 5 уязвимостях в дереве зависимостей. Я их не разбирал и не исправлял.",
+      "raw": {
+        "parentUuid": "a0e89c44-b78a-431a-b6f5-0156f3df5593",
+        "isSidechain": false,
+        "message": {
+          "id": "msg_011CgmceAze8ZjcV7kczEec9",
+          "type": "message",
+          "role": "assistant",
+          "container": null,
+          "content": [
+            {
+              "type": "text",
+              "text": "Кнопка и модальное окно с текстом и двумя действиями готовы в `src/App.tsx`. Typecheck (`tsc --noEmit`) и сборка (`vite build`) проходят без ошибок.\n\n**Что сделано**\n\n- Кнопка `Button` из uikit открывает окно. Окно — `ConfirmDialog` из `@gravity-ui/components`: skill относит подтверждающие диалоги к этому пакету, а не к сборке `Dialog` с двумя кнопками вручную.\n- В окне заголовок, текст и кнопки «Подтвердить» и «Отмена». Обе кнопки просто закрывают окно. Escape и клик по фону тоже закрывают его.\n- Тексты на русском, как в вашей просьбе. Если нужны другие тексты или действие по «Подтвердить», скажите.\n\n**Решения, которые вы можете пересмотреть**\n\n- Установлен `@gravity-ui/components@4.23.1`, зафиксирован точной версией (`package.json`). Последняя версия `5.0.0` требует `@gravity-ui/uikit ^8`, а `4.24.x` требует uikit `^7.44`. Проект закреплён на `7.43.0`, поэтому я не стал обновлять uikit и взял самую новую версию, совместимую с ним.\n- Онлайн-документация для 4.x (`gravity-ui.com/llms/components/4/llms.txt`) вернула 404, а локальных docs у пакета нет. Поэтому API `ConfirmDialog` взят из установленных `.d.ts`.\n\n**Не проверено**\n\n- Визуально в браузере не проверял: по skill запуск dev-сервера нужен только по явной просьбе. Остаются проверки в светлой и тёмной темах и на узком экране.\n- `npm install` сообщил о 5 уязвимостях в дереве зависимостей. Я их не разбирал и не исправлял.",
+              "citations": []
+            }
+          ],
+          "model": "anthropic/claude-haiku-5.5",
+          "stop_reason": "end_turn",
+          "stop_details": null,
+          "stop_sequence": null,
+          "usage": {
+            "input_tokens": 2,
+            "cache_creation_input_tokens": 485,
+            "cache_read_input_tokens": 44699,
+            "output_tokens": 1120,
+            "output_tokens_details": {
+              "thinking_tokens": 464
+            },
+            "server_tool_use": {
+              "web_search_requests": 0,
+              "web_fetch_requests": 0
+            },
+            "service_tier": "standard",
+            "cache_creation": {
+              "ephemeral_1h_input_tokens": 0,
+              "ephemeral_5m_input_tokens": 485
+            },
+            "inference_geo": "global",
+            "iterations": [],
+            "speed": "standard",
+            "fallback_credit": null
+          },
+          "provider": "Claude Platform on AWS"
+        },
+        "apiBlockIndex": 1,
+        "requestRef": "d20e765b-2058-45f6-be09-8881c6152379",
+        "requestedModel": "anthropic/claude-haiku-5.5",
+        "promptCacheRequested": "5m",
+        "type": "assistant",
+        "uuid": "840fd262-3bb1-4181-bff1-10eb58897eaf",
+        "timestamp": "2026-11-06T11:43:29.978Z",
+        "effort": "high",
+        "perTurnEffort": "high",
+        "userType": "external",
+        "entrypoint": "sdk-cli",
+        "cwd": "/home/sandbox/workspace",
+        "sessionId": "ebb21a23-060c-4d38-a98f-325c6a4673d0",
+        "version": "2.1.318",
+        "gitBranch": "master"
+      }
+    }
+  ],
+  "summary": {
+    "totalTurns": 8,
+    "toolCalls": {
+      "file_read": 1,
+      "file_write": 1,
+      "file_edit": 0,
+      "shell": 14,
+      "web_fetch": 0,
+      "web_search": 0,
+      "glob": 0,
+      "grep": 0,
+      "list_dir": 0,
+      "agent_task": 0,
+      "unknown": 0
+    },
+    "totalToolCalls": 16,
+    "webFetches": [],
+    "filesRead": [
+      "/home/sandbox/workspace/.agents/skills/gravity-ui/SKILL.md"
+    ],
+    "filesModified": [
+      "/home/sandbox/workspace/src/App.tsx"
+    ],
+    "shellCommands": [
+      {
+        "command": "git status --short && ls -la && cat package.json 2>/dev/null; find . -path ./node_modules -prune -o -type f -print | grep -v \"^./.git/\" | head -100",
+        "success": true
+      },
+      {
+        "command": "cat src/App.tsx; echo ----; cat src/main.tsx; echo ----; cat src/vite-env.d.ts; echo ----; cat tsconfig.json; echo ----; cat AGENTS.md; echo ----; cat .gitignore; echo ----; cat node_modules/@gravity-ui/uikit/package.json | grep '\"version\"'; ls node_modules/@gravity-ui/uikit/build/docs 2>/dev/null | head; echo ----; cat .agents/skills/gravity-ui/rules/hallucination-traps.md | head -150",
+        "success": true
+      },
+      {
+        "command": "sed -n 150,400p .agents/skills/gravity-ui/rules/hallucination-traps.md; echo ----; cat .agents/skills/gravity-ui/scripts/inspect-package.sh | head -60; echo ----; ls node_modules/@gravity-ui/uikit/; ls node_modules/@gravity-ui/uikit/dist 2>/dev/null | head -30",
+        "success": true
+      },
+      {
+        "command": "rg -n -i \"modal|dialog|confirm\" .agents/skills/gravity-ui/references/package-routing.md | head -30; echo ----; ls node_modules/@gravity-ui/uikit/build | head -50; echo ----; rg -n -i \"dialog|modal\" node_modules/@gravity-ui/uikit/README.md | head; echo ----; ls node_modules/@gravity-ui/uikit/build/esm/components/Dialog 2>/dev/null; ls node_modules/@gravity-ui/uikit/build/esm/components/Modal 2>/dev/null",
+        "success": true
+      },
+      {
+        "command": "sed -n 25,40p .agents/skills/gravity-ui/references/package-routing.md; echo ....; sed -n 165,185p .agents/skills/gravity-ui/references/package-routing.md; echo ....; rg -n -B2 -A8 \"ConfirmDialog|components\\`|@gravity-ui/components\" .agents/skills/gravity-ui/references/package-routing.md | head -80",
+        "success": true
+      },
+      {
+        "command": "npm view @gravity-ui/components version peerDependencies dependencies 2>&1 | head -60",
+        "success": true
+      },
+      {
+        "command": "for v in $(npm view @gravity-ui/components versions --json 2>/dev/null | tr -d '[],\" ' | grep -E '^[0-9]' | sort -V | tail -40); do echo \"$v $(npm view @gravity-ui/components@$v peerDependencies.@gravity-ui/uikit 2>/dev/null)\"; done",
+        "success": true
+      },
+      {
+        "command": "npm install --save-exact @gravity-ui/components@4.23.1 2>&1 | tail -15 && node -e 'console.log(require(\"./node_modules/@gravity-ui/components/package.json\").version)' && git diff --stat",
+        "success": true
+      },
+      {
+        "command": "P=node_modules/@gravity-ui/components; ls $P; ls $P/dist/docs 2>/dev/null || ls $P/build/docs 2>/dev/null; rg -l \"ConfirmDialog\" $P --glob '*.d.ts' | head; echo ----; rg -n \"ConfirmDialog\" $P/README.md | head",
+        "success": true
+      },
+      {
+        "command": "P=node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog; cat $P/ConfirmDialog.d.ts; echo ----; cat $P/index.d.ts; echo ----; grep -n \"ConfirmDialog\" node_modules/@gravity-ui/components/build/esm/components/index.d.ts; echo ----; rg -n \"ConfirmDialog\" node_modules/@gravity-ui/components/build/esm/index.d.ts 2>/dev/null; ls node_modules/@gravity-ui/components/build/esm | head -30",
+        "success": true
+      },
+      {
+        "command": "cat node_modules/@gravity-ui/components/build/esm/index.d.ts; echo ----; cat node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/ConfirmDialog.js 2>/dev/null | head -60; ls node_modules/@gravity-ui/components/build/esm/components/ConfirmDialog/; echo ----; rg -n \"open|onClose|title\" node_modules/@gravity-ui/uikit/build/esm/components/Dialog/Dialog.d.ts | head -20",
+        "success": true
+      },
+      {
+        "command": "cd /tmp && curl -sS -m 20 https://gravity-ui.com/llms/components/4/llms.txt -o /tmp/gui-components-4.txt -w \"%{http_code}\\n\" 2>&1; wc -c /tmp/gui-components-4.txt 2>/dev/null; rg -n -i \"ConfirmDialog\" /tmp/gui-components-4.txt 2>/dev/null | head -20",
+        "success": true
+      },
+      {
+        "command": "wc -l node_modules/@gravity-ui/components/README.md && rg -n -i -A6 \"setup|install|style\" node_modules/@gravity-ui/components/README.md | head -60; echo ----; rg -n \"textButtonApply|textButtonCancel|onClickButtonApply|onClickButtonCancel|propsButtonApply|propsButtonCancel|preset\" node_modules/@gravity-ui/uikit/build/esm/components/Dialog/DialogFooter/DialogFooter.d.ts | head -20",
+        "success": true
+      },
+      {
+        "command": "npx tsc --noEmit; echo \"tsc exit=$?\"; npx vite build --outDir /tmp/gui-build-check --emptyOutDir 2>&1 | tail -8; echo \"vite exit=${PIPESTATUS[0]}\"",
+        "success": true
+      }
+    ],
+    "errors": [],
+    "thinkingBlocks": 0,
+    "usage": {
+      "inputTokens": 32,
+      "outputTokens": 7604,
+      "cacheReadTokens": 554850,
+      "cacheWriteTokens": 34296,
+      "totalTokens": 596782
+    }
+  },
+  "parseSuccess": true
+}
